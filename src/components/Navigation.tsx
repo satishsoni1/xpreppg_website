@@ -45,9 +45,11 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
                 {item.label}
               </a>
             ))}
-            <button className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+            {/* <button 
+             onClick={() => setShowForm(true)}
+             className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
               Register Now
-            </button>
+            </button> */}
           </div>
 
           <button
