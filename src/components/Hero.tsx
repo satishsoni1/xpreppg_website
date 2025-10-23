@@ -140,7 +140,7 @@ export default function Hero() {
                   <img src={photoPreview} alt="Preview" className="mt-3 w-24 h-24 rounded-lg object-cover border" />
                 )}
               </div>
-
+ 
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
