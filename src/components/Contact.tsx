@@ -14,7 +14,7 @@ export default function Contact() {
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-bold text-white mb-4">SmartPrep CBT</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">SmartPrep PG CBT</h3>
               <p className="text-gray-300 text-lg mb-8">
                 India's 1st NEET PG CBT Simulation Platform
               </p>
@@ -37,7 +37,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Email</p>
-                  <p className="text-white font-medium">contact@smartprep.in</p>
+                  <p className="text-white font-medium">contact@smartpreppg.com</p>
                 </div>
               </div>
 
@@ -47,7 +47,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Website</p>
-                  <p className="text-white font-medium">www.smartprep.in</p>
+                  <p className="text-white font-medium">www.smartpreppg.com</p>
                 </div>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function Contact() {
 
         <div className="mt-16 pt-8 border-t border-gray-700 text-center">
           <p className="text-gray-400">
-            © 2025 SmartPrep CBT. All rights reserved.
+            © 2025 SmartPrep PG CBT. All rights reserved.
           </p>
         </div>
       </div>

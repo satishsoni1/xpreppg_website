@@ -13,7 +13,7 @@ export default function About() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            About SmartPrep CBT
+            About SmartPrep PG CBT
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto rounded-full"></div>
         </div>
@@ -21,7 +21,7 @@ export default function About() {
         <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
           <div className="space-y-6">
             <p className="text-lg text-gray-700 leading-relaxed">
-              SmartPrep CBT is India's first platform designed exclusively to conduct NEET PG-style Computer-Based Tests (CBTs).
+              SmartPrep PG CBT is India's first platform designed exclusively to conduct NEET PG-style Computer-Based Tests (CBTs).
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
               Our mission is to provide medical aspirants with a true-to-exam experience, enabling them to perform confidently in the actual NEET PG and NExT examinations.
@@ -37,7 +37,7 @@ export default function About() {
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 shadow-xl">
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Our Vision</h3>
             <p className="text-lg text-gray-700 leading-relaxed text-center">
-              At SmartPrep CBT, our vision is to empower NEET PG aspirants with the tools, experience, and confidence to excel in one of India's toughest medical exams.
+              At SmartPrep PG CBT, our vision is to empower NEET PG aspirants with the tools, experience, and confidence to excel in one of India's toughest medical exams.
             </p>
             <div className="mt-8 text-center">
               <p className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
