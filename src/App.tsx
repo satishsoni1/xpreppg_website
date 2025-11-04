@@ -17,8 +17,9 @@ function App() {
       <Navigation mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
       <Hero />
       <About />
-      <Features />
       <Pricing />
+      <Features />
+      
       <Schedule />
       <PostExam />
       <Contact />
