@@ -38,6 +38,7 @@ export default function Enroll() {
     const invoiceId = `${Date.now()}`;
 
     try {
+     
       await openRazorpay({
         key,
         amount: Math.round(form.amount * 100), // paise
@@ -67,6 +68,15 @@ export default function Enroll() {
       alert("Payment failed to initialize. Try again.");
     } finally {
       setLoading(false);
+      const params = new URLSearchParams({
+        ...form,
+        amount: String(form.amount),
+        exams: String(form.exams),
+        invoiceId,
+        paymentId: resp.razorpay_payment_id || "",
+        status: "paid",
+      });
+      navigate(`/invoice/${invoiceId}?${params.toString()}`);
     }
   };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
