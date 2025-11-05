@@ -73,7 +73,7 @@ export default function Enroll() {
         amount: String(form.amount),
         exams: String(form.exams),
         invoiceId,
-        paymentId: resp.razorpay_payment_id || "",
+        paymentId: "",
         status: "paid",
       });
       navigate(`/invoice/${invoiceId}?${params.toString()}`);
