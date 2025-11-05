@@ -1,6 +1,9 @@
 import { Check, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Pricing() {
+  const navigate = useNavigate();
+
   const plans = [
     {
       name: "Individual",
@@ -39,6 +42,16 @@ export default function Pricing() {
     "Downloadable reports",
   ];
 
+  const goToEnroll = (planName: string, tier: { exams: number; original: number; discount: number }) => {
+    const params = new URLSearchParams({
+      plan: planName,
+      exams: String(tier.exams),
+      amount: String(tier.discount),
+      original: String(tier.original),
+    });
+    navigate(`/enroll?${params.toString()}`);
+  };
+ 
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto text-center">
@@ -50,9 +63,8 @@ export default function Pricing() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                plan.popular ? "border-emerald-500 shadow-xl scale-[1.03]" : "border-gray-200 hover:border-emerald-300"
-              }`}
+              className={`relative rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.popular ? "border-emerald-500 shadow-xl scale-[1.03]" : "border-gray-200 hover:border-emerald-300"
+                }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
@@ -68,20 +80,22 @@ export default function Pricing() {
                   <div key={tier.exams} className="text-left border rounded-xl p-4 bg-gray-50">
                     <p className="text-gray-700 font-medium">{tier.exams} Exam{tier.exams > 1 && "s"}</p>
                     <p className="text-sm line-through text-gray-500">₹{tier.original}</p>
-                    <p className="text-3xl font-extrabold text-emerald-600">₹{tier.discount}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-3xl font-extrabold text-emerald-600">₹{tier.discount}</p>
+                      <button
+                        onClick={() => goToEnroll(plan.name, tier)}
+                        className={`px-4 py-2 rounded-xl font-semibold transition-all ${plan.popular
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        aria-label={`Enroll now for ${plan.name} - ${tier.exams} exam(s)`}
+                      >
+                        Enroll Now
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-
-              <button
-                className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                  plan.popular
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Enroll Now
-              </button>
             </div>
           ))}
         </div>
