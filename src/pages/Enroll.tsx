@@ -15,10 +15,19 @@ export default function Enroll() {
     original: Number(sp.get("original") || 0),
   }), [sp]);
 
+  // const [form, setForm] = useState({
+  //   fullName: "satish soni",
+  //   email: "sonisatish119@gmail.com",
+  //   phone: "7208613316",
+  //   studentCount: prefill.plan.toLowerCase().includes("group of 5") ? 5 : prefill.plan.toLowerCase().includes("group of 3") ? 3 : 1,
+  //   plan: prefill.plan,
+  //   exams: prefill.exams,
+  //   amount: prefill.amount,
+  // });
   const [form, setForm] = useState({
-    fullName: "satish soni",
-    email: "sonisatish119@gmail.com",
-    phone: "7208613316",
+    fullName: "",
+    email: "",
+    phone: "",
     studentCount: prefill.plan.toLowerCase().includes("group of 5") ? 5 : prefill.plan.toLowerCase().includes("group of 3") ? 3 : 1,
     plan: prefill.plan,
     exams: prefill.exams,
