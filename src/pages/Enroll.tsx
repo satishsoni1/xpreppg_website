@@ -16,9 +16,9 @@ export default function Enroll() {
   }), [sp]);
 
   const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
+    fullName: "satish soni",
+    email: "sonisatish119@gmail.com",
+    phone: "7208613316",
     studentCount: prefill.plan.toLowerCase().includes("group of 5") ? 5 : prefill.plan.toLowerCase().includes("group of 3") ? 3 : 1,
     plan: prefill.plan,
     exams: prefill.exams,
@@ -68,15 +68,15 @@ export default function Enroll() {
       alert("Payment failed to initialize. Try again.");
     } finally {
       setLoading(false);
-      const params = new URLSearchParams({
-        ...form,
-        amount: String(form.amount),
-        exams: String(form.exams),
-        invoiceId,
-        paymentId: "",
-        status: "paid",
-      });
-      navigate(`/invoice/${invoiceId}?${params.toString()}`);
+      // const params = new URLSearchParams({
+      //   ...form,
+      //   amount: String(form.amount),
+      //   exams: String(form.exams),
+      //   invoiceId,
+      //   paymentId: "",
+      //   status: "paid",
+      // });
+      // navigate(`/invoice/${invoiceId}?${params.toString()}`);
     }
   };
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
