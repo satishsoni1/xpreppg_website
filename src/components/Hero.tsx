@@ -85,12 +85,12 @@ export default function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border-2 border-emerald-500 transform hover:scale-105 transition-transform duration-200">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border-2 border-primary transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center space-x-4">
                 <Calendar className="w-8 h-8 text-primary" />
                 <div className="text-left">
                   <p className="text-sm text-gray-500 font-medium">Upcoming Exam</p>
-                  <p className="text-2xl font-bold text-gray-900">27th December 2025</p>
+                  <p className="text-2xl font-bold text-gray-900">15th January 2026</p>
                 </div>
               </div>
             </div>

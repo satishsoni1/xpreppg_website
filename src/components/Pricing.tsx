@@ -63,7 +63,7 @@ export default function Pricing() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.popular ? "border-emerald-500 shadow-xl scale-[1.03]" : "border-gray-200 hover:border-emerald-300"
+              className={`relative rounded-2xl border bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${plan.popular ? "border-primary shadow-xl scale-[1.03]" : "border-gray-200 hover:border-emerald-300"
                 }`}
             >
               {plan.popular && (
