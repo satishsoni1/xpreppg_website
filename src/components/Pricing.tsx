@@ -56,7 +56,7 @@ export default function Pricing() {
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">Pricing Plans</h2>
-        <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto my-4 rounded-full" />
+        <div className="w-24 h-1 bg-gradient-to-r from-primary to-primaryDark mx-auto my-4 rounded-full" />
         <p className="text-lg text-gray-600 mb-16">Choose according to number of students</p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
@@ -67,7 +67,7 @@ export default function Pricing() {
                 }`}
             >
               {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primaryDark text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
                   <Star className="w-4 h-4" />
                   Most Selected
                 </div>
@@ -81,11 +81,11 @@ export default function Pricing() {
                     <p className="text-gray-700 font-medium">{tier.exams} Exam{tier.exams > 1 && "s"}</p>
                     <p className="text-sm line-through text-gray-500">₹{tier.original}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-3xl font-extrabold text-emerald-600">₹{tier.discount}</p>
+                      <p className="text-3xl font-extrabold text-primary">₹{tier.discount}</p>
                       <button
                         onClick={() => goToEnroll(plan.name, tier)}
                         className={`px-4 py-2 rounded-xl font-semibold transition-all ${plan.popular
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:opacity-90"
+                            ? "bg-gradient-to-r from-primary to-primaryDark text-white hover:opacity-90"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                         aria-label={`Enroll now for ${plan.name} - ${tier.exams} exam(s)`}
@@ -100,12 +100,12 @@ export default function Pricing() {
           ))}
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-10 shadow-md">
+        <div className="bg-gradient-to-br from-secondary to-secondaryMiddle rounded-2xl p-10 shadow-md">
           <h3 className="text-2xl font-bold text-gray-900 mb-8">All Plans Include</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
             {features.map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-emerald-600" />
+                <Check className="w-5 h-5 text-primary" />
                 <span className="text-gray-700">{f}</span>
               </div>
             ))}

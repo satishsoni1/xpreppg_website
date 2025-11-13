@@ -8,13 +8,13 @@ export default function Contact() {
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
             Contact Us
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-primaryDark mx-auto rounded-full"></div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-8">
             <div>
-              <h3 className="text-2xl font-bold text-white mb-4">SmartPrep PG CBT</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">XprepPG CBT</h3>
               <p className="text-gray-300 text-lg mb-8">
                 India's 1st NEET PG CBT Simulation Platform
               </p>
@@ -22,7 +22,7 @@ export default function Contact() {
 
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                <div className="bg-primary/10 p-3 rounded-lg">
                   <MapPin className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
@@ -32,7 +32,7 @@ export default function Contact() {
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                <div className="bg-primary/10 p-3 rounded-lg">
                   <Mail className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
@@ -42,7 +42,7 @@ export default function Contact() {
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-emerald-500/10 p-3 rounded-lg">
+                <div className="bg-primary/10 p-3 rounded-lg">
                   <Globe className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
@@ -55,13 +55,13 @@ export default function Contact() {
             <div className="pt-8">
               <p className="text-gray-400 mb-4">Follow us on</p>
               <div className="flex space-x-4">
-                <a href="#" className="bg-emerald-500/10 hover:bg-emerald-500/20 p-3 rounded-lg transition-colors duration-200">
+                <a href="#" className="bg-primary/10 hover:bg-primary/20 p-3 rounded-lg transition-colors duration-200">
                   <Youtube className="w-6 h-6 text-emerald-400" />
                 </a>
-                <a href="#" className="bg-emerald-500/10 hover:bg-emerald-500/20 p-3 rounded-lg transition-colors duration-200">
+                <a href="#" className="bg-primary/10 hover:bg-primary/20 p-3 rounded-lg transition-colors duration-200">
                   <Instagram className="w-6 h-6 text-emerald-400" />
                 </a>
-                <a href="#" className="bg-emerald-500/10 hover:bg-emerald-500/20 p-3 rounded-lg transition-colors duration-200">
+                <a href="#" className="bg-primary/10 hover:bg-primary/20 p-3 rounded-lg transition-colors duration-200">
                   <Send className="w-6 h-6 text-emerald-400" />
                 </a>
               </div>
@@ -97,7 +97,7 @@ export default function Contact() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-lg font-bold hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+                className="w-full bg-gradient-to-r from-primary to-primaryDark text-white py-3 rounded-lg font-bold hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
               >
                 Send Message
               </button>
@@ -107,7 +107,7 @@ export default function Contact() {
 
         <div className="mt-16 pt-8 border-t border-gray-700 text-center">
           <p className="text-gray-400">
-            © 2025 SmartPrep PG CBT. All rights reserved.
+            © 2025 XprepPG CBT. All rights reserved.
           </p>
         </div>
       </div>

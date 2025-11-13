@@ -6,19 +6,19 @@ export default function Features() {
       icon: Monitor,
       title: 'Authentic CBT Interface',
       description: 'Real exam-like platform to build familiarity and reduce anxiety.',
-      gradient: 'from-emerald-500 to-teal-500',
+      gradient: 'from-primary to-secondaryDark0',
     },
     {
       icon: BookOpen,
       title: 'Comprehensive Coverage',
       description: 'All 19 NEET PG subjects covered systematically.',
-      gradient: 'from-teal-500 to-cyan-500',
+      gradient: 'from-secondary to-secondaryMiddle',
     },
     {
       icon: TrendingUp,
       title: 'Performance Analytics',
       description: 'Instant results with percentile, rank, and subject-wise breakdown.',
-      gradient: 'from-emerald-500 to-green-500',
+      gradient: 'from-primary to-primaryDark',
     },
     {
       icon: Video,
@@ -30,24 +30,24 @@ export default function Features() {
       icon: Clock,
       title: 'Strategic Scheduling',
       description: 'Four national-level CBTs to match your revision timeline.',
-      gradient: 'from-teal-500 to-emerald-500',
+      gradient: 'from-teal-500 to-secondary0',
     },
     {
       icon: DollarSign,
       title: 'Affordable Access',
       description: 'Transparent, inclusive pricing with GST.',
-      gradient: 'from-green-500 to-emerald-500',
+      gradient: 'from-green-500 to-secondary0',
     },
   ];
 
   return (
-    <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-emerald-50">
+    <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-secondary">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Why Choose SmartPrep PG CBT
+            Why Choose XprepPG CBT
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-primaryDark mx-auto rounded-full"></div>
           <p className="mt-6 text-xl text-gray-600 max-w-2xl mx-auto">
             Get ahead of thousands of aspirants with real-time exam simulation and personalized feedback.
           </p>
