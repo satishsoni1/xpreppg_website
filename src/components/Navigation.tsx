@@ -35,7 +35,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-28">
           <div className="flex items-center space-x-3">
-            {/* <img src="https://portal.smartpreppg.com/storage/site/logo.jpg" width="23%"/> */}
+            {/* <img src="https://portal.xpreppg.com/storage/site/logo.jpg" width="23%"/> */}
             <img 
               src={logo} 
               alt="Logo"

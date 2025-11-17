@@ -64,7 +64,7 @@ export default function PostExam() {
 
         <div className="mt-16 bg-gradient-to-r from-primary to-primaryDark rounded-2xl p-12 text-center shadow-2xl">
           <h3 className="text-3xl font-bold text-white mb-4">
-            Join the SmartPrep Movement
+            Join the XPrepPG Movement
           </h3>
           <p className="text-xl text-emerald-50 mb-8 max-w-2xl mx-auto">
             Get ahead of thousands of aspirants with real-time exam simulation and personalized feedback

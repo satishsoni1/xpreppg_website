@@ -21,7 +21,7 @@ export default function Contact() {
             </div>
 
             <div className="space-y-6">
-              <div className="flex items-start space-x-4">
+              {/* <div className="flex items-start space-x-4">
                 <div className="bg-primary/10 p-3 rounded-lg">
                   <MapPin className="w-6 h-6 text-emerald-400" />
                 </div>
@@ -29,7 +29,7 @@ export default function Contact() {
                   <p className="text-gray-400 text-sm mb-1">Location</p>
                   <p className="text-white font-medium">Mumbai, India</p>
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex items-start space-x-4">
                 <div className="bg-primary/10 p-3 rounded-lg">
@@ -37,19 +37,19 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Email</p>
-                  <p className="text-white font-medium">contact@smartpreppg.com</p>
+                  <p className="text-white font-medium">contact@xpreppg.com</p>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-4">
+              {/* <div className="flex items-start space-x-4">
                 <div className="bg-primary/10 p-3 rounded-lg">
                   <Globe className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Website</p>
-                  <p className="text-white font-medium">www.smartpreppg.com</p>
+                  <p className="text-white font-medium">www.xpreppg.com</p>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="pt-8">

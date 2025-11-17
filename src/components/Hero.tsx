@@ -16,11 +16,11 @@ export default function Hero() {
     photo: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e:any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = (e:any) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -38,7 +38,7 @@ export default function Hero() {
     setStatus("");
 
     try {
-      const res = await axios.post("https://portal.smartpreppg.com/api/submit", formData);
+      const res = await axios.post("https://portal.xpreppg.com/api/submit", formData);
       if (res.data.status) {
         setStatus("Registration successful! Team will connect you shortly.");
         setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });
@@ -106,7 +106,7 @@ export default function Hero() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <a
-  href="https://portal.smartpreppg.com/login"
+  href="https://portal.xpreppg.com/login"
   target="_blank"
   rel="noopener noreferrer"
 >

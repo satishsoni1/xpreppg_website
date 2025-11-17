@@ -56,7 +56,7 @@ export default function Invoice() {
             <div>
               <h2 className="text-xl font-bold">Smart Prep PG </h2>
               <p className="text-sm text-gray-600">Akola, IN</p>
-              <p className="text-sm text-gray-600">support@smartpreppg.com</p>
+              <p className="text-sm text-gray-600">support@xpreppg.com</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">Invoice ID</p>
