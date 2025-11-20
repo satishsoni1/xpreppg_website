@@ -38,7 +38,7 @@ export default function Hero() {
     setStatus("");
 
     try {
-      const res = await axios.post("http://localhost:5002/api/web/register", formData);
+      const res = await axios.post("https://api.xpreppg.com/api/web/register", formData);
       // if (res.data.status) {
       //   setStatus("Registration successful! Team will connect you shortly.");
       //   setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });

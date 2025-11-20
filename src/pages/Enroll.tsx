@@ -52,7 +52,7 @@ export default function Enroll() {
     }
 
     const fetchUser = async () => {
-      const res = await axios.get(`http://localhost:5002/api/user/${mobile}`);
+      const res = await axios.get(`https://api.xpreppg.com/api/user/${mobile}`);
 
       if (res.data.status) {
         const u = res.data.user;
@@ -78,7 +78,7 @@ export default function Enroll() {
     try {
       // Step A → Request order from backend
       const orderRes = await axios.post(
-        "http://localhost:5002/api/pay/create-order",
+        "https://api.xpreppg.com/api/pay/create-order",
         {
           mobile: form.phone,
           amount: form.amount,
@@ -119,7 +119,7 @@ export default function Enroll() {
         handler: async (resp: any) => {
           // Step B → Verify payment
           const verifyRes = await axios.post(
-            "http://localhost:5002/api/pay/verify-payment",
+            "https://api.xpreppg.com/api/pay/verify-payment",
             {
               razorpay_payment_id: resp.razorpay_payment_id,
               razorpay_order_id: resp.razorpay_order_id,
