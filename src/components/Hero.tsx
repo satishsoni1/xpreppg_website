@@ -38,12 +38,24 @@ export default function Hero() {
     setStatus("");
 
     try {
-      const res = await axios.post("https://portal.xpreppg.com/api/submit", formData);
+      const res = await axios.post("http://localhost:5002/api/web/register", formData);
+      // if (res.data.status) {
+      //   setStatus("Registration successful! Team will connect you shortly.");
+      //   setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });
+      //   setPhotoPreview(null);
+      //   setShowForm(false);
+      // }
       if (res.data.status) {
-        setStatus("Registration successful! Team will connect you shortly.");
-        setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });
-        setPhotoPreview(null);
-        setShowForm(false);
+        setStatus("Registration successful! Redirecting to plans...");
+      
+        setTimeout(() => {
+          // Store mobile for enrollment phase
+          localStorage.setItem("x_user_mobile", formData.mobile);
+          localStorage.setItem("x_user_email", formData.email);
+          localStorage.setItem("x_user_name", formData.name);
+      
+          window.location.href = "/pricing";
+        }, 1500);
       } else {
         setStatus("Registration failed. Please try again.");
       }

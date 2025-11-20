@@ -5,9 +5,11 @@ import App from "./App";
 import "./index.css";
 import Enroll from "./pages/Enroll";
 import Invoice from "./pages/Invoice";
+import Pricing from "./components/Pricing";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
+  { path: "/pricing", element: <Pricing /> },
   { path: "/enroll", element: <Enroll /> },
   { path: "/invoice/:invoiceId", element: <Invoice /> },
 ]);

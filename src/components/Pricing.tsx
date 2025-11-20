@@ -42,13 +42,34 @@ export default function Pricing() {
     "Downloadable reports",
   ];
 
+  // const goToEnroll = (planName: string, tier: { exams: number; original: number; discount: number }) => {
+  //   const params = new URLSearchParams({
+  //     plan: planName,
+  //     exams: String(tier.exams),
+  //     amount: String(tier.discount),
+  //     original: String(tier.original),
+  //   });
+  //   navigate(`/enroll?${params.toString()}`);
+  // };
   const goToEnroll = (planName: string, tier: { exams: number; original: number; discount: number }) => {
+    const mobile = localStorage.getItem("x_user_mobile");
+    const name = localStorage.getItem("x_user_name");
+    const email = localStorage.getItem("x_user_email");
+    if (!mobile || !name || !email) {
+      alert("Please register first.");
+      return;
+    }
+  
     const params = new URLSearchParams({
       plan: planName,
       exams: String(tier.exams),
       amount: String(tier.discount),
       original: String(tier.original),
+      mobile,
+      name,
+      email
     });
+  
     navigate(`/enroll?${params.toString()}`);
   };
  
