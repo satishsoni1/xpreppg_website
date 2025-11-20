@@ -158,7 +158,7 @@ export default function Hero() {
                 required
               />
 
-              <select
+              {/* <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
@@ -169,7 +169,7 @@ export default function Hero() {
                 <option>Pre Intern</option>
                 <option>Intern</option>
                 <option>Post Intern</option>
-              </select>
+              </select> */}
 
               <input
                 type="tel"

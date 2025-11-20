@@ -52,7 +52,7 @@ export default function Enroll() {
     }
 
     const fetchUser = async () => {
-      const res = await axios.get(`https://api.xpreppg.com/api/user/${mobile}`);
+      const res = await axios.get(`https://api.xpreppg.com/api/web/user/${mobile}`);
 
       if (res.data.status) {
         const u = res.data.user;
