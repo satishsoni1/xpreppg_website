@@ -1,6 +1,7 @@
 import { Menu, X, Stethoscope } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import logo from '@/assets/logo.png'; // <-- add this
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -11,6 +12,7 @@ interface NavigationProps {
 
 export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +42,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
               src={logo} 
               alt="Logo"
               className="w-24 object-contain"
+              onClick={() => navigate("/")}
             />
           </div>
 
