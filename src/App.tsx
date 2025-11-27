@@ -1,30 +1,22 @@
-import { Calendar, CheckCircle, Award, TrendingUp, Video, Users, Clock, ArrowRight, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import Hero from './components/Hero';
-import About from './components/About';
-import Features from './components/Features';
-import Pricing from './components/Pricing';
-import Schedule from './components/Schedule';
-import PostExam from './components/PostExam';
-import Contact from './components/Contact';
-import Navigation from './components/Navigation';
 
-function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Features from "./components/Features";
+import Pricing from "./components/Pricing";
+import Schedule from "./components/Schedule";
+import PostExam from "./components/PostExam";
+import MainLayout from "./layouts/MainLayout";
+
+export default function App() {
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+    <MainLayout>
       <Hero />
       <About />
-      <Pricing />
       <Features />
-      
+      <Pricing />
       <Schedule />
       <PostExam />
-      <Contact />
-    </div>
+    </MainLayout>
   );
 }
-
-export default App;

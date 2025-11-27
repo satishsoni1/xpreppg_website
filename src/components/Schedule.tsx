@@ -3,7 +3,7 @@ import { Calendar } from 'lucide-react';
 export default function Schedule() {
   const exams = [
     {
-      date: '15th January 2026',
+      date: '11th January 2026',
       title: 'Grand CBT 1',
       description: 'Comprehensive test covering all 19 subjects',
       status: 'upcoming',
@@ -15,13 +15,13 @@ export default function Schedule() {
       status: 'scheduled',
     },
     {
-      date: '19th March 2026',
+      date: '15th March 2026',
       title: 'Grand CBT 3',
       description: 'Revision-oriented test',
       status: 'scheduled',
     },
     {
-      date: '18th April 2026',
+      date: '19th April 2026',
       title: 'Grand CBT 4',
       description: 'Final Mock – NEET pattern simulation',
       status: 'scheduled',

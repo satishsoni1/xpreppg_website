@@ -30,6 +30,9 @@
     animation-delay: 4s;
   }
 }
+a{
+  cursor: pointer;
+}
 
 html {
   scroll-behavior: smooth;

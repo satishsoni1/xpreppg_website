@@ -71,9 +71,6 @@ export default function Pricing() {
       // 🔥 Notify Hero to open the register modal
       window.dispatchEvent(new Event("open-register-modal"));
   
-      // Optional: scroll to Hero
-      window.scrollTo({ top: 0, behavior: "smooth" });
-  
       return;
     }
   

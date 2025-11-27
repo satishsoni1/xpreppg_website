@@ -23,11 +23,12 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
   }, []);
 
   const navItems = [
-    { label: 'About', href: '#about' },
-    { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'Schedule', href: '#schedule' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'About', to: '/about' },
+  { label: 'Features', to: '/features' },
+  { label: 'Pricing', to: '/pricing' },
+  { label: 'Schedule', to: '/schedule' },
+  { label: 'Post Exam', to: '/post-exam' },
+  { label: 'Contact', to: '/contact' },
   ];
 
   return (
@@ -50,7 +51,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
             {navItems.map((item) => (
               <a
                 key={item.label}
-                href={item.href}
+                onClick={() => navigate(item.to)}
                 className="text-gray-700 hover:text-primary font-medium transition-colors duration-200"
               >
                 {item.label}
@@ -81,9 +82,8 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
             {navItems.map((item) => (
               <a
                 key={item.label}
-                href={item.href}
+                onClick={() => {navigate(item.to);setMobileMenuOpen(false); }}
                 className="block text-gray-700 hover:text-primary font-medium py-2"
-                onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}
               </a>
