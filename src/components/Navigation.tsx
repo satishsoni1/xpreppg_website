@@ -53,11 +53,14 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
                 {item.label}
               </a>
             ))}
-            {/* <button 
-             onClick={() => setShowForm(true)}
+            <button 
+             onClick={() => {
+              window.dispatchEvent(new Event("open-register-modal"));
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
              className="bg-gradient-to-r from-primary to-primaryDark text-white px-6 py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
               Register Now
-            </button> */}
+            </button>
           </div>
 
           <button
@@ -82,7 +85,10 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
                 {item.label}
               </a>
             ))}
-            <button className="w-full bg-gradient-to-r from-primary to-primaryDark text-white px-6 py-3 rounded-lg font-semibold">
+            <button onClick={() => {
+    window.dispatchEvent(new Event("open-register-modal"));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }} className="w-full bg-gradient-to-r from-primary to-primaryDark text-white px-6 py-3 rounded-lg font-semibold">
               Register Now
             </button>
           </div>

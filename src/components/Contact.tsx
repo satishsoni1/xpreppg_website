@@ -1,4 +1,4 @@
-import { Mail, MapPin, Globe, Youtube, Instagram, Send } from 'lucide-react';
+import { Mail, MapPin, Globe,Phone, Youtube, Instagram, Send } from 'lucide-react';
 
 export default function Contact() {
   return (
@@ -37,19 +37,19 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-gray-400 text-sm mb-1">Email</p>
-                  <p className="text-white font-medium">contact@xpreppg.com</p>
+                  <p className="text-white font-medium">info@xpreppg.com</p>
                 </div>
               </div>
 
-              {/* <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-4">
                 <div className="bg-primary/10 p-3 rounded-lg">
-                  <Globe className="w-6 h-6 text-emerald-400" />
+                  <Phone className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-gray-400 text-sm mb-1">Website</p>
-                  <p className="text-white font-medium">www.xpreppg.com</p>
+                  <p className="text-gray-400 text-sm mb-1">Phone</p>
+                  <p className="text-white font-medium">8446036521</p>
                 </div>
-              </div> */}
+              </div>
             </div>
 
             <div className="pt-8">

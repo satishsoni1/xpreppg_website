@@ -56,23 +56,58 @@ export default function Pricing() {
     const mobile = localStorage.getItem("x_user_mobile");
     const name = localStorage.getItem("x_user_name");
     const email = localStorage.getItem("x_user_email");
+  
+    const selectedPlan = {
+      plan: planName,
+      exams: tier.exams,
+      amount: tier.discount,
+      original: tier.original,
+    };
+  
+    // Not registered → open modal in Hero
     if (!mobile || !name || !email) {
-      alert("Please register first.");
+      localStorage.setItem("x_selected_plan", JSON.stringify(selectedPlan));
+  
+      // 🔥 Notify Hero to open the register modal
+      window.dispatchEvent(new Event("open-register-modal"));
+  
+      // Optional: scroll to Hero
+      window.scrollTo({ top: 0, behavior: "smooth" });
+  
       return;
     }
-
+  
+    // Already registered → go directly
     const params = new URLSearchParams({
-      plan: planName,
-      exams: String(tier.exams),
-      amount: String(tier.discount),
-      original: String(tier.original),
+      ...selectedPlan,
       mobile,
       name,
-      email
+      email,
     });
-
+  
     navigate(`/enroll?${params.toString()}`);
   };
+  // const goToEnroll = (planName: string, tier: { exams: number; original: number; discount: number }) => {
+  //   const mobile = localStorage.getItem("x_user_mobile");
+  //   const name = localStorage.getItem("x_user_name");
+  //   const email = localStorage.getItem("x_user_email");
+  //   if (!mobile || !name || !email) {
+  //     alert("Please register first.");
+  //     return;
+  //   }
+
+  //   const params = new URLSearchParams({
+  //     plan: planName,
+  //     exams: String(tier.exams),
+  //     amount: String(tier.discount),
+  //     original: String(tier.original),
+  //     mobile,
+  //     name,
+  //     email
+  //   });
+
+  //   navigate(`/enroll?${params.toString()}`);
+  // };
 
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">

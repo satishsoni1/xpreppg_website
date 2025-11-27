@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Calendar, Brain, X } from "lucide-react";
-import axios from "axios";
+import useRegisterUser from "../hooks/useRegisterUser";
+
 
 export default function Hero() {
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
+  // const [loading, setLoading] = useState(false);
+  // const [status, setStatus] = useState("");
   const [photoPreview, setPhotoPreview] = useState(null);
+  const { registerUser, loading, status } = useRegisterUser();
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -15,6 +17,15 @@ export default function Hero() {
     city: "",
     photo: "",
   });
+  useEffect(() => {
+    const openModal = () => setShowForm(true);
+  
+    window.addEventListener("open-register-modal", openModal);
+  
+    return () => {
+      window.removeEventListener("open-register-modal", openModal);
+    };
+  }, []);
 
   const handleChange = (e:any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,41 +42,49 @@ export default function Hero() {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
-    setLoading(true);
-    setStatus("");
-
-    try {
-      const res = await axios.post("https://api.xpreppg.com/api/web/register", formData);
-      // if (res.data.status) {
-      //   setStatus("Registration successful! Team will connect you shortly.");
-      //   setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });
-      //   setPhotoPreview(null);
-      //   setShowForm(false);
-      // }
-      if (res.data.status) {
-        setStatus("Registration successful! Redirecting to plans...");
-      
-        setTimeout(() => {
-          // Store mobile for enrollment phase
-          localStorage.setItem("x_user_mobile", formData.mobile);
-          localStorage.setItem("x_user_email", formData.email);
-          localStorage.setItem("x_user_name", formData.name);
-      
-          window.location.href = "/pricing";
-        }, 1500);
-      } else {
-        setStatus("Registration failed. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      setStatus("Error submitting form. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  
+    registerUser(formData, () => {
+      setTimeout(() => {
+        window.location.href = "/pricing";
+      }, 1500);
+    });
   };
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setStatus("");
+
+  //   try {
+  //     const res = await axios.post("https://api.xpreppg.com/api/web/register", formData);
+  //     // if (res.data.status) {
+  //     //   setStatus("Registration successful! Team will connect you shortly.");
+  //     //   setFormData({ name: "", category: "", mobile: "", email: "", city: "", photo: "" });
+  //     //   setPhotoPreview(null);
+  //     //   setShowForm(false);
+  //     // }
+  //     if (res.data.status) {
+  //       setStatus("Registration successful! Redirecting to plans...");
+      
+  //       setTimeout(() => {
+  //         // Store mobile for enrollment phase
+  //         localStorage.setItem("x_user_mobile", formData.mobile);
+  //         localStorage.setItem("x_user_email", formData.email);
+  //         localStorage.setItem("x_user_name", formData.name);
+      
+  //         window.location.href = "/pricing";
+  //       }, 1500);
+  //     } else {
+  //       setStatus("Registration failed. Please try again.");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setStatus("Error submitting form. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">

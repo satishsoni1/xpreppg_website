@@ -69,8 +69,12 @@ export default function PostExam() {
           <p className="text-xl text-emerald-50 mb-8 max-w-2xl mx-auto">
             Get ahead of thousands of aspirants with real-time exam simulation and personalized feedback
           </p>
-          <button className="bg-white text-primary px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200">
-            Secure Your Seat Today
+          <button className="bg-white text-primary px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200"
+          onClick={() => {
+            window.dispatchEvent(new Event("open-register-modal"));
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}>
+            Register Now
           </button>
         </div>
       </div>
