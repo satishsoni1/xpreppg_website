@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { openRazorpay } from "../lib/razorpay";
 import Navigation from "../components/Navigation";
+import NavigationInner from "../components/NavigationInner";
 
 export default function Enroll() {
   const navigate = useNavigate();
@@ -165,10 +166,8 @@ export default function Enroll() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navigation
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+      
+      <NavigationInner />
 
       <section id="enroll" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-3xl mx-auto bg-white p-8">
