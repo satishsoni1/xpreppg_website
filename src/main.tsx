@@ -11,6 +11,13 @@ import FeaturesPage from "./pages/FeaturesPage";
 import SchedulePage from "./pages/SchedulePage";
 import PostExamPage from "./pages/PostExamPage";
 import ContactPage from "./pages/ContactPage";
+import AdminLogin from "./admin/Login";
+import ProtectedRoute from "./admin/ProtectedRoute";
+import AdminLayout from "./admin/Layout";
+import AdminUsers from "./admin/UsersDashboard";
+import AdminDashboard from "./admin/Dashboard";
+import AdminCouponDashboard from "./admin/CouponDashboard";
+
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/about", element: <AboutPage /> },
@@ -21,6 +28,25 @@ const router = createBrowserRouter([
   { path: "/contact", element: <ContactPage /> },
   { path: "/enroll", element: <Enroll /> },
   { path: "/invoice/:invoiceId", element: <Invoice /> },
+  // 🔐 ADMIN LOGIN (NOT PROTECTED)
+  { path: "/admin/login", element: <AdminLogin /> },
+
+  // 🔐 PROTECTED ADMIN AREA
+  {
+    path: "/admin",
+    element: <ProtectedRoute />,  // ← NOT a wrapper!
+    children: [
+      {
+        path: "",
+        element: <AdminLayout/>,  // main admin layout
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "coupons", element: <AdminCouponDashboard /> },
+          { path: "users", element: <AdminUsers /> },
+        ]
+      }
+    ]
+  }
 ]);
 
 createRoot(document.getElementById("root")!).render(
