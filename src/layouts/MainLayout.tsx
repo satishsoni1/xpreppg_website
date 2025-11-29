@@ -4,6 +4,7 @@ import Contact from "@/components/Contact";
 import ScrollToTop from "@/components/ScrollToTop";
 import { X } from "lucide-react";
 import useRegisterUser from "@/hooks/useRegisterUser";
+import axios from "axios"; 
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,6 +21,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     city: "",
     photo: "",
   });
+  const [cities, setCities] = useState([]);
+
+  useEffect(() => {
+    axios.get("https://api.xpreppg.com/api/cities").then((res) => {
+      setCities(res.data);
+    });
+  }, []);
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,7 +47,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const handleSubmit = (e: any) => {
     e.preventDefault();
 
-    registerUser(formData, () => {
+    registerUser(formData, (response) => {
+      if (!response.status) {
+        alert(response.message); // Show message
+        return;
+      }
       setTimeout(() => {
         window.location.href = "/pricing";
       }, 1500);
@@ -127,117 +139,20 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 className="w-full border border-gray-300 rounded-lg p-3"
                 required
               />
-
-              <select
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3"
-                required
-              >
-                <option value="">Select City</option>
-                <option>Agartala</option>
-                <option>Agra</option>
-                <option>Agroha</option>
-                <option>Ahmedabad</option>
-                <option>Alappuzha</option>
-                <option>Amaravati</option>
-                <option>Ambajogai</option>
-                <option>Amritsar</option>
-                <option>Aurangabad</option>
-                <option>Bareilly</option>
-                <option>Behrampur</option>
-                <option>Belgaum</option>
-                <option>Bhatinda</option>
-                <option>Bengaluru</option>
-                <option>Bhavnagar</option>
-                <option>Bhopal</option>
-                <option>Bikaner</option>
-                <option>Bilaspur</option>
-                <option>Burla</option>
-                <option>Calicut</option>
-                <option>Chandigarh</option>
-                <option>Chennai</option>
-                <option>Cochin</option>
-                <option>Coimbatore</option>
-                <option>Davangere</option>
-                <option>Dehradun</option>
-                <option>Delhi</option>
-                <option>Dhanbad</option>
-                <option>Dibrugarh</option>
-                <option>Goa</option>
-                <option>Gorakhpur</option>
-                <option>Gulbarga</option>
-                <option>Gurgaon</option>
-                <option>Guwahati</option>
-                <option>Gwalior</option>
-                <option>Haldwani</option>
-                <option>Hubli</option>
-                <option>Hyderabad</option>
-                <option>Imphal</option>
-                <option>Indore</option>
-                <option>Jabalpur</option>
-                <option>Jaipur</option>
-                <option>Jammu</option>
-                <option>Jamnagar</option>
-                <option>Jamshedpur</option>
-                <option>Jodhpur</option>
-                <option>Jorhat</option>
-                <option>Kannur</option>
-                <option>Kanpur</option>
-                <option>Kolhapur</option>
-                <option>Kolkata</option>
-                <option>Kollam</option>
-                <option>Kottayam</option>
-                <option>Kota</option>
-                <option>Latur</option>
-                <option>Lucknow</option>
-                <option>Ludhiana</option>
-                <option>Madurai</option>
-                <option>Malappuram</option>
-                <option>Mangalore</option>
-                <option>Manipal</option>
-                <option>Meerut</option>
-                <option>Miraj</option>
-                <option>Mumbai</option>
-                <option>Mysore</option>
-                <option>Nagercoil</option>
-                <option>Nagpur</option>
-                <option>Nanded</option>
-                <option>Nashik</option>
-                <option>Noida</option>
-                <option>Patiala</option>
-                <option>Patna</option>
-                <option>Pondicherry</option>
-                <option>Prayagraj</option>
-                <option>Pune</option>
-                <option>Raipur</option>
-                <option>Rajkot</option>
-                <option>Ranchi</option>
-                <option>Rewa</option>
-                <option>Sagar</option>
-                <option>Salem</option>
-                <option>Sangli</option>
-                <option>Shillong</option>
-                <option>Silchar</option>
-                <option>Siliguri</option>
-                <option>Srikakulam</option>
-                <option>Srinagar</option>
-                <option>Surat</option>
-                <option>Tanda</option>
-                <option>Thrissur</option>
-                <option>Tirunelveli</option>
-                <option>Tirupati</option>
-                <option>Trichy</option>
-                <option>Trivandrum</option>
-                <option>Udaipur</option>
-                <option>Ujjain</option>
-                <option>Vadodara</option>
-                <option>Varanasi</option>
-                <option>Vijayawada</option>
-                <option>Visakhapatnam</option>
-                <option>Warangal</option>
-              </select>
+<select
+  name="city"
+  value={formData.city}
+  onChange={handleChange}
+  className="w-full border border-gray-300 rounded-lg p-3"
+  required
+>
+  <option value="">Select City</option>
+  {cities.map(city => (
+    <option key={city._id} value={city.name}>
+      {city.name}
+    </option>
+  ))}
+</select>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>

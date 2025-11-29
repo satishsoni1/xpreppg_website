@@ -14,10 +14,16 @@ export default function Invoice() {
       phone: sp.get("phone") || "",
       plan: sp.get("plan") || "",
       exams: Number(sp.get("exams") || 1),
-      amount: Number(sp.get("amount") || 0),
+
+      originalAmount: Number(sp.get("originalAmount") || 0),
+      discount: Number(sp.get("discount") || 0),
+
+      amount: Number(sp.get("amount") || 0), // final payable
+
       paymentId: sp.get("paymentId") || "",
       courseCode: sp.get("courseCode") || "",
       status: sp.get("status") || "unpaid",
+
       issuedOn: new Date().toLocaleDateString(),
     }),
     [invoiceId, sp]
@@ -68,8 +74,8 @@ export default function Invoice() {
             {/* HEADER */}
             <header className="flex items-start justify-between mb-8">
               <div>
-                <h2 className="text-xl font-bold">XPrep PG</h2>
-                <p className="text-sm text-gray-600">Akola, IN</p>
+                <h2 className="text-xl font-bold">XPrepPG</h2>
+                <p className="text-sm text-gray-600">Pune, IN</p>
                 <p className="text-sm text-gray-600">info@xpreppg.com</p>
               </div>
 
@@ -134,31 +140,37 @@ export default function Invoice() {
                     {data.plan} – {data.exams} Exam(s)
                   </td>
                   <td className="py-4">1</td>
-                  <td className="py-4">{data.amount}</td>
-                  <td className="py-4 text-right">{data.amount}</td>
+                  <td className="py-4">₹{data.originalAmount}</td>
+                  <td className="py-4 text-right">₹{data.originalAmount}</td>
                 </tr>
 
+                {/* ORIGINAL PRICE */}
                 <tr className="border-t">
                   <td className="py-4 text-gray-600" colSpan={3}>
                     Subtotal
                   </td>
-                  <td className="py-4 text-right">{data.amount}</td>
+                  <td className="py-4 text-right">₹{data.originalAmount}</td>
                 </tr>
 
-                <tr>
-                  <td className="py-1 text-gray-600" colSpan={3}>
-                    GST (0% sample)
-                  </td>
-                  <td className="py-1 text-right">0</td>
-                </tr>
+                {/* DISCOUNT ROW */}
+                {data.discount > 0 && (
+                  <tr className="border-t text-red-600 font-medium">
+                    <td className="py-4" colSpan={3}>
+                      Discount Applied
+                    </td>
+                    <td className="py-4 text-right">- ₹{data.discount}</td>
+                  </tr>
+                )}
 
+                {/* FINAL TOTAL */}
                 <tr className="border-t font-semibold">
                   <td className="py-4" colSpan={3}>
-                    Total
+                    Total Payable
                   </td>
-                  <td className="py-4 text-right">₹{data.amount}</td>
+                  <td className="py-4 text-right text-emerald-700">₹{data.amount}</td>
                 </tr>
               </tbody>
+
             </table>
 
             <p className="text-xs text-gray-500 mt-8">

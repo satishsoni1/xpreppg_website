@@ -6,11 +6,15 @@ export default function useRegisterUser() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
 
-  const registerUser = async (formData: any, onSuccess?: () => void) => {
+  const registerUser = async (formData: any, onSuccess?: (res: any) => void) => {
     setLoading(true);
     setStatus("");
 
     try {
+      // const res = await axios.post(
+      //   "http://127.0.0.1:5002/api/web/register",
+      //   formData
+      // );
       const res = await axios.post(
         "https://api.xpreppg.com/api/web/register",
         formData
@@ -25,9 +29,10 @@ export default function useRegisterUser() {
         localStorage.setItem("x_user_name", formData.name);
 
         // Callback for the page using it
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(res.data);
       } else {
-        setStatus("Registration failed. Please try again.");
+        if (onSuccess) onSuccess(res.data);   // 🔥 also send response on failure
+        setStatus(res.data.message);
       }
     } catch (err) {
       console.error(err);
