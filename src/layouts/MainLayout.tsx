@@ -5,6 +5,9 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { X } from "lucide-react";
 import useRegisterUser from "@/hooks/useRegisterUser";
 import axios from "axios"; 
+import { Combobox } from "@headlessui/react";
+import CitySelect from "@/components/CitySelect";
+
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -139,7 +142,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 className="w-full border border-gray-300 rounded-lg p-3"
                 required
               />
-<select
+{/* <select
   name="city"
   value={formData.city}
   onChange={handleChange}
@@ -152,7 +155,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {city.name}
     </option>
   ))}
-</select>
+</select> */}
+
+<CitySelect
+  cities={cities}
+  formData={formData}
+  setFormData={setFormData}
+/>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
