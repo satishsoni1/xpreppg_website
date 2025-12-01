@@ -5,8 +5,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { X } from "lucide-react";
 import useRegisterUser from "@/hooks/useRegisterUser";
 import axios from "axios"; 
-import { Combobox } from "@headlessui/react";
-import CitySelect from "@/components/CitySelect";
+import CityBottomSheet from "@/components/CitySelect";
 
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +24,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     photo: "",
   });
   const [cities, setCities] = useState([]);
+  const [openCityPicker, setOpenCityPicker] = useState(false);
+
 
   useEffect(() => {
     axios.get("https://api.xpreppg.com/api/cities").then((res) => {
@@ -157,11 +158,23 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   ))}
 </select> */}
 
-<CitySelect
-  cities={cities}
-  formData={formData}
-  setFormData={setFormData}
-/>
+<div
+        className="w-full border border-gray-300 rounded-lg p-3"
+        onClick={() => setOpenCityPicker(true)}
+      >
+        {formData.city || "Select City"}
+      </div>
+
+      {/* Bottom Sheet */}
+      <CityBottomSheet
+        cities={cities}
+        value={formData.city}
+        open={openCityPicker}
+        setOpen={setOpenCityPicker}
+        onSelect={(city: string) =>
+          setFormData({ ...formData, city })
+        }
+      />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>

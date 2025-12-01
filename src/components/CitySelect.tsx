@@ -1,49 +1,71 @@
-import { Combobox } from "@headlessui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
-export default function CitySelect({ cities, formData, setFormData }) {
+export default function CityBottomSheet({
+  cities,
+  value,
+  onSelect,
+  open,
+  setOpen
+}: any) {
   const [query, setQuery] = useState("");
 
   const filteredCities =
     query === ""
       ? cities
-      : cities.filter((city) =>
-          city.name.toLowerCase().includes(query.toLowerCase())
+      : cities.filter((c: any) =>
+          c.name.toLowerCase().includes(query.toLowerCase())
         );
 
+  if (!open) return null;
+
   return (
-    <Combobox
-      value={formData.city}
-      onChange={(value) => setFormData({ ...formData, city: value })}
-    >
-      <div className="relative mt-1">
-        <Combobox.Input
-          placeholder="Select City"
-          className="w-full border border-gray-300 rounded-lg p-3"
-          displayValue={(value: string) => value}
-          onChange={(event) => setQuery(event.target.value)}
+    <div className="fixed inset-0 z-50">
+      {/* Background overlay */}
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => setOpen(false)}
+      />
+
+      {/* Bottom sheet */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-5 max-h-[80vh] overflow-hidden shadow-xl animate-slideUp">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Select City</h2>
+          <button onClick={() => setOpen(false)}>
+            <X className="w-6 h-6 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Search Box */}
+        <input
+          type="text"
+          placeholder="Search city..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full border border-gray-300 rounded-xl p-3 mb-4"
         />
 
-        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white border shadow-lg">
+        {/* City List */}
+        <div className="overflow-y-auto max-h-[60vh] space-y-1">
           {filteredCities.length === 0 ? (
-            <div className="p-3 text-gray-500 text-sm">No city found</div>
+            <p className="text-gray-500 text-center py-6">No city found</p>
           ) : (
-            filteredCities.map((city) => (
-              <Combobox.Option
+            filteredCities.map((city: any) => (
+              <div
                 key={city._id}
-                value={city.name}
-                className={({ active }) =>
-                  `cursor-pointer select-none p-3 ${
-                    active ? "bg-emerald-100" : "bg-white"
-                  }`
-                }
+                onClick={() => {
+                  onSelect(city.name);
+                  setOpen(false);
+                }}
+                className="p-3 text-lg border-b active:bg-gray-100 cursor-pointer"
               >
                 {city.name}
-              </Combobox.Option>
+              </div>
             ))
           )}
-        </Combobox.Options>
+        </div>
       </div>
-    </Combobox>
+    </div>
   );
 }
