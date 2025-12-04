@@ -24,6 +24,7 @@ export default function UsersDashboard() {
               <th className="py-3">Email</th>
               <th className="py-3">City</th>
               <th className="py-3">Plan</th>
+              <th className="py-3">Amount</th>
               <th className="py-3">Paid?</th>
             </tr>
           </thead>
@@ -31,11 +32,24 @@ export default function UsersDashboard() {
           <tbody>
             {users.map((u: any) => (
               <tr key={u._id} className="border-b">
-                <td className="py-3">{u.name}</td>
+                <td className="py-3">{u.name}
+                </td>
                 <td>{u.mobile}</td>
                 <td>{u.email}</td>
                 <td>{u.city}</td>
-                <td>{u.enrolledPlan?.plan || "-"}</td>
+                <td>
+    {u.enrolledPlan?.plan || "-"} <br />
+    {u.isPaid ? `${u.enrolledPlan?.exams} Exams` : ""}
+  </td>
+                <td>
+                  {u.isPaid && (
+                    <>
+                      Amt: ₹{u.enrolledPlan?.originalAmount} <br />
+                      Actual: ₹{u.enrolledPlan?.finalAmount} <br />
+                      Dis: ₹{u.enrolledPlan?.discount}
+                    </>
+                  )}
+                </td>
                 <td>{u.isPaid ? "✔" : "❌"}</td>
               </tr>
             ))}
