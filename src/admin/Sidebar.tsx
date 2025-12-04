@@ -1,8 +1,19 @@
 import { NavLink } from "react-router-dom";
-
+import { useNavigate } from 'react-router-dom';
+import logo from '@/assets/logo.png'; // <-- add this
 export default function Sidebar() {
+  const navigate = useNavigate();
   return (
     <div className="w-64 bg-white shadow-xl p-6 h-screen">
+      <div className="flex items-center space-x-3 justify-center mb-8">
+            {/* <img src="https://portal.xpreppg.com/storage/site/logo.jpg" width="23%"/> */}
+            <img 
+              src={logo} 
+              alt="Logo"
+              className="w-24 object-contain"
+              onClick={() => navigate("/")}
+            />
+          </div>
       <h1 className="text-xl font-bold mb-6">Admin Panel</h1>
 
       <nav className="space-y-3">

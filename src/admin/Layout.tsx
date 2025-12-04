@@ -5,8 +5,8 @@ import { Outlet } from "react-router-dom";
 export default function AdminLayout() {
   return (
     <div className="min-h-screen">
-    <Navigation/>
-    <div className="flex pt-28">
+    {/* <Navigation/> */}
+    <div className="flex">
       
       <Sidebar />
 
