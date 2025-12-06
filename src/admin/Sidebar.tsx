@@ -50,6 +50,16 @@ export default function Sidebar() {
         >
           💰 Manage Pricing Plans
         </NavLink>
+        <NavLink
+          to="/admin/cities"
+          className={({ isActive }) =>
+            `block py-2 px-2 rounded-md ${
+              isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            }`
+          }
+        >
+           📍 Manage Cities
+        </NavLink>
 
         <button
           className="block w-full text-left py-2 px-2 text-red-600 mt-6 hover:bg-red-100 rounded-md"

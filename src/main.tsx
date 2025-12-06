@@ -18,6 +18,7 @@ import AdminUsers from "./admin/UsersDashboard";
 import AdminDashboard from "./admin/Dashboard";
 import AdminCouponDashboard from "./admin/CouponDashboard";
 import ManagePlans from "./admin/ManagePlans";
+import CitiesAdmin from "./admin/Cities";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
           { path: "coupons", element: <AdminCouponDashboard /> },
           { path: "users", element: <AdminUsers /> },
           { path: "plans", element: <ManagePlans />},
+          { path: "cities", element: <CitiesAdmin />},
 
         ]
       }
