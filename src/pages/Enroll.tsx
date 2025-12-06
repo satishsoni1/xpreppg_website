@@ -180,6 +180,7 @@ export default function Enroll() {
       await openRazorpay({
         key,
         amount: amount * 100,
+        order_id: orderId,
         name: "XPrepPG",
         description: `${form.plan} - ${form.exams} exam(s)`,
 
