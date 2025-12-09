@@ -96,8 +96,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
       {/* Registration Modal */}
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl relative mx-auto mt-10 mb-10">
+
             <button
               onClick={() => setShowForm(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -145,7 +146,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               />
 
               {/* CATEGORY SELECTION CARDS */}
-<div>
+              <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Select Category
                 </label>
@@ -156,8 +157,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <div
                     onClick={() => setFormData((prev) => ({ ...prev, category: "Pre-Intern" }))}
                     className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Pre-Intern"
-                        ? "border-primary bg-primary/10 shadow-md scale-105"
-                        : "border-gray-300 hover:border-primary"
+                      ? "border-primary bg-primary/10 shadow-md scale-105"
+                      : "border-gray-300 hover:border-primary"
                       }`}
                   >
                     <div className="text-center space-y-2">
@@ -170,8 +171,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <div
                     onClick={() => setFormData((prev) => ({ ...prev, category: "Intern" }))}
                     className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Intern"
-                        ? "border-primary bg-primary/10 shadow-md scale-105"
-                        : "border-gray-300 hover:border-primary"
+                      ? "border-primary bg-primary/10 shadow-md scale-105"
+                      : "border-gray-300 hover:border-primary"
                       }`}
                   >
                     <div className="text-center space-y-2">
@@ -184,8 +185,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <div
                     onClick={() => setFormData((prev) => ({ ...prev, category: "Post-Intern" }))}
                     className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Post-Intern"
-                        ? "border-primary bg-primary/10 shadow-md scale-105"
-                        : "border-gray-300 hover:border-primary"
+                      ? "border-primary bg-primary/10 shadow-md scale-105"
+                      : "border-gray-300 hover:border-primary"
                       }`}
                   >
                     <div className="text-center space-y-2">
