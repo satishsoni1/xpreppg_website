@@ -1,7 +1,9 @@
 import { ArrowRight, Calendar, Brain, X } from "lucide-react";
+import { useState } from "react";
 
 
 export default function Hero() {
+  const [status, setStatus] = useState("");
 
 
   function setShowForm(p0: boolean): void {

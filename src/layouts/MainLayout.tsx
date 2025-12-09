@@ -4,7 +4,7 @@ import Contact from "@/components/Contact";
 import ScrollToTop from "@/components/ScrollToTop";
 import { X } from "lucide-react";
 import useRegisterUser from "@/hooks/useRegisterUser";
-import { AdminAPI } from "@/services/api";     // ✅ NEW
+import { AdminAPI } from "@/services/api";
 import CityBottomSheet from "@/components/CitySelect";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -26,16 +26,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   });
 
   // ------------------------------------------------------
-  //  LOAD CITIES (Using AdminAPI service)
+  //  LOAD CITIES SAFELY
   // ------------------------------------------------------
   useEffect(() => {
     AdminAPI.getCities()
       .then((res) => {
-        setCities(res.data.cities || res.data || []);  // flex support
+        const data = res.data?.cities || res.data || [];
+        setCities(Array.isArray(data) ? data : []);
       })
-      .catch(() => {
-        setCities([]);
-      });
+      .catch(() => setCities([]));
   }, []);
 
   // Generic Change Handler
@@ -80,7 +79,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener("open-register-modal", openModal);
   }, []);
 
-
   return (
     <div className="min-h-screen bg-white">
       <ScrollToTop />
@@ -112,6 +110,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
               {/* Name */}
               <input
                 type="text"
@@ -144,6 +143,60 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 className="w-full border border-gray-300 rounded-lg p-3"
                 required
               />
+
+              {/* CATEGORY SELECTION CARDS */}
+<div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Select Category
+                </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                  {/* Card 1: Pre-Intern */}
+                  <div
+                    onClick={() => setFormData((prev) => ({ ...prev, category: "Pre-Intern" }))}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Pre-Intern"
+                        ? "border-primary bg-primary/10 shadow-md scale-105"
+                        : "border-gray-300 hover:border-primary"
+                      }`}
+                  >
+                    <div className="text-center space-y-2">
+                      <div className="text-primary text-3xl">📘</div>
+                      <p className="font-semibold text-gray-700">Pre-Intern</p>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Intern */}
+                  <div
+                    onClick={() => setFormData((prev) => ({ ...prev, category: "Intern" }))}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Intern"
+                        ? "border-primary bg-primary/10 shadow-md scale-105"
+                        : "border-gray-300 hover:border-primary"
+                      }`}
+                  >
+                    <div className="text-center space-y-2">
+                      <div className="text-primary text-3xl">🩺</div>
+                      <p className="font-semibold text-gray-700">Intern</p>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Post-Intern */}
+                  <div
+                    onClick={() => setFormData((prev) => ({ ...prev, category: "Post-Intern" }))}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Post-Intern"
+                        ? "border-primary bg-primary/10 shadow-md scale-105"
+                        : "border-gray-300 hover:border-primary"
+                      }`}
+                  >
+                    <div className="text-center space-y-2">
+                      <div className="text-primary text-3xl">🎓</div>
+                      <p className="font-semibold text-gray-700">Post-Intern</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
 
               {/* CITY PICKER */}
               <div

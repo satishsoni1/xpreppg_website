@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthAPI } from "@/services/api";
+import { WebAPI } from "@/services/api";
 
 export default function useRegisterUser() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export default function useRegisterUser() {
     setStatus("");
 
     try {
-      const res = await AuthAPI.userRegister(formData);
+      const res = await WebAPI.register(formData);
       const response = res.data;
 
       if (response.status) {

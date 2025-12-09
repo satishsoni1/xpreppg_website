@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 
 export default function CityBottomSheet({
@@ -10,11 +10,17 @@ export default function CityBottomSheet({
 }: any) {
   const [query, setQuery] = useState("");
 
+  // ✅ Prevent map() error — ensure cities is ALWAYS an array
+  const safeCities = Array.isArray(cities) ? cities : [];
+
+  // ✅ Safe filtering (avoids crash if name is missing)
   const filteredCities =
-    query === ""
-      ? cities
-      : cities.filter((c: any) =>
-          c.name.toLowerCase().includes(query.toLowerCase())
+    query.trim() === ""
+      ? safeCities
+      : safeCities.filter((c: any) =>
+          (c?.name || "")
+            .toLowerCase()
+            .includes(query.toLowerCase())
         );
 
   if (!open) return null;
@@ -29,6 +35,7 @@ export default function CityBottomSheet({
 
       {/* Bottom sheet */}
       <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-5 max-h-[80vh] overflow-hidden shadow-xl animate-slideUp">
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Select City</h2>
@@ -53,7 +60,7 @@ export default function CityBottomSheet({
           ) : (
             filteredCities.map((city: any) => (
               <div
-                key={city._id}
+                key={city._id || city.name}
                 onClick={() => {
                   onSelect(city.name);
                   setOpen(false);
