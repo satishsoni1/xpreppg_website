@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { AdminAPI } from "@/services/api";
 
 export default function CitiesAdmin() {
   const [cities, setCities] = useState([]);
   const [search, setSearch] = useState("");
 
   const loadCities = async () => {
-    const res = await axios.get("https://api.xpreppg.com/api/cities");
+    const res = await AdminAPI.getCities();
     setCities(res.data.cities);
   };
 
   const toggleCity = async (id:any, allowed:any) => {
-    await axios.patch(`https://api.xpreppg.com/api/cities/${id}`, {
-      allowed: !allowed,
-    });
+    await AdminAPI.toggleCity(id, !allowed);
     loadCities();
   };
 

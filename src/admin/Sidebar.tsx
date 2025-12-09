@@ -4,16 +4,16 @@ import logo from '@/assets/logo.png'; // <-- add this
 export default function Sidebar() {
   const navigate = useNavigate();
   return (
-    <div className="w-64 bg-white shadow-xl p-6 h-screen">
+    <div className="w-64 bg-white shadow-xl p-6">
       <div className="flex items-center space-x-3 justify-center mb-8">
-            {/* <img src="https://portal.xpreppg.com/storage/site/logo.jpg" width="23%"/> */}
-            <img 
-              src={logo} 
-              alt="Logo"
-              className="w-24 object-contain"
-              onClick={() => navigate("/")}
-            />
-          </div>
+        {/* <img src="https://portal.xpreppg.com/storage/site/logo.jpg" width="23%"/> */}
+        <img
+          src={logo}
+          alt="Logo"
+          className="w-24 object-contain"
+          onClick={() => navigate("/admin/")}
+        />
+      </div>
       <h1 className="text-xl font-bold mb-6">Admin Panel</h1>
 
       <nav className="space-y-3">
@@ -21,8 +21,7 @@ export default function Sidebar() {
         <NavLink
           to="/admin/coupons"
           className={({ isActive }) =>
-            `block py-2 px-2 rounded-md ${
-              isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
             }`
           }
         >
@@ -32,8 +31,7 @@ export default function Sidebar() {
         <NavLink
           to="/admin/users"
           className={({ isActive }) =>
-            `block py-2 px-2 rounded-md ${
-              isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
             }`
           }
         >
@@ -43,8 +41,7 @@ export default function Sidebar() {
         <NavLink
           to="/admin/plans"
           className={({ isActive }) =>
-            `block py-2 px-2 rounded-md ${
-              isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
             }`
           }
         >
@@ -53,14 +50,39 @@ export default function Sidebar() {
         <NavLink
           to="/admin/cities"
           className={({ isActive }) =>
-            `block py-2 px-2 rounded-md ${
-              isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
             }`
           }
         >
-           📍 Manage Cities
+          📍 Manage Cities
         </NavLink>
-
+        <NavLink
+          to="/admin/exams"
+          className={({ isActive }) =>
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            }`
+          }
+        >
+          📝 Manage Exams
+        </NavLink>
+        <NavLink
+          to="/admin/centre"
+          className={({ isActive }) =>
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            }`
+          }
+        >
+          📝 Manage centre
+        </NavLink>
+        <NavLink
+          to="/admin/candidates"
+          className={({ isActive }) =>
+            `block py-2 px-2 rounded-md ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-700"
+            }`
+          }
+        >
+          📝 Manage Candidates
+        </NavLink>
         <button
           className="block w-full text-left py-2 px-2 text-red-600 mt-6 hover:bg-red-100 rounded-md"
           onClick={() => {

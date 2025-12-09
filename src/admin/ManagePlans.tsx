@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { AdminAPI } from "@/services/api";
 
 export default function ManagePlans() {
   const [plans, setPlans] = useState([]);
@@ -11,9 +11,7 @@ export default function ManagePlans() {
   const [editingId, setEditingId] = useState(null);
 
   const loadPlans = () => {
-    axios.get("https://api.xpreppg.com/api/plans").then((res) => {
-      setPlans(res.data.plans);
-    });
+    AdminAPI.getPlans().then((res) => setPlans(res.data.plans || []));
   };
 
   useEffect(() => {
@@ -22,27 +20,34 @@ export default function ManagePlans() {
 
   const savePlan = () => {
     if (!form.exams || !form.actualPrice || !form.sellingPrice) return;
-    console.error(editingId);
-    const url = editingId
-      ? `https://api.xpreppg.com/api/plans/${editingId}`
-      : `https://api.xpreppg.com/api/plans`;
-
-    const method = editingId ? "put" : "post";
-
-    axios[method](url, form).then(() => {
-      setForm({ exams: "", actualPrice: "", sellingPrice: "" });
-      setEditingId(null);
-      loadPlans();
-    });
+    const payload = {
+      exams: Number(form.exams),
+      actualPrice: Number(form.actualPrice),
+      sellingPrice: Number(form.sellingPrice),
+    };
+    if (editingId) {
+      AdminAPI.updatePlan(editingId, payload).then(() => {
+        resetForm();
+        loadPlans();
+      });
+    } else {
+      AdminAPI.createPlan(payload).then(() => {
+        resetForm();
+        loadPlans();
+      });
+    }
+  };
+  const resetForm = () => {
+    setForm({ exams: "", actualPrice: "", sellingPrice: "" });
+    setEditingId(null);
   };
 
-  const deletePlan = (id:any) => {
+  const deletePlan = (id: string) => {
     if (!confirm("Delete this plan?")) return;
-
-    axios.delete(`https://api.xpreppg.com/api/plans/${id}`).then(loadPlans);
+    AdminAPI.deletePlan(id).then(loadPlans);
   };
 
-  const startEdit = (plan:any) => {
+  const startEdit = (plan: any) => {
     console.log(plan);
     console.log(editingId);
     setEditingId(plan._id);
@@ -104,7 +109,7 @@ export default function ManagePlans() {
           </tr>
         </thead>
         <tbody>
-          {plans.map((p:any) => (
+          {plans.map((p: any) => (
             <tr key={p.id} className="border-b">
               <td className="p-3">{p.exams}</td>
               <td className="p-3">₹{p.actualPrice}</td>

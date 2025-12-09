@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { AdminAPI } from "@/services/api";
 import {
   BarChart,
   Bar,
@@ -23,17 +23,13 @@ export default function AdminCouponDashboard() {
   });
 
   const loadData = () => {
-    axios
-      .get("https://api.xpreppg.com/api/coupon-analytics", {
-        headers: { Authorization: "Bearer " + token },
-      })
-      .then((res) => setAnalytics(res.data.analytics || []));
+    AdminAPI.getCouponAnalytics().then((res) =>
+      setAnalytics(res.data.analytics || [])
+    );
 
-    axios
-      .get("https://api.xpreppg.com/api/coupon-dashboard/list", {
-        headers: { Authorization: "Bearer " + token },
-      })
-      .then((res) => setCoupons(res.data.coupons || []));
+    AdminAPI.getCoupons().then((res) =>
+      setCoupons(res.data.coupons || [])
+    );
   };
 
   useEffect(() => {
@@ -43,30 +39,19 @@ export default function AdminCouponDashboard() {
   const createCoupon = async (e: any) => {
     e.preventDefault();
 
-    await axios.post(
-      "https://api.xpreppg.com/api/coupon-dashboard/create",
-      form,
-      { headers: { Authorization: "Bearer " + token } }
-    );
+    await AdminAPI.createCoupon(form);
 
     setForm({ code: "", discountType: "percent", discountValue: "", expiresAt: "" });
     loadData();
   };
 
   const deleteCoupon = async (id: string) => {
-    await axios.delete(
-      `https://api.xpreppg.com/api/coupon-dashboard/delete/${id}`,
-      { headers: { Authorization: "Bearer " + token } }
-    );
+    await AdminAPI.deleteCoupon(id);
     loadData();
   };
 
   const toggleCoupon = async (id: string) => {
-    await axios.patch(
-      `https://api.xpreppg.com/api/coupon-dashboard/toggle/${id}`,
-      {},
-      { headers: { Authorization: "Bearer " + token } }
-    );
+    await AdminAPI.toggleCoupon(id);
     loadData();
   };
 

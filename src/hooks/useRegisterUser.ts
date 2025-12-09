@@ -1,42 +1,39 @@
-// src/hooks/useRegisterUser.ts
 import { useState } from "react";
-import axios from "axios";
+import { AuthAPI } from "@/services/api";
 
 export default function useRegisterUser() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
 
-  const registerUser = async (formData: any, onSuccess?: (res: any) => void) => {
+  const registerUser = async (formData: any, onComplete?: (res: any) => void) => {
     setLoading(true);
     setStatus("");
 
     try {
-      // const res = await axios.post(
-      //   "http://127.0.0.1:5002/api/web/register",
-      //   formData
-      // );
-      const res = await axios.post(
-        "https://api.xpreppg.com/api/web/register",
-        formData
-      );
+      const res = await AuthAPI.userRegister(formData);
+      const response = res.data;
 
-      if (res.data.status) {
+      if (response.status) {
         setStatus("Registration successful! Redirecting to plans...");
 
         // Save to storage
         localStorage.setItem("x_user_mobile", formData.mobile);
         localStorage.setItem("x_user_email", formData.email);
         localStorage.setItem("x_user_name", formData.name);
-
-        // Callback for the page using it
-        if (onSuccess) onSuccess(res.data);
       } else {
-        if (onSuccess) onSuccess(res.data);   // 🔥 also send response on failure
-        setStatus(res.data.message);
+        setStatus(response.message || "Registration failed.");
       }
+
+      // Always return the result to caller
+      if (onComplete) onComplete(response);
+
     } catch (err) {
-      console.error(err);
+      console.error("Registration error", err);
       setStatus("Error submitting form. Please try again.");
+
+      if (onComplete) {
+        onComplete({ status: false, message: "Network error" });
+      }
     } finally {
       setLoading(false);
     }
