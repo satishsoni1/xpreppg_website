@@ -30,7 +30,7 @@ export default function About() {
               Every test follows the latest NEET PG/NExT pattern, covering all 19 subjects, and is conducted on a digital interface identical to the official NBE platform.
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Following each CBT, aspirants can attend live YouTube discussions with subject experts for detailed analysis, concept reinforcement, and strategy enhancement.
+              Following each CBT, aspirants can access detailed analysis, concept reinforcement, and strategy enhancement.
             </p>
           </div>
 

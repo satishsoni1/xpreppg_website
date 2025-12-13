@@ -149,7 +149,6 @@ export default function Pricing() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
             {[
-              "Live discussion sessions",
               "Score analysis",
               "Performance analytics",
               "Leaderboard",

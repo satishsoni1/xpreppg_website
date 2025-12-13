@@ -23,11 +23,6 @@ export default function PostExam() {
       description: 'Access comprehensive performance reports',
     },
     {
-      icon: Video,
-      title: 'Live Video Analysis',
-      description: 'Expert doctors discuss solutions on YouTube',
-    },
-    {
       icon: FileText,
       title: 'Concept Recap PDFs',
       description: 'Study materials from discussion sessions',
@@ -43,7 +38,7 @@ export default function PostExam() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-primaryDark mx-auto rounded-full"></div>
           <p className="mt-6 text-xl text-gray-600 max-w-2xl mx-auto">
-            Each exam is followed by a Live Discussion Session on YouTube with subject experts
+            Each exam is followed by Session on YouTube with subject experts
           </p>
         </div>
 

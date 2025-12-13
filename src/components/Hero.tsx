@@ -36,7 +36,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Full-length CBT simulations, in-depth performance analytics, and expert-led live discussions after every exam.
+            Full-length CBT simulations, and in-depth performance analytics after every exam.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">

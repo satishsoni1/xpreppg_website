@@ -21,12 +21,6 @@ export default function Features() {
       gradient: 'from-primary to-primaryDark',
     },
     {
-      icon: Video,
-      title: 'Live Post-Exam Discussions',
-      description: 'Detailed solution sessions by top educators on YouTube.',
-      gradient: 'from-cyan-500 to-blue-500',
-    },
-    {
       icon: Clock,
       title: 'Strategic Scheduling',
       description: 'Four national-level CBTs to match your revision timeline.',
