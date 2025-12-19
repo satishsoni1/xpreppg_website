@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  Users,
+  UserCheck,
+  UserX,
+  TicketPercent,
+  ArrowRight
+} from "lucide-react";
 import { AdminAPI } from "@/services/api";
 
 export default function AdminDashboard() {
@@ -14,7 +21,6 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-
     const loadStats = async () => {
       try {
         const res = await AdminAPI.stats();
@@ -24,55 +30,70 @@ export default function AdminDashboard() {
         } else {
           setError("Failed to load dashboard stats.");
         }
-      } catch (err) {
+      } catch {
         setError("Unable to reach server. Check connection.");
       }
-
       setLoading(false);
     };
 
     loadStats();
   }, []);
 
-  // Skeleton Loader
+  /* ---------- Skeleton ---------- */
   const SkeletonCard = () => (
-    <div className="p-6 bg-white rounded-xl shadow animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-24 mx-auto mb-4"></div>
-      <div className="h-8 bg-gray-300 rounded w-16 mx-auto"></div>
+    <div className="bg-white rounded-xl p-6 shadow animate-pulse">
+      <div className="h-10 w-10 bg-gray-200 rounded-lg mb-4"></div>
+      <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
+      <div className="h-8 w-20 bg-gray-300 rounded"></div>
     </div>
   );
 
-  // Dashboard Card Component
+  /* ---------- Stat Card ---------- */
   const StatCard = ({
     label,
     value,
+    icon: Icon,
     color,
+    bg,
   }: {
     label: string;
     value: number | string;
-    color?: string;
+    icon: any;
+    color: string;
+    bg: string;
   }) => (
-    <div className="p-6 bg-white rounded-xl shadow hover:shadow-lg transition text-center cursor-default">
-      <p className="text-gray-600 text-sm">{label}</p>
-      <p className={`text-3xl font-bold ${color || "text-gray-800"}`}>
-        {value}
-      </p>
+    <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+        </div>
+        <div className={`p-3 rounded-xl ${bg}`}>
+          <Icon className={color} size={24} />
+        </div>
+      </div>
     </div>
   );
 
   return (
     <div className="p-6">
 
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-600 bg-red-100 px-4 py-3 rounded-lg mb-6">
-          {error}
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <p className="text-gray-500 mt-1">
+          Overview of platform activity & performance
         </p>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+          {error}
+        </div>
       )}
 
-      {/* STATS GRID */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {loading ? (
           <>
@@ -83,47 +104,80 @@ export default function AdminDashboard() {
           </>
         ) : (
           <>
-            <StatCard label="Total Users" value={stats.users} />
+            <StatCard
+              label="Total Users"
+              value={stats.users}
+              icon={Users}
+              color="text-blue-600"
+              bg="bg-blue-50"
+            />
             <StatCard
               label="Paid Users"
               value={stats.paid}
+              icon={UserCheck}
               color="text-emerald-600"
+              bg="bg-emerald-50"
             />
             <StatCard
               label="Unpaid Users"
               value={stats.unpaid}
-              color="text-red-500"
+              icon={UserX}
+              color="text-red-600"
+              bg="bg-red-50"
             />
             <StatCard
               label="Coupon Uses"
               value={stats.couponUses}
-              color="text-blue-600"
+              icon={TicketPercent}
+              color="text-indigo-600"
+              bg="bg-indigo-50"
             />
           </>
         )}
       </div>
 
-      {/* QUICK LINKS */}
-      <div className="mt-10 grid md:grid-cols-2 gap-6">
-        <Link
-          to="/admin/users"
-          className="p-6 bg-white rounded-xl shadow hover:shadow-xl transition block border border-transparent hover:border-blue-300"
-        >
-          <h2 className="text-xl font-semibold mb-2">Registered Users</h2>
-          <p className="text-gray-600 text-sm">View all registered students.</p>
-        </Link>
+      {/* Quick Actions */}
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+          Quick Actions
+        </h2>
 
-        <Link
-          to="/admin/coupons"
-          className="p-6 bg-white rounded-xl shadow hover:shadow-xl transition block border border-transparent hover:border-emerald-300"
-        >
-          <h2 className="text-xl font-semibold mb-2">Coupon Analytics</h2>
-          <p className="text-gray-600 text-sm">
-            Manage coupons & view analytics.
-          </p>
-        </Link>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Link
+            to="/admin/users"
+            className="group bg-white p-6 rounded-xl shadow hover:shadow-xl transition border border-transparent hover:border-blue-300"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Registered Users
+                </h3>
+                <p className="text-sm text-gray-600">
+                  View and manage all users
+                </p>
+              </div>
+              <ArrowRight className="text-blue-600 group-hover:translate-x-1 transition" />
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/coupons"
+            className="group bg-white p-6 rounded-xl shadow hover:shadow-xl transition border border-transparent hover:border-emerald-300"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-semibold mb-1">
+                  Coupon Analytics
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Manage coupons & usage stats
+                </p>
+              </div>
+              <ArrowRight className="text-emerald-600 group-hover:translate-x-1 transition" />
+            </div>
+          </Link>
+        </div>
       </div>
-
     </div>
   );
 }

@@ -92,6 +92,7 @@ export default function Enroll() {
       const res = await CouponAPI.validate({
         code: discountCode,
         amount: form.amount,
+        exams: form.exams,
       });
 
       if (!res.data.valid) {

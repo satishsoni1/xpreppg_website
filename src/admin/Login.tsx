@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
 import { AuthAPI } from "@/services/api";
 import Navigation from "./Navigation";
 
@@ -28,8 +29,7 @@ export default function AdminLogin() {
 
       localStorage.setItem("admin_token", res.data.token);
       window.location.href = "/admin";
-
-    } catch (err) {
+    } catch {
       setError("Unable to login. Check connection or credentials.");
       setLoading(false);
     }
@@ -40,65 +40,96 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-gray-100">
       <Navigation />
 
-      <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-        <div className="bg-white p-8 shadow-lg rounded-xl w-full max-w-md">
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
-          <h1 className="text-2xl font-bold mb-5 text-center text-gray-800">
-            Admin Login
-          </h1>
-
-          {error && (
-            <p className="text-red-600 mb-3 text-center font-medium">{error}</p>
-          )}
-
-          {/* Email Input */}
-          <input
-            className="border p-3 w-full rounded mb-3 focus:ring-2 focus:ring-emerald-500"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            onKeyPress={handleKeyPress}
-          />
-
-          {/* Password Input */}
-          <div className="relative mb-4">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="border p-3 w-full rounded focus:ring-2 focus:ring-emerald-500"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              onKeyPress={handleKeyPress}
-            />
-
-            {/* Show Password Toggle */}
-            <span
-              className="absolute right-3 top-3 text-gray-500 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </span>
+          {/* Header */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+              <ShieldCheck className="text-emerald-600" size={28} />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800">Admin Login</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Secure access to admin dashboard
+            </p>
           </div>
 
-          {/* Login Button */}
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg p-3 mb-4">
+              {error}
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="mb-4">
+            <label className="text-sm font-medium text-gray-600 mb-1 block">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
+              <input
+                className="w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                placeholder="admin@company.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onKeyPress={handleKeyPress}
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className="mb-6">
+            <label className="text-sm font-medium text-gray-600 mb-1 block">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+              <input
+                type={showPassword ? "text" : "password"}
+                className="w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onKeyPress={handleKeyPress}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Button */}
           <button
             onClick={login}
             disabled={loading}
-            className={`w-full py-3 rounded-lg text-white font-semibold 
-            ${loading ? "bg-emerald-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"}`}
+            className={`w-full py-3 rounded-lg font-semibold text-white transition-all
+              ${loading
+                ? "bg-emerald-400 cursor-not-allowed"
+                : "bg-emerald-600 hover:bg-emerald-700 shadow-md"
+              }`}
           >
             {loading ? (
-              <div className="flex justify-center items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="flex justify-center items-center gap-2">
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 Logging in...
-              </div>
+              </span>
             ) : (
-              "Login"
+              "Login to Admin Panel"
             )}
           </button>
+
+          {/* Footer */}
+          <p className="text-xs text-center text-gray-400 mt-6">
+            Authorized personnel only
+          </p>
 
         </div>
       </div>

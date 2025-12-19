@@ -14,12 +14,20 @@ export default function AdminCouponDashboard() {
 
   const [analytics, setAnalytics] = useState([]);
   const [coupons, setCoupons] = useState([]);
+  const [plans, setPlans] = useState([]);
+
+  useEffect(() => {
+    AdminAPI.getPlans().then(res =>
+      setPlans(res.data.plans || [])
+    );
+  }, []);
 
   const [form, setForm] = useState({
     code: "",
     discountType: "percent",
     discountValue: "",
     expiresAt: "",
+    applicablePlans: [],
   });
 
   const loadData = () => {
@@ -41,7 +49,7 @@ export default function AdminCouponDashboard() {
 
     await AdminAPI.createCoupon(form);
 
-    setForm({ code: "", discountType: "percent", discountValue: "", expiresAt: "" });
+    setForm({ code: "", discountType: "percent", discountValue: "", expiresAt: "", applicablePlans: [] });
     loadData();
   };
 
@@ -78,6 +86,33 @@ export default function AdminCouponDashboard() {
             onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
             required
           />
+          <div className="md:col-span-4">
+            <label className="text-sm font-medium">Applicable Plans</label>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+              {plans.map((p: any) => (
+                <label
+                  key={p._id}
+                  className="flex items-center gap-2 border rounded-lg px-3 py-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.applicablePlans?.includes(p._id)}
+                    onChange={(e) => {
+                      const updated = e.target.checked
+                        ? [...(form.applicablePlans || []), p._id]
+                        : form.applicablePlans.filter((id: string) => id !== p._id);
+
+                      setForm({ ...form, applicablePlans: updated });
+                    }}
+                  />
+                  <span className="text-sm">
+                    {p.exams} Exams – ₹{p.sellingPrice}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
 
           <select
             className="border p-3 rounded"
@@ -155,6 +190,7 @@ export default function AdminCouponDashboard() {
               <th className="py-3">Coupon</th>
               <th className="py-3">Type</th>
               <th className="py-3">Value</th>
+              <th className="py-3">Plans</th> {/* ⭐ NEW */}
               <th className="py-3">Expires</th>
               <th className="py-3">Active</th>
               <th className="py-3">Actions</th>
@@ -162,38 +198,89 @@ export default function AdminCouponDashboard() {
           </thead>
 
           <tbody>
-            {coupons.map((c: any) => (
-              <tr key={c._id} className="border-b">
-                <td className="py-3 font-semibold">{c.code}</td>
-                <td>{c.discountType}</td>
-                <td>{c.discountValue}</td>
-                <td>{c.expiresAt?.slice(0, 10)}</td>
-                <td>
-                  {c.active ? (
-                    <span className="text-emerald-600 font-semibold">Active</span>
-                  ) : (
-                    <span className="text-red-500 font-semibold">Inactive</span>
-                  )}
-                </td>
-                <td className="flex gap-3 py-3">
-                  <button
-                    onClick={() => toggleCoupon(c._id)}
-                    className="px-3 py-1 bg-blue-600 text-white rounded"
-                  >
-                    Toggle
-                  </button>
-                  <button
-                    onClick={() => deleteCoupon(c._id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {coupons.map((c: any) => {
+              const plans = c.applicablePlans || [];
+              const visiblePlans = plans.slice(0, 2);
+              const extraCount = plans.length - visiblePlans.length;
+
+              return (
+                <tr key={c._id} className="border-b align-top">
+                  <td className="py-3 font-semibold">{c.code}</td>
+
+                  <td className="py-3 capitalize">{c.discountType}</td>
+
+                  <td className="py-3">
+                    {c.discountType === "percent"
+                      ? `${c.discountValue}%`
+                      : `₹${c.discountValue}`}
+                  </td>
+
+                  {/* PLANS COLUMN */}
+                  <td className="py-3">
+                    {plans.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {visiblePlans.map((p: any) => (
+                          <span
+                            key={p._id}
+                            className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700"
+                          >
+                            {p.exams} exams
+                          </span>
+                        ))}
+
+                        {extraCount > 0 && (
+                          <span
+                            title={plans.map((p: any) => p.exams).join(" exams, ")}
+                            className="px-2 py-0.5 text-xs rounded-full bg-gray-200 text-gray-600 cursor-help"
+                          >
+                            +{extraCount} more
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-red-500">
+                        No plans assigned
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="py-3">{c.expiresAt?.slice(0, 10)}</td>
+
+                  <td className="py-3">
+                    {c.active ? (
+                      <span className="text-emerald-600 font-semibold">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="text-red-500 font-semibold">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="py-3">
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => toggleCoupon(c._id)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
+                      >
+                        Toggle
+                      </button>
+                      <button
+                        onClick={() => deleteCoupon(c._id)}
+                        className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
+
     </div>
   );
 }

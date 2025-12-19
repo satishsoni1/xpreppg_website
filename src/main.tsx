@@ -22,6 +22,7 @@ import CitiesAdmin from "./admin/Cities";
 import AdminExams from "./admin/AdminExams";
 import AdminCentres from "./admin/AdminCentres";
 import AdminCandidates from "./admin/AdminCandidates";
+import AdminOfflineRegistration from "./admin/AdminOfflineRegistration";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -47,11 +48,13 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <AdminDashboard /> },
           { path: "coupons", element: <AdminCouponDashboard /> },
-          { path: "users", element: <AdminUsers /> },
+          
           { path: "plans", element: <ManagePlans />},
           { path: "cities", element: <CitiesAdmin />},
           { path: "exams", element: <AdminExams />},
           { path: "centre", element: <AdminCentres /> },
+          { path: "online_registration", element: <AdminUsers /> },
+          { path: "offline_registration", element: <AdminOfflineRegistration /> },
           { path: "candidates", element: <AdminCandidates /> }
 
         ]
