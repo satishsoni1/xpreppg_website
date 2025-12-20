@@ -66,7 +66,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       }
 
       setTimeout(() => {
-        window.location.href = "/pricing";
+        window.location.href = "/enroll";
       }, 1500);
     });
   };

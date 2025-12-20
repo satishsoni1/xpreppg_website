@@ -144,7 +144,7 @@ export default function AdminDashboard() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <Link
-            to="/admin/users"
+            to="/admin/online_registration"
             className="group bg-white p-6 rounded-xl shadow hover:shadow-xl transition border border-transparent hover:border-blue-300"
           >
             <div className="flex justify-between items-center">

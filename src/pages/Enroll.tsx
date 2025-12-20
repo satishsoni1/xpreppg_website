@@ -1,82 +1,105 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import MainLayout from "@/layouts/MainLayout";
-import { WebAPI, CouponAPI, PaymentAPI } from "@/services/api";
+import { PlansAPI, WebAPI, CouponAPI, PaymentAPI } from "@/services/api";
 import { openRazorpay } from "@/lib/razorpay";
+
+import PlanSelector from "@/components/enroll/PlanSelector";
+import ExamDateSelector from "@/components/enroll/ExamDateSelector";
+import UserInfoSection from "@/components/enroll/UserInfoSection";
+import CouponSection from "@/components/enroll/CouponSection";
+import PlanSummary from "@/components/enroll/PlanSummary";
 
 export default function Enroll() {
   const navigate = useNavigate();
-  const [sp] = useSearchParams();
 
   const mobile = localStorage.getItem("x_user_mobile");
   const name = localStorage.getItem("x_user_name");
   const email = localStorage.getItem("x_user_email");
 
-  const [loading, setLoading] = useState(false);
-
-  // Prefill Data
-  const prefill = useMemo(
-    () => ({
-      plan: sp.get("plan") || "",
-      exams: Number(sp.get("exams") || 1),
-      amount: Number(sp.get("amount") || 0),
-      original: Number(sp.get("original") || 0),
-    }),
-    [sp]
-  );
+  /* -------------------------------------------------------
+     STATE
+  ------------------------------------------------------- */
+  const [plans, setPlans] = useState<any[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedExamIds, setSelectedExamIds] = useState<number[]>([]);
 
   const [form, setForm] = useState({
     fullName: name || "",
     email: email || "",
     phone: mobile || "",
-    studentCount:
-      prefill.plan.toLowerCase().includes("group of 5")
-        ? 5
-        : prefill.plan.toLowerCase().includes("group of 3")
-        ? 3
-        : 1,
-    plan: prefill.plan,
-    exams: prefill.exams,
-    amount: prefill.amount,
+    plan: "",
+    exams: 0,
+    amount: 0,
   });
 
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState(0);
-  const [finalAmount, setFinalAmount] = useState(prefill.amount);
+  const [finalAmount, setFinalAmount] = useState(0);
 
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [couponSuccess, setCouponSuccess] = useState("");
 
-  // -------------------------------------------------------
-  // LOAD USER DETAILS ONCE
-  // -------------------------------------------------------
+  const [loading, setLoading] = useState(false);
+
+  /* -------------------------------------------------------
+     AUTH CHECK + USER LOAD
+  ------------------------------------------------------- */
   useEffect(() => {
     if (!mobile || !name || !email) {
       alert("Please register first.");
-      return navigate("/");
+      navigate("/");
+      return;
     }
 
-    const loadUser = async () => {
-      const res = await WebAPI.getUser(mobile);
+    WebAPI.getUser(mobile).then((res) => {
       if (res.data?.status) {
         const u = res.data.user;
-        setForm((prev) => ({
-          ...prev,
+        setForm((f) => ({
+          ...f,
           fullName: u.name,
           email: u.email,
           phone: u.mobile,
         }));
       }
-    };
-
-    loadUser();
+    });
   }, []);
 
-  // -------------------------------------------------------
-  // APPLY COUPON
-  // -------------------------------------------------------
+  /* -------------------------------------------------------
+     LOAD PLANS
+  ------------------------------------------------------- */
+  useEffect(() => {
+    PlansAPI.list().then((res) => {
+      if (res.data.status) setPlans(res.data.plans);
+    });
+  }, []);
+
+  /* -------------------------------------------------------
+     WHEN PLAN CHANGES
+  ------------------------------------------------------- */
+  useEffect(() => {
+    if (!selectedPlan) return;
+
+    setForm((f) => ({
+      ...f,
+      plan: "Individual",
+      exams: selectedPlan.exams,
+      amount: selectedPlan.sellingPrice,
+    }));
+
+    setSelectedExamIds([]);
+    setDiscountCode("");
+    setDiscountApplied(0);
+    setFinalAmount(selectedPlan.sellingPrice);
+    setCouponError("");
+    setCouponSuccess("");
+  }, [selectedPlan]);
+
+  /* -------------------------------------------------------
+     APPLY COUPON
+  ------------------------------------------------------- */
   const applyCoupon = async () => {
     setCouponError("");
     setCouponSuccess("");
@@ -102,27 +125,24 @@ export default function Enroll() {
       }
 
       let discount = 0;
-      const { discountType, discountValue } = res.data;
-
-      if (discountType === "percent") {
-        discount = (form.amount * discountValue) / 100;
+      if (res.data.discountType === "percent") {
+        discount = (form.amount * res.data.discountValue) / 100;
       } else {
-        discount = discountValue;
+        discount = res.data.discountValue;
       }
 
       if (discount > form.amount) discount = form.amount;
 
       setDiscountApplied(discount);
       setFinalAmount(form.amount - discount);
-      setCouponSuccess(`Coupon applied! You saved ₹${discount}.`);
+      setCouponSuccess(`Coupon applied! You saved ₹${discount}`);
     } catch {
-      setCouponError("Unable to apply coupon. Try again.");
+      setCouponError("Unable to apply coupon.");
     }
 
     setCouponLoading(false);
   };
 
-  // Remove coupon
   const removeCoupon = () => {
     setDiscountCode("");
     setDiscountApplied(0);
@@ -130,28 +150,32 @@ export default function Enroll() {
     setCouponSuccess("Coupon removed.");
   };
 
-  // -------------------------------------------------------
-  // PAYMENT FLOW
-  // -------------------------------------------------------
-  const payAndGenerate = async (e) => {
+  /* -------------------------------------------------------
+     PAYMENT
+  ------------------------------------------------------- */
+  const payAndGenerate = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
 
+    if (selectedExamIds.length !== form.exams) {
+      alert(`Please select ${form.exams} exam date(s).`);
+      return;
+    }
+
+    setLoading(true);
     const invoiceId = String(Date.now());
 
     try {
-      // A. Create order
       const orderRes = await PaymentAPI.createOrder({
         mobile: form.phone,
+        plan: form.plan,
+        exams: form.exams,
+        examDates: selectedExamIds,
         amount: finalAmount,
         originalAmount: form.amount,
         discount: discountApplied,
-        discountCode: discountCode,
-        plan: form.plan,
-        exams: form.exams,
+        discountCode,
       });
 
-      // FREE COUPON FLOW
       if (orderRes.data.free) {
         return navigate(
           `/invoice/${invoiceId}?${new URLSearchParams({
@@ -160,268 +184,152 @@ export default function Enroll() {
             phone: form.phone,
             plan: form.plan,
             exams: String(form.exams),
-            originalAmount: String(form.amount),
-            discount: String(discountApplied),
             amount: "0",
             invoiceId,
-            paymentId: "FREE-COUPON",
-            courseCode: orderRes.data.courseCode,
+            paymentId: "FREE",
             status: "paid",
           })}`
         );
       }
 
-      // B. Paid → Razorpay Popup
       const { key, orderId, amount } = orderRes.data;
 
       await openRazorpay({
         key,
-        amount: amount * 100,
         order_id: orderId,
+        amount: amount * 100,
         name: "XPrepPG",
-        description: `${form.plan} - ${form.exams} exam(s)`,
-
-        // Razorpay Success Handler
+        description: `${form.plan} – ${form.exams} Exam(s)`,
         handler: async (resp) => {
           const verifyRes = await PaymentAPI.verifyPayment({
-            razorpay_payment_id: resp.razorpay_payment_id,
-            razorpay_order_id: resp.razorpay_order_id,
-            razorpay_signature: resp.razorpay_signature,
+            ...resp,
             mobile: form.phone,
             plan: form.plan,
             exams: form.exams,
+            examDates: selectedExamIds,
             amount: finalAmount,
-            originalAmount: form.amount,
             discount: discountApplied,
             discountCode,
           });
 
-          return navigate(
+          navigate(
             `/invoice/${invoiceId}?${new URLSearchParams({
               name: form.fullName,
               email: form.email,
               phone: form.phone,
               plan: form.plan,
               exams: String(form.exams),
-              originalAmount: String(form.amount),
-              discount: String(discountApplied),
               amount: String(finalAmount),
-              discountCode,
               invoiceId,
               paymentId: resp.razorpay_payment_id,
-              courseCode: verifyRes.data.courseCode,
               status: verifyRes.data.status ? "paid" : "failed",
             })}`
           );
         },
-
         prefill: {
           name: form.fullName,
           email: form.email,
           contact: form.phone,
         },
-
         theme: { color: "#10B981" },
       });
     } catch (err) {
-      console.error(err);
       alert("Payment failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // -------------------------------------------------------
-  // RENDER
-  // -------------------------------------------------------
+  /* -------------------------------------------------------
+     RENDER
+  ------------------------------------------------------- */
   return (
     <MainLayout>
-      <section className="py-2 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-3xl mx-auto bg-white p-8">
-          <h1 className="text-3xl font-bold mb-2">Enroll</h1>
-          <p className="text-gray-600 mb-8">
-            Your details are auto-filled from registration. Complete payment to
-            generate invoice.
-          </p>
+      <section className="py-8 px-4 bg-gray-50 min-h-screen">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-8 space-y-8">
 
-          <form onSubmit={payAndGenerate} className="grid grid-cols-1 gap-6">
-            {/* USER DETAILS */}
+          <header>
+            <h1 className="text-3xl font-bold">Enroll for Grand CBT</h1>
+            <p className="text-gray-600 mt-1">
+              Select plan, choose exam dates, apply coupon & complete payment
+            </p>
+          </header>
+
+          {/* STEP 1 */}
+          <Step title="1. Your Details">
             <UserInfoSection form={form} />
+          </Step>
 
-            {/* COUPON SECTION */}
-            <CouponSection
-              form={form}
-              discountCode={discountCode}
-              setDiscountCode={setDiscountCode}
-              couponLoading={couponLoading}
-              couponError={couponError}
-              couponSuccess={couponSuccess}
-              discountApplied={discountApplied}
-              finalAmount={finalAmount}
-              applyCoupon={applyCoupon}
-              removeCoupon={removeCoupon}
+          {/* STEP 2 */}
+          <Step title="2. Select Plan">
+            <PlanSelector
+              plans={plans}
+              selectedPlan={selectedPlan}
+              onSelect={setSelectedPlan}
             />
+          </Step>
 
-            {/* PLAN INFO */}
-            <PlanSection form={form} finalAmount={finalAmount} />
+          {/* STEP 3 */}
+          {selectedPlan && (
+            <Step title="3. Select Exam Dates">
+              <ExamDateSelector
+                max={selectedPlan.exams}
+                selected={selectedExamIds}
+                onChange={setSelectedExamIds}
+              />
+            </Step>
+          )}
 
-            {/* PAY BUTTON */}
-            <button
-              disabled={loading}
-              className="mt-2 w-full md:w-auto px-6 py-3 rounded-xl bg-emerald-600 text-white font-semibold hover:opacity-90 disabled:opacity-70"
-            >
-              {loading ? "Processing..." : "Pay & Generate Invoice"}
-            </button>
-          </form>
+          {/* STEP 4 */}
+          {selectedPlan &&
+            selectedExamIds.length === selectedPlan.exams && (
+              <>
+                <Step title="4. Apply Coupon (Optional)">
+                  <CouponSection
+                    form={form}
+                    discountCode={discountCode}
+                    setDiscountCode={setDiscountCode}
+                    couponLoading={couponLoading}
+                    couponError={couponError}
+                    couponSuccess={couponSuccess}
+                    discountApplied={discountApplied}
+                    finalAmount={finalAmount}
+                    applyCoupon={applyCoupon}
+                    removeCoupon={removeCoupon}
+                  />
+                </Step>
+
+                <Step title="5. Summary & Payment">
+                  <PlanSummary
+                    exams={form.exams}
+                    examDates={selectedExamIds}
+                    amount={finalAmount}
+                  />
+
+                  <button
+                    onClick={payAndGenerate}
+                    disabled={loading}
+                    className="mt-6 w-full md:w-auto px-8 py-4 rounded-xl bg-emerald-600 text-white font-bold hover:opacity-90 disabled:opacity-60"
+                  >
+                    {loading ? "Processing..." : "Pay & Generate Invoice"}
+                  </button>
+                </Step>
+              </>
+            )}
         </div>
       </section>
     </MainLayout>
   );
 }
 
-/* ---------------------------------------------------------
-   SUB COMPONENTS (Cleaner UI)
----------------------------------------------------------- */
-
-function UserInfoSection({ form }) {
+/* -------------------------------------------------------
+   STEP WRAPPER
+------------------------------------------------------- */
+function Step({ title, children }: any) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      {["fullName", "email"].map((field) => (
-        <div key={field}>
-          <label className="text-sm text-gray-700">
-            {field === "fullName" ? "Full Name" : "Email"}
-          </label>
-          <input
-            className="mt-1 w-full rounded-xl border p-3 bg-gray-50"
-            value={form[field]}
-            readOnly
-          />
-        </div>
-      ))}
-
-      <div className="md:col-span-2">
-        <label className="text-sm text-gray-700">Phone</label>
-        <input
-          className="mt-1 w-full rounded-xl border p-3 bg-gray-50"
-          value={form.phone}
-          readOnly
-        />
-      </div>
-    </div>
-  );
-}
-
-function CouponSection({
-  form,
-  discountCode,
-  setDiscountCode,
-  couponLoading,
-  couponError,
-  couponSuccess,
-  discountApplied,
-  finalAmount,
-  applyCoupon,
-  removeCoupon,
-}) {
-  return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-2xl border shadow-sm">
-      <label className="text-sm font-semibold text-gray-700">
-        Have a Coupon?
-      </label>
-
-      <div className="flex gap-3 mt-3">
-        <div className="relative w-full">
-          <input
-            className={`w-full rounded-xl border p-3 bg-white pr-10 transition-all ${couponError
-              ? "border-red-400"
-              : couponSuccess
-              ? "border-emerald-500"
-              : "border-gray-300"
-            }`}
-            placeholder="Enter discount code"
-            value={discountCode}
-            onChange={(e) => {
-              setDiscountCode(e.target.value.toUpperCase());
-            }}
-          />
-
-          {couponLoading && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="animate-spin h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full"></div>
-            </div>
-          )}
-        </div>
-
-        {!discountApplied ? (
-          <button
-            type="button"
-            onClick={applyCoupon}
-            disabled={couponLoading}
-            className="px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold"
-          >
-            Apply
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={removeCoupon}
-            className="px-5 py-3 rounded-xl bg-red-500 text-white font-semibold"
-          >
-            Remove
-          </button>
-        )}
-      </div>
-
-      {couponError && (
-        <p className="mt-2 text-sm text-red-600 font-medium">❌ {couponError}</p>
-      )}
-
-      {couponSuccess && (
-        <p className="mt-2 text-sm text-emerald-600 font-semibold">
-          🎉 {couponSuccess}
-        </p>
-      )}
-
-      {discountApplied > 0 && (
-        <div className="mt-4 p-4 bg-white rounded-xl border shadow-sm">
-          <div className="flex justify-between text-gray-700">
-            <span>Original Amount</span>
-            <span>₹{form.amount}</span>
-          </div>
-          <div className="flex justify-between text-green-600 font-semibold mt-1">
-            <span>Discount</span>
-            <span>- ₹{discountApplied}</span>
-          </div>
-
-          <hr className="my-3" />
-
-          <div className="flex justify-between font-bold text-lg">
-            <span>Final Amount</span>
-            <span className="text-emerald-700">₹{finalAmount}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlanSection({ form, finalAmount }) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-      <div>
-        <label className="text-sm text-gray-700">Plan</label>
-        <input className="mt-1 w-full rounded-xl border p-3 bg-gray-50" value={form.plan} readOnly />
-      </div>
-
-      <div>
-        <label className="text-sm text-gray-700">Exams</label>
-        <input className="mt-1 w-full rounded-xl border p-3 bg-gray-50" value={form.exams} readOnly />
-      </div>
-
-      <div>
-        <label className="text-sm text-gray-700">Amount (₹)</label>
-        <input className="mt-1 w-full rounded-xl border p-3 bg-gray-50" value={finalAmount} readOnly />
-      </div>
+    <div className="border rounded-2xl p-6 bg-gray-50">
+      <h2 className="text-xl font-bold mb-4">{title}</h2>
+      {children}
     </div>
   );
 }
