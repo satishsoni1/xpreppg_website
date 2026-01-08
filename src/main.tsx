@@ -23,6 +23,7 @@ import AdminExams from "./admin/AdminExams";
 import AdminCentres from "./admin/AdminCentres";
 import AdminCandidates from "./admin/AdminCandidates";
 import AdminOfflineRegistration from "./admin/AdminOfflineRegistration";
+import AdmitCardPage from "./admin/AdmitCardPage";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -55,7 +56,8 @@ const router = createBrowserRouter([
           { path: "centre", element: <AdminCentres /> },
           { path: "online_registration", element: <AdminUsers /> },
           { path: "offline_registration", element: <AdminOfflineRegistration /> },
-          { path: "candidates", element: <AdminCandidates /> }
+          { path: "candidates", element: <AdminCandidates /> },
+          { path: "admit-card", element: <AdmitCardPage /> }
 
         ]
       }
