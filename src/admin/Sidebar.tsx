@@ -105,7 +105,7 @@ export default function Sidebar() {
           }
         >
           <Users size={18} />
-          Offlien Student Admin Card
+          offline Student Admin Card
         </NavLink>
 
         <NavLink
