@@ -94,6 +94,19 @@ export default function Sidebar() {
           <Users size={18} />
           Registered Users(Online)
         </NavLink>
+        <NavLink
+          to="/admin/temp-admit-cards"
+          className={({ isActive }) =>
+            `${menuItemClass} ${
+              isActive
+                ? "bg-emerald-50 text-emerald-700 border-l-4 border-emerald-600"
+                : "text-gray-700 hover:bg-gray-100"
+            }`
+          }
+        >
+          <Users size={18} />
+          Offlien Student Admin Card
+        </NavLink>
 
         <NavLink
           to="/admin/plans"
