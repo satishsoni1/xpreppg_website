@@ -24,6 +24,8 @@ import AdminCentres from "./admin/AdminCentres";
 import AdminCandidates from "./admin/AdminCandidates";
 import AdminOfflineRegistration from "./admin/AdminOfflineRegistration";
 import AdmitCardPage from "./admin/AdmitCardPage";
+import AdmitCardBulkPage from "./admin/AdmitCardBulkPage";
+import TempAdmitCardBulk from "./admin/TempAdmitCardBulk";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -57,7 +59,10 @@ const router = createBrowserRouter([
           { path: "online_registration", element: <AdminUsers /> },
           { path: "offline_registration", element: <AdminOfflineRegistration /> },
           { path: "candidates", element: <AdminCandidates /> },
-          { path: "admit-card", element: <AdmitCardPage /> }
+          { path: "admit-card", element: <AdmitCardPage /> },
+          { path: "admit-card-bulk", element: <AdmitCardBulkPage /> },
+          { path: "temp-admit-cards", element: <TempAdmitCardBulk /> }
+
 
         ]
       }

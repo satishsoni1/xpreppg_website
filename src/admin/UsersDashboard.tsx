@@ -6,11 +6,14 @@ export default function UsersDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔍 Filters
+  // Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("all");
   const [planFilter, setPlanFilter] = useState("all");
+
+  // Selection
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -33,13 +36,7 @@ export default function UsersDashboard() {
     });
   };
 
-  const openAdmitCard = (user: any) => {
-    navigate("/admin/admit-card", {
-      state: { user },
-    });
-  };
-
-  // 🏙 Cities & 📦 Plans (dynamic)
+  // Dynamic filter options
   const cities = Array.from(
     new Set(users.map((u) => u.city).filter(Boolean))
   );
@@ -48,7 +45,7 @@ export default function UsersDashboard() {
     new Set(users.map((u) => u.enrolledPlan?.plan).filter(Boolean))
   );
 
-  // 🔍 Filter logic
+  // Filtered users
   const filteredUsers = users.filter((u) => {
     const searchMatch =
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -73,6 +70,45 @@ export default function UsersDashboard() {
     return searchMatch && statusMatch && cityMatch && planMatch;
   });
 
+  // Selection helpers
+  const toggleUser = (id: string) => {
+    setSelectedUsers((prev) =>
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id]
+    );
+  };
+
+  const selectAllFiltered = () => {
+    const ids = filteredUsers
+      .filter((u) => u.isPaid)
+      .map((u) => u._id);
+    setSelectedUsers(ids);
+  };
+
+  const clearSelection = () => setSelectedUsers([]);
+
+  const printSelected = () => {
+    const usersToPrint = filteredUsers.filter(
+      (u) => selectedUsers.includes(u._id) && u.isPaid
+    );
+
+    if (!usersToPrint.length) {
+      alert("No paid students selected");
+      return;
+    }
+
+    navigate("/admin/admit-card-bulk", {
+      state: { users: usersToPrint },
+    });
+  };
+
+  const openAdmitCard = (user: any) => {
+    navigate("/admin/admit-card", {
+      state: { user },
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-64 space-y-3">
@@ -88,7 +124,7 @@ export default function UsersDashboard() {
         Registered Users
       </h1>
 
-      {/* ================= FILTER BAR ================= */}
+      {/* ================= FILTERS ================= */}
       <div className="bg-white rounded-xl shadow border p-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input
@@ -137,6 +173,35 @@ export default function UsersDashboard() {
         </div>
       </div>
 
+      {/* ================= BULK ACTIONS ================= */}
+      <div className="flex flex-wrap gap-3 items-center mb-3">
+        <button
+          onClick={selectAllFiltered}
+          className="px-3 py-1 bg-gray-200 rounded text-sm"
+        >
+          Select All (Paid & Filtered)
+        </button>
+
+        <button
+          onClick={clearSelection}
+          className="px-3 py-1 bg-gray-200 rounded text-sm"
+        >
+          Clear Selection
+        </button>
+
+        <button
+          onClick={printSelected}
+          disabled={!selectedUsers.length}
+          className={`px-4 py-1 rounded text-sm text-white ${
+            selectedUsers.length
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Print Selected Admit Cards ({selectedUsers.length})
+        </button>
+      </div>
+
       <p className="text-sm text-gray-600 mb-2">
         Showing {filteredUsers.length} of {users.length} users
       </p>
@@ -145,8 +210,9 @@ export default function UsersDashboard() {
       <div className="bg-white rounded-xl shadow border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 sticky top-0 z-10 border-b">
+            <thead className="bg-gray-50 border-b">
               <tr className="text-gray-600">
+                <th className="py-3 px-4">Select</th>
                 <th className="py-3 px-4">Name</th>
                 <th className="py-3 px-4">City</th>
                 <th className="py-3 px-4">Plan</th>
@@ -165,6 +231,18 @@ export default function UsersDashboard() {
                     idx % 2 === 0 ? "bg-white" : "bg-gray-50/40"
                   }`}
                 >
+                  <td className="px-4">
+                    {u.isPaid ? (
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(u._id)}
+                        onChange={() => toggleUser(u._id)}
+                      />
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
+                  </td>
+
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold overflow-hidden">
@@ -177,7 +255,6 @@ export default function UsersDashboard() {
                           u.name?.charAt(0).toUpperCase()
                         )}
                       </div>
-
                       <div>
                         <div className="font-semibold">{u.name}</div>
                         <div className="text-xs text-gray-500">{u.mobile}</div>
@@ -252,7 +329,7 @@ export default function UsersDashboard() {
 
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center py-6 text-gray-500">
+                  <td colSpan={8} className="text-center py-6 text-gray-500">
                     No users found
                   </td>
                 </tr>
