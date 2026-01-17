@@ -4547,5 +4547,755 @@ export const STUDENT_DATABASE: any = {
       "photo": null
     },
     "result": null
+  },
+  "9850922178": {
+    "user": {
+      "_id": "STU_9850922178",
+      "name": "Ashutosh Eknath Jagrut",
+      "mobile": "9850922178",
+      "applicationNo": "ASHU2178",
+      "password": "ASHU2178",
+      "photo": null
+    },
+    "result": {
+      "rank": 88,
+      "totalStudents": 2278,
+      "totalScore": 454,
+      "totalQs": 200,
+      "attempted": 191,
+      "unattempted": 9,
+      "correct": 129,
+      "incorrect": 62,
+      "accuracy": "67.5",
+      "totalTime": "3h 28m 24s",
+      "difficulty": [
+        {
+          "name": "EASY",
+          "accuracy": "64.8",
+          "correct": 46,
+          "total": 71
+        },
+        {
+          "name": "MEDIUM",
+          "accuracy": "66.1",
+          "correct": 41,
+          "total": 62
+        },
+        {
+          "name": "HARD",
+          "accuracy": "62.7",
+          "correct": 42,
+          "total": 67
+        }
+      ],
+      "tags": [
+        {
+          "name": "Clinical Based",
+          "accuracy": "56.6",
+          "avgTime": "92.0s",
+          "correct": 43,
+          "total": 76,
+          "totalTime": "-"
+        },
+        {
+          "name": "Image Based",
+          "accuracy": "72.9",
+          "avgTime": "65.5s",
+          "correct": 35,
+          "total": 48,
+          "totalTime": "-"
+        },
+        {
+          "name": "One Liner",
+          "accuracy": "67.1",
+          "avgTime": "31.2s",
+          "correct": 51,
+          "total": 76,
+          "totalTime": "-"
+        }
+      ],
+      "subjects": [
+        {
+          "subject": "ANESTHESIA",
+          "totalQs": 3,
+          "score": 12,
+          "correct": 3,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OPTHALMOLOGY",
+          "totalQs": 5,
+          "score": 20,
+          "correct": 5,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ORTHO",
+          "totalQs": 5,
+          "score": 20,
+          "correct": 5,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "RADIOLOGY",
+          "totalQs": 5,
+          "score": 20,
+          "correct": 5,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "FMT",
+          "totalQs": 8,
+          "score": 27,
+          "correct": 7,
+          "accuracy": "87.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "DERMATOLOGY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PSYCHIATRY",
+          "totalQs": 5,
+          "score": 16,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OBS & GNY",
+          "totalQs": 23,
+          "score": 62,
+          "correct": 17,
+          "accuracy": "73.9",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "BIOCHEMISTRY",
+          "totalQs": 15,
+          "score": 40,
+          "correct": 11,
+          "accuracy": "73.3",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ENT",
+          "totalQs": 7,
+          "score": 18,
+          "correct": 5,
+          "accuracy": "71.4",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHARMACOLOGY",
+          "totalQs": 10,
+          "score": 28,
+          "correct": 7,
+          "accuracy": "70.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "SURGERY",
+          "totalQs": 20,
+          "score": 47,
+          "correct": 13,
+          "accuracy": "65.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MEDICINE",
+          "totalQs": 20,
+          "score": 41,
+          "correct": 12,
+          "accuracy": "60.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 12,
+          "score": 24,
+          "correct": 7,
+          "accuracy": "58.3",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PATHOLOGY",
+          "totalQs": 12,
+          "score": 23,
+          "correct": 7,
+          "accuracy": "58.3",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ANATOMY",
+          "totalQs": 11,
+          "score": 19,
+          "correct": 6,
+          "accuracy": "54.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 8,
+          "score": 12,
+          "correct": 4,
+          "accuracy": "50.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MICROBIOLOGY",
+          "totalQs": 13,
+          "score": 13,
+          "correct": 5,
+          "accuracy": "38.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHYSIOLOGY",
+          "totalQs": 8,
+          "score": 2,
+          "correct": 2,
+          "accuracy": "25.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PEDIATRICS",
+          "totalQs": 5,
+          "score": -5,
+          "correct": 0,
+          "accuracy": "0.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        }
+      ]
+    }
+  },
+  "9552756991": {
+    "user": {
+      "_id": "STU_9552756991",
+      "name": "Pranav Sanjay Salunke",
+      "mobile": "9552756991",
+      "applicationNo": "PRAN6991",
+      "password": "PRAN6991",
+      "photo": null
+    },
+    "result": {
+      "rank": 234,
+      "totalStudents": 2278,
+      "totalScore": 377,
+      "totalQs": 200,
+      "attempted": 193,
+      "unattempted": 7,
+      "correct": 114,
+      "incorrect": 79,
+      "accuracy": "59.1",
+      "totalTime": "3h 28m 20s",
+      "difficulty": [
+        {
+          "name": "EASY",
+          "accuracy": "60.6",
+          "correct": 43,
+          "total": 71
+        },
+        {
+          "name": "MEDIUM",
+          "accuracy": "56.5",
+          "correct": 35,
+          "total": 62
+        },
+        {
+          "name": "HARD",
+          "accuracy": "53.7",
+          "correct": 36,
+          "total": 67
+        }
+      ],
+      "tags": [
+        {
+          "name": "Clinical Based",
+          "accuracy": "53.9",
+          "avgTime": "93.8s",
+          "correct": 41,
+          "total": 76,
+          "totalTime": "-"
+        },
+        {
+          "name": "Image Based",
+          "accuracy": "60.4",
+          "avgTime": "65.1s",
+          "correct": 29,
+          "total": 48,
+          "totalTime": "-"
+        },
+        {
+          "name": "One Liner",
+          "accuracy": "57.9",
+          "avgTime": "29.5s",
+          "correct": 44,
+          "total": 76,
+          "totalTime": "-"
+        }
+      ],
+      "subjects": [
+        {
+          "subject": "ANESTHESIA",
+          "totalQs": 3,
+          "score": 12,
+          "correct": 3,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ORTHO",
+          "totalQs": 5,
+          "score": 20,
+          "correct": 5,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "DERMATOLOGY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PSYCHIATRY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "RADIOLOGY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 8,
+          "score": 22,
+          "correct": 6,
+          "accuracy": "75.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "FMT",
+          "totalQs": 8,
+          "score": 22,
+          "correct": 6,
+          "accuracy": "75.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ENT",
+          "totalQs": 7,
+          "score": 18,
+          "correct": 5,
+          "accuracy": "71.4",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OPTHALMOLOGY",
+          "totalQs": 5,
+          "score": 10,
+          "correct": 3,
+          "accuracy": "60.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PEDIATRICS",
+          "totalQs": 5,
+          "score": 11,
+          "correct": 3,
+          "accuracy": "60.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 12,
+          "score": 23,
+          "correct": 7,
+          "accuracy": "58.3",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "SURGERY",
+          "totalQs": 20,
+          "score": 37,
+          "correct": 11,
+          "accuracy": "55.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ANATOMY",
+          "totalQs": 11,
+          "score": 19,
+          "correct": 6,
+          "accuracy": "54.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OBS & GNY",
+          "totalQs": 23,
+          "score": 37,
+          "correct": 12,
+          "accuracy": "52.2",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHARMACOLOGY",
+          "totalQs": 10,
+          "score": 15,
+          "correct": 5,
+          "accuracy": "50.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "BIOCHEMISTRY",
+          "totalQs": 15,
+          "score": 21,
+          "correct": 7,
+          "accuracy": "46.7",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MICROBIOLOGY",
+          "totalQs": 13,
+          "score": 18,
+          "correct": 6,
+          "accuracy": "46.2",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MEDICINE",
+          "totalQs": 20,
+          "score": 26,
+          "correct": 9,
+          "accuracy": "45.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PATHOLOGY",
+          "totalQs": 12,
+          "score": 13,
+          "correct": 5,
+          "accuracy": "41.7",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHYSIOLOGY",
+          "totalQs": 8,
+          "score": 8,
+          "correct": 3,
+          "accuracy": "37.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        }
+      ]
+    }
+  },
+  "8657785094": {
+    "user": {
+      "_id": "STU_8657785094",
+      "name": "Sakshi Sushil Rathi",
+      "mobile": "8657785094",
+      "applicationNo": "SAKS5094",
+      "password": "SAKS5094",
+      "photo": null
+    },
+    "result": {
+      "rank": 53,
+      "totalStudents": 2278,
+      "totalScore": 500,
+      "totalQs": 200,
+      "attempted": 190,
+      "unattempted": 10,
+      "correct": 138,
+      "incorrect": 52,
+      "accuracy": "72.6",
+      "totalTime": "3h 28m 20s",
+      "difficulty": [
+        {
+          "name": "EASY",
+          "accuracy": "62.0",
+          "correct": 44,
+          "total": 71
+        },
+        {
+          "name": "MEDIUM",
+          "accuracy": "71.0",
+          "correct": 44,
+          "total": 62
+        },
+        {
+          "name": "HARD",
+          "accuracy": "74.6",
+          "correct": 50,
+          "total": 67
+        }
+      ],
+      "tags": [
+        {
+          "name": "Clinical Based",
+          "accuracy": "71.1",
+          "avgTime": "93.2s",
+          "correct": 54,
+          "total": 76,
+          "totalTime": "-"
+        },
+        {
+          "name": "Image Based",
+          "accuracy": "70.8",
+          "avgTime": "64.9s",
+          "correct": 34,
+          "total": 48,
+          "totalTime": "-"
+        },
+        {
+          "name": "One Liner",
+          "accuracy": "65.8",
+          "avgTime": "30.3s",
+          "correct": 50,
+          "total": 76,
+          "totalTime": "-"
+        }
+      ],
+      "subjects": [
+        {
+          "subject": "ANESTHESIA",
+          "totalQs": 3,
+          "score": 12,
+          "correct": 3,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ENT",
+          "totalQs": 7,
+          "score": 28,
+          "correct": 7,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ORTHO",
+          "totalQs": 5,
+          "score": 20,
+          "correct": 5,
+          "accuracy": "100.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "BIOCHEMISTRY",
+          "totalQs": 15,
+          "score": 55,
+          "correct": 14,
+          "accuracy": "93.3",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "FMT",
+          "totalQs": 8,
+          "score": 27,
+          "correct": 7,
+          "accuracy": "87.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "DERMATOLOGY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OPTHALMOLOGY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PSYCHIATRY",
+          "totalQs": 5,
+          "score": 15,
+          "correct": 4,
+          "accuracy": "80.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 8,
+          "score": 22,
+          "correct": 6,
+          "accuracy": "75.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PATHOLOGY",
+          "totalQs": 12,
+          "score": 33,
+          "correct": 9,
+          "accuracy": "75.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MEDICINE",
+          "totalQs": 20,
+          "score": 51,
+          "correct": 14,
+          "accuracy": "70.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHARMACOLOGY",
+          "totalQs": 10,
+          "score": 26,
+          "correct": 7,
+          "accuracy": "70.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "OBS & GNY",
+          "totalQs": 23,
+          "score": 57,
+          "correct": 16,
+          "accuracy": "69.6",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "MICROBIOLOGY",
+          "totalQs": 13,
+          "score": 32,
+          "correct": 9,
+          "accuracy": "69.2",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "SURGERY",
+          "totalQs": 20,
+          "score": 37,
+          "correct": 11,
+          "accuracy": "55.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "ANATOMY",
+          "totalQs": 11,
+          "score": 19,
+          "correct": 6,
+          "accuracy": "54.5",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "COMMUNITY MEDICINE",
+          "totalQs": 12,
+          "score": 19,
+          "correct": 6,
+          "accuracy": "50.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PEDIATRICS",
+          "totalQs": 5,
+          "score": 6,
+          "correct": 2,
+          "accuracy": "40.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "RADIOLOGY",
+          "totalQs": 5,
+          "score": 5,
+          "correct": 2,
+          "accuracy": "40.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        },
+        {
+          "subject": "PHYSIOLOGY",
+          "totalQs": 8,
+          "score": 6,
+          "correct": 2,
+          "accuracy": "25.0",
+          "avgTime": "-",
+          "totalTime": "-"
+        }
+      ]
+    }
   }
 };
