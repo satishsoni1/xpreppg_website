@@ -45,7 +45,7 @@ export default function Hero() {
                 <Calendar className="w-8 h-8 text-primary" />
                 <div className="text-left">
                   <p className="text-sm text-gray-500 font-medium">Upcoming Exam</p>
-                  <p className="text-2xl font-bold text-gray-900">11th January 2026</p>
+                  <p className="text-2xl font-bold text-gray-900">19th January 2026</p>
                 </div>
               </div>
             </div>
@@ -60,7 +60,7 @@ export default function Hero() {
               <span>Register Now</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <a
+            {/* <a
               href="https://portal.xpreppg.com/login"
               target="_blank"
               rel="noopener noreferrer"
@@ -68,7 +68,7 @@ export default function Hero() {
               <button className="bg-white text-gray-700 px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 border-2 border-gray-200">
                 Get Exam Ready
               </button>
-            </a>
+            </a> */}
 
           </div>
           {status && <p className="text-center text-green-600 mt-3 font-medium">{status}</p>}

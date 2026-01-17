@@ -80,13 +80,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
       <ScrollToTop />
 
       <Navigation
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
       />
+
+      {/* Floating Button REMOVED to avoid conflict with WhatsApp */}
 
       {/* Page Content */}
       <div className="pt-28">{children}</div>
@@ -152,7 +154,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
                   {/* Card 1: Pre-Intern */}
                   <div
                     onClick={() => setFormData((prev) => ({ ...prev, category: "Pre-Intern" }))}

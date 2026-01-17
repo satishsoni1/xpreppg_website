@@ -89,7 +89,7 @@ export default function Contact() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-gray-700 text-center">
-          <p className="text-gray-400">© 2025 XprepPG CBT. All rights reserved.</p>
+          <p className="text-gray-400">© 2026 XprepPG CBT. All rights reserved.</p>
         </div>
       </div>
 

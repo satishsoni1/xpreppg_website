@@ -26,6 +26,8 @@ import AdminOfflineRegistration from "./admin/AdminOfflineRegistration";
 import AdmitCardPage from "./admin/AdmitCardPage";
 import AdmitCardBulkPage from "./admin/AdmitCardBulkPage";
 import TempAdmitCardBulk from "./admin/TempAdmitCardBulk";
+import StudentLogin from "./student/StudentLogin";
+import StudentDashboard from "./student/StudentDashboard";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -40,6 +42,8 @@ const router = createBrowserRouter([
   // 🔐 ADMIN LOGIN (NOT PROTECTED)
   { path: "/admin/login", element: <AdminLogin /> },
 
+  { path: "/student/login", element: <StudentLogin /> },
+  { path: "/student/dashboard", element: <StudentDashboard /> },
   // 🔐 PROTECTED ADMIN AREA
   {
     path: "/admin",

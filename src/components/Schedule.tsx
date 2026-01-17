@@ -6,13 +6,13 @@ export default function Schedule() {
       date: '11th January 2026',
       title: 'Grand CBT 1',
       description: 'Comprehensive test covering all 19 subjects',
-      status: 'upcoming',
+      status: 'completed',
     },
     {
       date: '19th February 2026',
       title: 'Grand CBT 2',
       description: 'Full-syllabus pattern exam',
-      status: 'scheduled',
+      status: 'upcoming',
     },
     {
       date: '15th March 2026',
@@ -23,7 +23,13 @@ export default function Schedule() {
     {
       date: '19th April 2026',
       title: 'Grand CBT 4',
-      description: 'Final Mock – NEET pattern simulation',
+      description: 'Mock – NEET pattern simulation',
+      status: 'scheduled',
+    },
+    {
+      date: '24th May 2026',
+      title: 'Grand CBT 5',
+      description: 'Final – NEET pattern simulation',
       status: 'scheduled',
     },
   ];
