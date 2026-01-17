@@ -45,7 +45,7 @@ export default function Hero() {
                 <Calendar className="w-8 h-8 text-primary" />
                 <div className="text-left">
                   <p className="text-sm text-gray-500 font-medium">Upcoming Exam</p>
-                  <p className="text-2xl font-bold text-gray-900">19th January 2026</p>
+                  <p className="text-2xl font-bold text-gray-900">19th February 2026</p>
                 </div>
               </div>
             </div>
