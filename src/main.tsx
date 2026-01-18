@@ -3,31 +3,36 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import Enroll from "./pages/Enroll";
-import Invoice from "./pages/Invoice";
 import PricingPage from "./pages/PricingPage";
 import AboutPage from "./pages/AboutPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import SchedulePage from "./pages/SchedulePage";
 import PostExamPage from "./pages/PostExamPage";
 import ContactPage from "./pages/ContactPage";
-import AdminLogin from "./admin/Login";
-import ProtectedRoute from "./admin/ProtectedRoute";
-import AdminLayout from "./admin/Layout";
-import AdminUsers from "./admin/UsersDashboard";
-import AdminDashboard from "./admin/Dashboard";
-import AdminCouponDashboard from "./admin/CouponDashboard";
-import ManagePlans from "./admin/ManagePlans";
-import CitiesAdmin from "./admin/Cities";
-import AdminExams from "./admin/AdminExams";
-import AdminCentres from "./admin/AdminCentres";
-import AdminCandidates from "./admin/AdminCandidates";
-import AdminOfflineRegistration from "./admin/AdminOfflineRegistration";
-import AdmitCardPage from "./admin/AdmitCardPage";
-import AdmitCardBulkPage from "./admin/AdmitCardBulkPage";
-import TempAdmitCardBulk from "./admin/TempAdmitCardBulk";
 import StudentLogin from "./student/StudentLogin";
 import StudentDashboard from "./student/StudentDashboard";
+import StudentLayout from "./student/StudentLayout";
+import StudentExamSelection from "./student/StudentExamSelection";
+import VideoLibrary from "./student/VideoLibrary";
+import VideoPlayer from "./student/VideoPlayer";
+import StudentEnroll from "./student/StudentEnroll";
+import StudentInvoice from "./student/StudentInvoice";
+import StudentAdmitCard from "./student/StudentAdmitCard";
+import StudentReportCard from "./student/StudentReportCard";
+import StudentProfile from "./student/StudentProfile";
+import AdminQuestions from "./admin/AdminQuestions";
+import AdminLayout from "./admin/AdminLayout";
+import AdminCenters from "./admin/AdminCenters";
+import AdminEnrollments from "./admin/AdminEnrollments";
+import StudentExamPortal from "./admin/StudentExamPortal";
+import AdminStudents from "./admin/AdminStudents";
+import AdminDashboard from "./admin/AdminDashboard";
+import AdminLogin from "./admin/AdminLogin";
+import AdminExams from "./admin/AdminExams";
+import AdminPlans from "./admin/AdminPlans";
+import AdminCoupons from "./admin/AdminCoupons";
+import AdminReports from "./admin/AdminReports";
+import AdminJsonUpload from "./admin/AdminJsonUpload";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -37,39 +42,42 @@ const router = createBrowserRouter([
   { path: "/schedule", element: <SchedulePage /> },
   { path: "/post-exam", element: <PostExamPage /> },
   { path: "/contact", element: <ContactPage /> },
-  { path: "/enroll", element: <Enroll /> },
-  { path: "/invoice/:invoiceId", element: <Invoice /> },
   // 🔐 ADMIN LOGIN (NOT PROTECTED)
-  { path: "/admin/login", element: <AdminLogin /> },
-
+  // { path: "/admin/login", element: <AdminLogin /> },
   { path: "/student/login", element: <StudentLogin /> },
-  { path: "/student/dashboard", element: <StudentDashboard /> },
-  // 🔐 PROTECTED ADMIN AREA
+  { path: "/exam-portal/:examId", element: <StudentExamPortal /> },
+  { path: "/admin/login", element: <AdminLogin /> },
+  {
+    path: "/student",
+    element: <StudentLayout />, // Wraps all student pages with Sidebar
+    children: [
+      { path: "dashboard", element: <StudentDashboard /> },
+      { path: "exams", element: <StudentExamSelection /> }, // For Payment & Selection
+      { path: "videos", element: <VideoLibrary /> },      // 👈 NEW: List
+      { path: "enroll", element: <StudentEnroll /> },
+      { path: "videos/:id", element: <VideoPlayer /> },    // 👈 NEW: Player
+      { path: "invoice/:invoiceId", element: <StudentInvoice /> },
+      { path: "admit-card", element: <StudentAdmitCard /> },
+      { path: "report-card", element: <StudentReportCard /> },
+      { path: "profile", element: <StudentProfile /> },
+    ]
+  },
+  // ADMIN ROUTES
   {
     path: "/admin",
-    element: <ProtectedRoute />,  // ← NOT a wrapper!
+    element: <AdminLayout />,
     children: [
-      {
-        path: "",
-        element: <AdminLayout/>,  // main admin layout
-        children: [
-          { index: true, element: <AdminDashboard /> },
-          { path: "coupons", element: <AdminCouponDashboard /> },
-          
-          { path: "plans", element: <ManagePlans />},
-          { path: "cities", element: <CitiesAdmin />},
-          { path: "exams", element: <AdminExams />},
-          { path: "centre", element: <AdminCentres /> },
-          { path: "online_registration", element: <AdminUsers /> },
-          { path: "offline_registration", element: <AdminOfflineRegistration /> },
-          { path: "candidates", element: <AdminCandidates /> },
-          { path: "admit-card", element: <AdmitCardPage /> },
-          { path: "admit-card-bulk", element: <AdmitCardBulkPage /> },
-          { path: "temp-admit-cards", element: <TempAdmitCardBulk /> }
-
-
-        ]
-      }
+      { path: "exams", element: <AdminExams /> },
+      { path: "centers", element: <AdminCenters /> },
+      { path: "questions", element: <AdminQuestions /> },
+      { path: "plans", element: <AdminPlans /> },
+      { path: "coupons", element: <AdminCoupons /> },
+      { path: "enrollments", element: <AdminEnrollments /> },
+      { path: "students", element: <AdminStudents /> },
+      { path: "dashboard", element: <AdminDashboard /> },
+      { path: "report", element: <AdminReports /> },
+      { path: "upload-json", element: <AdminJsonUpload /> }, // ✅ Added Route
+      
     ]
   }
 ]);

@@ -23,7 +23,7 @@ type Props = {
   
         <div className="flex justify-between font-bold text-lg">
           <span>Total</span>
-          <span className="text-emerald-600">₹{amount}</span>
+          <span className="text-primary">₹{amount}</span>
         </div>
       </div>
     );

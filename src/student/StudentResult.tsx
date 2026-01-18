@@ -53,7 +53,7 @@ export default function StudentResult({ result, student }: any) {
         />
         <StatCard 
           value={
-            <span className="text-emerald-600">
+            <span className="text-primary">
               {result.correct} <span className="text-red-500 text-lg">/ {result.incorrect}</span>
             </span>
           } 

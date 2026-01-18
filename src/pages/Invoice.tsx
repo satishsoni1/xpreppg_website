@@ -87,7 +87,7 @@ export default function Invoice() {
                 <p className="font-medium">{data.issuedOn}</p>
 
                 {data.courseCode && (
-                  <p className="mt-4 text-sm font-semibold text-emerald-600">
+                  <p className="mt-4 text-sm font-semibold text-primary">
                     Course Code: {data.courseCode}
                   </p>
                 )}

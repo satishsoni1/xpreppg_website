@@ -26,7 +26,7 @@ type Props = {
               <p className="text-sm line-through text-gray-400">
                 ₹{p.actualPrice}
               </p>
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="text-2xl font-bold text-primary">
                 ₹{p.sellingPrice}
               </p>
             </button>

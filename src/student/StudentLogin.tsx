@@ -1,111 +1,115 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import { StudentAPI } from "@/services/studentApi";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 
 export default function StudentLogin() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ Initialize hook
   const [loading, setLoading] = useState(false);
-  const [creds, setCreds] = useState({ mobile: "", password: "" });
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ mobile: "", password: "" });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-
+  
     try {
-      const res: any = await StudentAPI.login(creds);
-      if (res.status) {
-        localStorage.setItem("student_user", JSON.stringify(res.data.user));
-        navigate("/student/dashboard");
+      const data = await StudentAPI.login(formData);
+  
+      if (data.status) {
+        // ✅ SUCCESS
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("x_user_name", data.user.name);
+        localStorage.setItem("x_user_email", data.user.email);
+        localStorage.setItem("x_user_mobile", formData.mobile);
+        
+        // Check for pending enrollment
+        const pendingPlan = localStorage.getItem("x_selected_plan");
+        if (pendingPlan) {
+            const plan = JSON.parse(pendingPlan);
+            const params = new URLSearchParams({
+                planId: String(plan.planId),
+                amount: String(plan.amount),
+                title: plan.title,
+                mobile: formData.mobile,
+                name: data.user.name,
+                email: data.user.email
+            });
+            localStorage.removeItem("x_selected_plan");
+            navigate(`/enroll?${params.toString()}`);
+        } else {
+            navigate("/student/dashboard");
+        }
       } else {
-        setError(res.message || "Invalid Mobile Number or Password");
+        alert(data.message || "Invalid Credentials");
       }
-    } catch (err) {
-      setError("Unable to sign in. Please check your network and try again.");
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("Server error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 font-sans">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-        
-        {/* Header Section */}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8 animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-emerald-800 tracking-tight">Student Portal</h1>
-          <p className="text-gray-500 text-sm mt-2">
-            Sign in to access your Admit Card and Exam Results
-          </p>
+          <h1 className="text-3xl font-bold text-emerald-700">Student Login</h1>
+          <p className="text-gray-500 mt-2">Welcome back! Please login to continue.</p>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm mb-6 flex items-center gap-2">
-            <AlertCircle size={16} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-5">
-          {/* Mobile Input */}
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Mobile Number
-            </label>
-            <input
-              type="tel"
-              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder:text-gray-400"
-              placeholder="e.g. 9876543210"
-              value={creds.mobile}
-              onChange={(e) => setCreds({ ...creds, mobile: e.target.value })}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+            <input 
+              type="tel" 
               required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none"
+              placeholder="Enter registered mobile"
+              value={formData.mobile}
+              onChange={e => setFormData({...formData, mobile: e.target.value})}
             />
           </div>
-
-          {/* Password Input */}
+          
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                className="w-full border border-gray-300 p-3 rounded-lg pr-10 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder:text-gray-400"
-                placeholder="Enter your password"
-                value={creds.password}
-                onChange={(e) => setCreds({ ...creds, password: e.target.value })}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-            
-            {/* Password Helper Text */}
-            <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-              <span className="font-medium text-gray-700">Format:</span> First 4 letters of your Name + Last 4 digits of Mobile <br/>
-              <span className="italic text-gray-400">(e.g., Name: Rahul, Mobile: 9999... &rarr; Password: RAHU9999)</span>
-            </p>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+             <input 
+              type="password" 
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none"
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={e => setFormData({...formData, password: e.target.value})}
+            />
           </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
+          <div className="mt-2 flex items-start gap-2 text-xs text-blue-600 bg-blue-50 p-2 rounded-md">
+              <Info size={16} className="shrink-0 mt-0.5" />
+              <p>
+                <strong>Default Password:</strong> First 4 letters of Name + Last 4 digits of Mobile No. <br />
+                <span className="text-blue-400">(e.g., If Name: <strong>Rahul</strong>, Mobile: ...<strong>1234</strong> → Pass: <strong>RAHU1234</strong>)</span>
+              </p>
+            </div>
+          <button 
+            type="submit" 
             disabled={loading}
-            className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 active:bg-emerald-800 transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all flex justify-center items-center gap-2"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? <Loader2 className="animate-spin" /> : "Login"}
           </button>
         </form>
+
+        <div className="mt-6 text-center text-sm">
+          <p className="text-gray-500">
+            First time here?{" "}
+            {/* ✅ FIX: Redirect to Index Page for Registration */}
+            <button 
+              onClick={() => navigate("/?register=true")} 
+              className="text-emerald-600 font-semibold hover:underline"
+            >
+              Register Now
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

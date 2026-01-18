@@ -1,44 +1,182 @@
-import { STUDENT_DATABASE } from "@/data/studentData";
+const API_URL = "http://localhost:5001/api"; // Ensure this matches your backend port
+
+// Helper to get the token
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    "Authorization": token ? `Bearer ${token}` : "",
+  };
+};
 
 export const StudentAPI = {
-  // Login with Mobile + Password (optional)
-  login: async (creds: { mobile: string; password?: string }) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const data = STUDENT_DATABASE[creds.mobile];
-
-        if (!data) {
-          return resolve({ status: false, message: "Mobile number not registered." });
-        }
-
-        // Verify Password
-        if (creds.password && creds.password !== data.user.password) {
-          return resolve({ status: false, message: "Invalid Password." });
-        }
-
-        resolve({
-          status: true,
-          data: {
-            token: "fake-jwt-" + Date.now(),
-            user: data.user
-          }
-        });
-      }, 600);
+  // 1. REGISTER
+  register: async (data: any) => {
+    const isFormData = data instanceof FormData;
+    const headers: any = {};
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+  
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
+    return res.json();
   },
 
-  // Get Result
-  getResult: async (mobile: string) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const data = STUDENT_DATABASE[mobile];
-        
-        if (data && data.result) {
-          resolve({ status: true, data: data.result });
-        } else {
-          resolve({ status: false, message: "Result not available for this student." });
-        }
-      }, 500);
+  // 2. LOGIN
+  login: async (credentials: any) => {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
     });
+    return res.json();
+  },
+
+  // 3. DASHBOARD
+  getDashboard: async () => {
+    const res = await fetch(`${API_URL}/student/dashboard`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 4. VIDEO ANALYTICS
+  recordView: async (videoId: number) => {
+    const res = await fetch(`${API_URL}/videos/${videoId}/view`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  /* ------------------------------------------------------------------
+     NEW: ENROLLMENT & PAYMENTS (For StudentEnroll.tsx)
+  ------------------------------------------------------------------ */
+  
+  // 5. GET PLANS
+  getPlans: async () => {
+    const res = await fetch(`${API_URL}/plans`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 6. VALIDATE COUPON
+  validateCoupon: async (data: { 
+    code: string; 
+    amount: number; 
+    exams: number; 
+    selectedExamIds: number[] // <--- ADD THIS TYPE
+}) => {
+    const res = await fetch(`${API_URL}/coupons/validate`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // 7. CREATE RAZORPAY ORDER
+  createOrder: async (data: any) => {
+    const res = await fetch(`${API_URL}/payment/create-order`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // 8. VERIFY PAYMENT
+  verifyPayment: async (data: any) => {
+    const res = await fetch(`${API_URL}/payment/verify`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  // 9. GET EXAMS (Added this!)
+  getExams: async () => {
+    const res = await fetch(`${API_URL}/exams`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getInvoice: async (orderId: string) => {
+    const res = await fetch(`${API_URL}/payment/invoice/${orderId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getOrderHistory: async () => {
+    const res = await fetch(`${API_URL}/payment/history`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getAdmitCard: async () => {
+    const res = await fetch(`${API_URL}/student/admit-card`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getReportList: async () => {
+    const res = await fetch(`${API_URL}/student/reports`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 13. GET DETAILED REPORT FOR SPECIFIC EXAM
+  getReportDetail: async (examId: number) => {
+    const res = await fetch(`${API_URL}/student/reports/${examId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getProfile: async () => {
+    const res = await fetch(`${API_URL}/student/profile`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 15. UPDATE PROFILE
+  updateProfile: async (data: any) => {
+    // Check if data is FormData (has file) or JSON
+    const isFormData = data instanceof FormData;
+    const headers: any = getAuthHeaders();
+    
+    if (isFormData) {
+      delete headers["Content-Type"]; // Let browser set multipart boundary
+    }
+
+    const res = await fetch(`${API_URL}/student/profile/update`, {
+      method: "POST",
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
+    });
+    return res.json();
+  },
+  getLibrary: async (subject?: string) => {
+    const url = subject ? `${API_URL}/library?subject=${subject}` : `${API_URL}/library`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
   }
 };

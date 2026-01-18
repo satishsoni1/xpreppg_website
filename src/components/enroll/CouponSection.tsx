@@ -86,7 +86,7 @@ type Props = {
   
         {/* SUCCESS */}
         {couponSuccess && (
-          <p className="mt-2 text-sm text-emerald-600 font-semibold">
+          <p className="mt-2 text-sm text-primary font-semibold">
             🎉 {couponSuccess}
           </p>
         )}
@@ -99,7 +99,7 @@ type Props = {
               <span>₹{form.amount}</span>
             </div>
   
-            <div className="flex justify-between text-emerald-600 font-semibold">
+            <div className="flex justify-between text-primary font-semibold">
               <span>Discount</span>
               <span>- ₹{discountApplied}</span>
             </div>

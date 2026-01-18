@@ -6,9 +6,18 @@ import Pricing from "./components/Pricing";
 import Schedule from "./components/Schedule";
 import PostExam from "./components/PostExam";
 import MainLayout from "./layouts/MainLayout";
+import { useEffect } from "react";
 
 export default function App() {
-
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("register")) {
+      // 1. Remove the query param so it doesn't persist on refresh
+      window.history.replaceState({}, document.title, "/");
+      // 2. Trigger the modal
+      window.dispatchEvent(new Event("open-register-modal"));
+    }
+  }, []);
   return (
     <MainLayout>
       <Hero />

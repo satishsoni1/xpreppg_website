@@ -2,104 +2,131 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import Contact from "@/components/Contact";
 import ScrollToTop from "@/components/ScrollToTop";
-import { X } from "lucide-react";
-import useRegisterUser from "@/hooks/useRegisterUser";
-import { AdminAPI } from "@/services/api";
+import { X, UploadCloud } from "lucide-react";
 import CityBottomSheet from "@/components/CitySelect";
+import { StudentAPI } from "@/services/studentApi";
+import imageCompression from 'browser-image-compression'; // 1. Import Compression
+import { AdminAPI } from "@/services/adminApi";
+import { PublicAPI } from "@/services/publicApi";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const { registerUser, loading, status } = useRegisterUser();
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  
+  // We keep loading state local since we are calling API directly here now
+  const [loading, setLoading] = useState(false);
 
   const [cities, setCities] = useState([]);
   const [openCityPicker, setOpenCityPicker] = useState(false);
 
+  // 2. Change 'photo' to hold the FILE object, not string
   const [formData, setFormData] = useState({
     name: "",
     category: "",
     mobile: "",
     email: "",
     city: "",
-    photo: "",
+    photo: null as File | null, 
   });
 
-  // ------------------------------------------------------
-  //  LOAD CITIES SAFELY
-  // ------------------------------------------------------
+  // Load Cities 
   useEffect(() => {
-    AdminAPI.getCities()
+    PublicAPI.getCities()
       .then((res) => {
-        const data = res.data?.cities || res.data || [];
-        setCities(Array.isArray(data) ? data : []);
+        setCities(res.cities)
       })
       .catch(() => setCities([]));
   }, []);
 
-  // Generic Change Handler
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Photo Upload → Base64
-  const handlePhotoUpload = (e: any) => {
+  // 3. UPDATED: Compress & Handle File
+  const handlePhotoUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoPreview(reader.result);
-      setFormData((prev) => ({ ...prev, photo: reader.result }));
-    };
-    reader.readAsDataURL(file);
+    // Show preview immediately (using object URL is faster than Base64)
+    setPhotoPreview(URL.createObjectURL(file));
+
+    try {
+      const options = {
+        maxSizeMB: 0.2, // Limit to 200KB
+        maxWidthOrHeight: 1000, // Limit dimensions
+        useWebWorker: true,
+      };
+
+      const compressedFile = await imageCompression(file, options);
+      setFormData((prev) => ({ ...prev, photo: compressedFile }));
+    } catch (error) {
+      console.error("Compression failed:", error);
+      // Fallback to original file if compression fails
+      setFormData((prev) => ({ ...prev, photo: file }));
+    }
   };
 
-  // Submit Handler
-  const handleSubmit = (e: any) => {
+  // 4. UPDATED: Submit as FormData
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-
-    registerUser(formData, (response) => {
-      if (!response.status) {
-        alert(response.message);
-        return;
+    setLoading(true);
+  
+    try {
+      // Create FormData object (Standard for file uploads)
+      const submitData = new FormData();
+      submitData.append("name", formData.name);
+      submitData.append("mobile", formData.mobile);
+      submitData.append("email", formData.email);
+      submitData.append("category", formData.category);
+      submitData.append("city", formData.city);
+      
+      // Only append photo if it exists
+      if (formData.photo) {
+        submitData.append("photo", formData.photo);
       }
 
+      // Send to API
+      const response = await StudentAPI.register(submitData);
+  
+      if (!response.status) {
+        alert(response.message || "Registration failed");
+        return;
+      }
+  
+      alert("Registration Successful! Please Login.");
+      setShowForm(false);
+      
       setTimeout(() => {
-        window.location.href = "/enroll";
-      }, 1500);
-    });
+        window.location.href = "/student/login";
+      }, 1000);
+  
+    } catch (error) {
+      console.error("API Error:", error);
+      alert("Something went wrong. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Listen for "open-register-modal" event
+  // Listen for modal open event
   useEffect(() => {
     const openModal = () => setShowForm(true);
     window.addEventListener("open-register-modal", openModal);
-
     return () => window.removeEventListener("open-register-modal", openModal);
   }, []);
 
   return (
     <div className="min-h-screen bg-white relative">
       <ScrollToTop />
-
-      <Navigation
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
-
-      {/* Floating Button REMOVED to avoid conflict with WhatsApp */}
-
-      {/* Page Content */}
+      <Navigation mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
       <div className="pt-28">{children}</div>
-
-      {/* Footer */}
       <Contact />
 
       {/* Registration Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl relative mx-auto mt-10 mb-10">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-lg shadow-2xl relative">
 
             <button
               onClick={() => setShowForm(false)}
@@ -113,142 +140,57 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Inputs */}
+              <input type="text" name="name" placeholder="Full Name" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
+              <input type="tel" name="mobile" placeholder="Mobile Number" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
+              <input type="email" name="email" placeholder="Email ID" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
 
-              {/* Name */}
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3"
-                required
-              />
-
-              {/* Mobile */}
-              <input
-                type="tel"
-                name="mobile"
-                placeholder="Mobile Number"
-                value={formData.mobile}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3"
-                required
-              />
-
-              {/* Email */}
-              <input
-                type="email"
-                name="email"
-                placeholder="Email ID"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3"
-                required
-              />
-
-              {/* CATEGORY SELECTION CARDS */}
+              {/* Category (Simplified for brevity) */}
               <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Select Category
-                </label>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* Card 1: Pre-Intern */}
-                  <div
-                    onClick={() => setFormData((prev) => ({ ...prev, category: "Pre-Intern" }))}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Pre-Intern"
-                      ? "border-primary bg-primary/10 shadow-md scale-105"
-                      : "border-gray-300 hover:border-primary"
-                      }`}
-                  >
-                    <div className="text-center space-y-2">
-                      <div className="text-primary text-3xl">📘</div>
-                      <p className="font-semibold text-gray-700">Pre-Intern</p>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Intern */}
-                  <div
-                    onClick={() => setFormData((prev) => ({ ...prev, category: "Intern" }))}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Intern"
-                      ? "border-primary bg-primary/10 shadow-md scale-105"
-                      : "border-gray-300 hover:border-primary"
-                      }`}
-                  >
-                    <div className="text-center space-y-2">
-                      <div className="text-primary text-3xl">🩺</div>
-                      <p className="font-semibold text-gray-700">Intern</p>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Post-Intern */}
-                  <div
-                    onClick={() => setFormData((prev) => ({ ...prev, category: "Post-Intern" }))}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${formData.category === "Post-Intern"
-                      ? "border-primary bg-primary/10 shadow-md scale-105"
-                      : "border-gray-300 hover:border-primary"
-                      }`}
-                  >
-                    <div className="text-center space-y-2">
-                      <div className="text-primary text-3xl">🎓</div>
-                      <p className="font-semibold text-gray-700">Post-Intern</p>
-                    </div>
-                  </div>
-
+                <label className="block text-gray-700 font-medium mb-2">Category</label>
+                <div className="grid grid-cols-3 gap-2">
+                   {["Pre-Intern", "Intern", "Post-Intern"].map(cat => (
+                     <div key={cat} 
+                          onClick={() => setFormData(p => ({...p, category: cat}))}
+                          className={`p-2 rounded border text-center cursor-pointer text-sm ${formData.category === cat ? 'bg-emerald-100 border-emerald-500' : ''}`}>
+                        {cat}
+                     </div>
+                   ))}
                 </div>
               </div>
 
-
-              {/* CITY PICKER */}
-              <div
-                className="w-full border border-gray-300 rounded-lg p-3 cursor-pointer"
-                onClick={() => setOpenCityPicker(true)}
-              >
+              {/* City Picker Trigger */}
+              <div className="w-full border border-gray-300 rounded-lg p-3 cursor-pointer" onClick={() => setOpenCityPicker(true)}>
                 {formData.city || "Select City"}
               </div>
+              <CityBottomSheet cities={cities} value={formData.city} open={openCityPicker} setOpen={setOpenCityPicker} onSelect={(c:any) => setFormData(p => ({ ...p, city: c }))} />
 
-              <CityBottomSheet
-                cities={cities}
-                value={formData.city}
-                open={openCityPicker}
-                setOpen={setOpenCityPicker}
-                onSelect={(city: string) =>
-                  setFormData((prev) => ({ ...prev, city }))
-                }
-              />
-
-              {/* Photo Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Photo
+              {/* Photo Upload UI */}
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 transition">
+                <input 
+                  type="file" 
+                  id="photo-upload" 
+                  accept="image/*" 
+                  onChange={handlePhotoUpload} 
+                  className="hidden" 
+                />
+                
+                <label htmlFor="photo-upload" className="cursor-pointer block">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-emerald-100" />
+                  ) : (
+                    <div className="py-4">
+                      <UploadCloud className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                      <span className="text-primary font-medium">Click to upload photo</span>
+                      <p className="text-xs text-gray-400 mt-1">Max 5MB (Auto-compressed)</p>
+                    </div>
+                  )}
                 </label>
-
-                <input type="file" accept="image/*" onChange={handlePhotoUpload} />
-
-                {photoPreview && (
-                  <img
-                    src={photoPreview}
-                    alt="Preview"
-                    className="mt-3 w-24 h-24 rounded-lg object-cover border"
-                  />
-                )}
               </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-primary to-primaryDark text-white py-3 rounded-xl font-semibold text-lg hover:shadow-lg"
-              >
-                {loading ? "Submitting..." : "Submit Registration"}
+              <button type="submit" disabled={loading} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition disabled:opacity-50">
+                {loading ? "Processing..." : "Register Now"}
               </button>
-
-              {status && (
-                <p className="text-center text-green-600 mt-3 font-medium">
-                  {status}
-                </p>
-              )}
             </form>
           </div>
         </div>
