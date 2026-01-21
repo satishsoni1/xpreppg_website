@@ -40,7 +40,7 @@ export default function StudentLogin() {
                 email: data.user.email
             });
             localStorage.removeItem("x_selected_plan");
-            navigate(`/enroll?${params.toString()}`);
+            navigate("/student/dashboard");
         } else {
             navigate("/student/dashboard");
         }
