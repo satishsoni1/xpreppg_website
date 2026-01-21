@@ -2,7 +2,7 @@ import { Target, Award, BookOpen, Users } from 'lucide-react';
 
 export default function About() {
   const stats = [
-    { icon: Users, label: 'Active Aspirants', value: '10,000+' },
+    { icon: Users, label: 'Active Aspirants', value: '3,000+' },
     { icon: BookOpen, label: 'Subjects Covered', value: '19' },
     { icon: Award, label: 'Success Rate', value: '95%' },
     { icon: Target, label: 'National Tests', value: '4' },
