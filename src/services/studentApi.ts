@@ -2,7 +2,7 @@ import { API_BASE_URL } from "@/config";// Ensure this matches your backend port
 
 // Helper to get the token
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("student_token");
   return {
     "Content-Type": "application/json",
     "Authorization": token ? `Bearer ${token}` : "",
