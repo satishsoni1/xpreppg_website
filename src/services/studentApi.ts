@@ -178,5 +178,12 @@ export const StudentAPI = {
       headers: getAuthHeaders(),
     });
     return res.json();
-  }
+  },
+  getFullAnalysis: async (examId: string) => {
+    const res = await fetch(`${API_BASE_URL}/student/analysis/${examId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
 };

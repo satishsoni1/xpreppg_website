@@ -33,6 +33,8 @@ import AdminPlans from "./admin/AdminPlans";
 import AdminCoupons from "./admin/AdminCoupons";
 import AdminReports from "./admin/AdminReports";
 import AdminJsonUpload from "./admin/AdminJsonUpload";
+import ReportCardDetail from "./student/ReportCardDetail";
+
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -60,6 +62,7 @@ const router = createBrowserRouter([
       { path: "admit-card", element: <StudentAdmitCard /> },
       { path: "report-card", element: <StudentReportCard /> },
       { path: "profile", element: <StudentProfile /> },
+      { path: "report-card/:examId", element: <ReportCardDetail /> },
     ]
   },
   // ADMIN ROUTES
