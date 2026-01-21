@@ -10,6 +10,7 @@ export default function StudentLayout() {
   // Basic Check for Auth (Replace with your actual Auth Context/Hook)
   useEffect(() => {
     const token = localStorage.getItem("student_token");
+    console.log(token);
     if (!token) {
       navigate("/student/login");
     }

@@ -1,9 +1,10 @@
-import { AdminAPI } from "./adminApi"; // Assuming base config here
+
+import { API_BASE_URL } from "@/config";// Assuming base config here
 
 export const ExamService = {
   // Upload the big JSON file
   uploadExamJson: async (jsonData: any) => {
-    const res = await fetch(`http://localhost:5001/api/admin/create-exam-json`, {
+    const res = await fetch(`${API_BASE_URL}/admin/create-exam-json`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -16,7 +17,7 @@ export const ExamService = {
 
   // Submit the student's answers
   submitExamJson: async (submissionData: any) => {
-    const res = await fetch(`http://localhost:5001/api/student/submit-exam-json`, {
+    const res = await fetch(`${API_BASE_URL}/student/submit-exam-json`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

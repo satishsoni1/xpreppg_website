@@ -34,18 +34,17 @@ export default function AdminLayout() {
       navigate("/admin/login");
     }
   };
-
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
       
       {/* Sidebar */}
       <aside 
-        className={`bg-gradient-to-r from-primary to-primaryDark text-white transition-all duration-300 flex flex-col fixed md:relative z-20 h-screen ${
+        className={`bg-slate-900 text-white transition-all duration-300 flex flex-col fixed md:relative z-20 h-screen ${
           isOpen ? "w-64" : "w-20 hidden md:flex"
         }`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 bg-gradient-to-r from-primary to-primaryDark">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-900">
           <h1 className={`font-bold text-xl tracking-tight ${!isOpen && "hidden"}`}>
             XPrep <span className="text-emerald-500">Admin</span>
           </h1>
@@ -85,7 +84,7 @@ export default function AdminLayout() {
         </nav>
 
         {/* Footer / Logout */}
-        <div className="p-3 border-t border-slate-800 bg-gradient-to-r from-primary to-primaryDark">
+        <div className="p-3 border-t border-slate-800 bg-slate-900">
           <button 
             onClick={handleLogout}
             className={`flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-colors text-red-400 hover:bg-red-500/10 hover:text-red-300 group`}

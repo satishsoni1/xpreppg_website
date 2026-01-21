@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5001/api/admin";
+import { API_BASE_URL } from "@/config";
 
 // Helper to get Admin Headers automatically
 const getAuthHeaders = () => {
@@ -17,7 +17,7 @@ export const AdminAPI = {
   
   // --- AUTHENTICATION ---
   login: async (credentials: any) => {
-    const res = await fetch(`${API_URL}/login`, {
+    const res = await fetch(`${API_BASE_URL}/admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -28,7 +28,7 @@ export const AdminAPI = {
   // --- DASHBOARD ---
   getStats: async () => {
     console.log("api getStats");
-    const res = await fetch(`${API_URL}/stats`, {
+    const res = await fetch(`${API_BASE_URL}/admin/stats`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -38,7 +38,7 @@ export const AdminAPI = {
   // --- STUDENTS ---
   getAllStudents: async () => {
     console.log("api getAllStudents");
-    const res = await fetch(`${API_URL}/students`, {
+    const res = await fetch(`${API_BASE_URL}/admin/students`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -47,7 +47,7 @@ export const AdminAPI = {
 
   // --- EXAMS ---
   getExams: async () => {
-    const res = await fetch(`${API_URL}/exams`, {
+    const res = await fetch(`${API_BASE_URL}/admin/exams`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -55,7 +55,7 @@ export const AdminAPI = {
   },
 
   createExam: async (data: any) => {
-    const res = await fetch(`${API_URL}/exams`, {
+    const res = await fetch(`${API_BASE_URL}/admin/exams`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -65,7 +65,7 @@ export const AdminAPI = {
 
   // --- QUESTIONS ---
   getQuestions: async (examId: string | number) => {
-    const res = await fetch(`${API_URL}/questions/${examId}`, {
+    const res = await fetch(`${API_BASE_URL}/admin/questions/${examId}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -73,7 +73,7 @@ export const AdminAPI = {
   },
 
   addQuestion: async (data: any) => {
-    const res = await fetch(`${API_URL}/questions`, {
+    const res = await fetch(`${API_BASE_URL}/admin/questions`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -83,7 +83,7 @@ export const AdminAPI = {
 
   // --- CENTERS ---
   getCenters: async () => {
-    const res = await fetch(`${API_URL}/centers`, {
+    const res = await fetch(`${API_BASE_URL}/admin/centers`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -91,7 +91,7 @@ export const AdminAPI = {
   },
 
   addCenter: async (data: any) => {
-    const res = await fetch(`${API_URL}/centers`, {
+    const res = await fetch(`${API_BASE_URL}/admin/centers`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -101,7 +101,7 @@ export const AdminAPI = {
 
   // --- ENROLLMENTS ---
   getEnrollments: async () => {
-    const res = await fetch(`${API_URL}/enrollments`, {
+    const res = await fetch(`${API_BASE_URL}/admin/enrollments`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -110,7 +110,7 @@ export const AdminAPI = {
 
   // --- FINANCE (PLANS & COUPONS) ---
   getPlans: async () => {
-    const res = await fetch(`${API_URL}/plans`, {
+    const res = await fetch(`${API_BASE_URL}/admin/plans`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -118,7 +118,7 @@ export const AdminAPI = {
   },
 
   createPlan: async (data: any) => {
-    const res = await fetch(`${API_URL}/plans`, {
+    const res = await fetch(`${API_BASE_URL}/admin/plans`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -127,7 +127,7 @@ export const AdminAPI = {
   },
 
   getCoupons: async () => {
-    const res = await fetch(`${API_URL}/coupons`, {
+    const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -135,7 +135,7 @@ export const AdminAPI = {
   },
 
   createCoupon: async (data: any) => {
-    const res = await fetch(`${API_URL}/coupons`, {
+    const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -143,7 +143,7 @@ export const AdminAPI = {
     return res.json();
   },
   getCities: async () => {
-    const res = await fetch(`${API_URL}/cities`, {
+    const res = await fetch(`${API_BASE_URL}/admin/cities`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -151,7 +151,7 @@ export const AdminAPI = {
   },
 
   addCity: async (name: string) => {
-    const res = await fetch(`${API_URL}/cities`, {
+    const res = await fetch(`${API_BASE_URL}/admin/cities`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ name }),
@@ -160,7 +160,7 @@ export const AdminAPI = {
   },
 
   toggleCity: async (id: number, status: boolean) => {
-    const res = await fetch(`${API_URL}/cities/${id}/status`, {
+    const res = await fetch(`${API_BASE_URL}/admin/cities/${id}/status`, {
       method: "PATCH",
       headers: getAuthHeaders(),
       body: JSON.stringify({ is_active: status }),
@@ -171,7 +171,7 @@ export const AdminAPI = {
   getReports: async (filters: any) => {
     // Convert object { exam_id: 1, city: 'Delhi' } to query string ?exam_id=1&city=Delhi
     const params = new URLSearchParams(filters).toString();
-    const res = await fetch(`${API_URL}/reports?${params}`, {
+    const res = await fetch(`${API_BASE_URL}/admin/reports?${params}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -180,7 +180,7 @@ export const AdminAPI = {
 
   // ASSIGN CENTER
   assignCenter: async (enrollmentId: number, centerId: number) => {
-    const res = await fetch(`${API_URL}/assign-center`, {
+    const res = await fetch(`${API_BASE_URL}/admin/assign-center`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ enrollment_id: enrollmentId, center_id: centerId }),

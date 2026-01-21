@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5001/api"; // Ensure this matches your backend port
+import { API_BASE_URL } from "@/config";// Ensure this matches your backend port
 
 // Helper to get the token
 const getAuthHeaders = () => {
@@ -18,7 +18,7 @@ export const StudentAPI = {
       headers["Content-Type"] = "application/json";
     }
   
-    const res = await fetch(`${API_URL}/auth/register`, {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: headers,
       body: isFormData ? data : JSON.stringify(data),
@@ -28,7 +28,7 @@ export const StudentAPI = {
 
   // 2. LOGIN
   login: async (credentials: any) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(credentials),
@@ -38,7 +38,7 @@ export const StudentAPI = {
 
   // 3. DASHBOARD
   getDashboard: async () => {
-    const res = await fetch(`${API_URL}/student/dashboard`, {
+    const res = await fetch(`${API_BASE_URL}/student/dashboard`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -47,7 +47,7 @@ export const StudentAPI = {
 
   // 4. VIDEO ANALYTICS
   recordView: async (videoId: number) => {
-    const res = await fetch(`${API_URL}/videos/${videoId}/view`, {
+    const res = await fetch(`${API_BASE_URL}/videos/${videoId}/view`, {
       method: "POST",
       headers: getAuthHeaders(),
     });
@@ -60,7 +60,7 @@ export const StudentAPI = {
   
   // 5. GET PLANS
   getPlans: async () => {
-    const res = await fetch(`${API_URL}/plans`, {
+    const res = await fetch(`${API_BASE_URL}/plans`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -74,7 +74,7 @@ export const StudentAPI = {
     exams: number; 
     selectedExamIds: number[] // <--- ADD THIS TYPE
 }) => {
-    const res = await fetch(`${API_URL}/coupons/validate`, {
+    const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -84,7 +84,7 @@ export const StudentAPI = {
 
   // 7. CREATE RAZORPAY ORDER
   createOrder: async (data: any) => {
-    const res = await fetch(`${API_URL}/payment/create-order`, {
+    const res = await fetch(`${API_BASE_URL}/payment/create-order`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -94,7 +94,7 @@ export const StudentAPI = {
 
   // 8. VERIFY PAYMENT
   verifyPayment: async (data: any) => {
-    const res = await fetch(`${API_URL}/payment/verify`, {
+    const res = await fetch(`${API_BASE_URL}/payment/verify`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
@@ -103,35 +103,35 @@ export const StudentAPI = {
   },
   // 9. GET EXAMS (Added this!)
   getExams: async () => {
-    const res = await fetch(`${API_URL}/exams`, {
+    const res = await fetch(`${API_BASE_URL}/exams`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
     return res.json();
   },
   getInvoice: async (orderId: string) => {
-    const res = await fetch(`${API_URL}/payment/invoice/${orderId}`, {
+    const res = await fetch(`${API_BASE_URL}/payment/invoice/${orderId}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
     return res.json();
   },
   getOrderHistory: async () => {
-    const res = await fetch(`${API_URL}/payment/history`, {
+    const res = await fetch(`${API_BASE_URL}/payment/history`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
     return res.json();
   },
   getAdmitCard: async () => {
-    const res = await fetch(`${API_URL}/student/admit-card`, {
+    const res = await fetch(`${API_BASE_URL}/student/admit-card`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
     return res.json();
   },
   getReportList: async () => {
-    const res = await fetch(`${API_URL}/student/reports`, {
+    const res = await fetch(`${API_BASE_URL}/student/reports`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -140,14 +140,14 @@ export const StudentAPI = {
 
   // 13. GET DETAILED REPORT FOR SPECIFIC EXAM
   getReportDetail: async (examId: number) => {
-    const res = await fetch(`${API_URL}/student/reports/${examId}`, {
+    const res = await fetch(`${API_BASE_URL}/student/reports/${examId}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
     return res.json();
   },
   getProfile: async () => {
-    const res = await fetch(`${API_URL}/student/profile`, {
+    const res = await fetch(`${API_BASE_URL}/student/profile`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
@@ -164,7 +164,7 @@ export const StudentAPI = {
       delete headers["Content-Type"]; // Let browser set multipart boundary
     }
 
-    const res = await fetch(`${API_URL}/student/profile/update`, {
+    const res = await fetch(`${API_BASE_URL}/student/profile/update`, {
       method: "POST",
       headers: headers,
       body: isFormData ? data : JSON.stringify(data),
@@ -172,7 +172,7 @@ export const StudentAPI = {
     return res.json();
   },
   getLibrary: async (subject?: string) => {
-    const url = subject ? `${API_URL}/library?subject=${subject}` : `${API_URL}/library`;
+    const url = subject ? `${API_BASE_URL}/library?subject=${subject}` : `${API_BASE_URL}/library`;
     const res = await fetch(url, {
       method: "GET",
       headers: getAuthHeaders(),

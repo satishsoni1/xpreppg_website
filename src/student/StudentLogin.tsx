@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
 import { Info, Loader2 } from "lucide-react";
 
 export default function StudentLogin() {
-  const navigate = useNavigate(); // ✅ Initialize hook
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ mobile: "", password: "" });
 
@@ -15,14 +15,19 @@ export default function StudentLogin() {
     try {
       const data = await StudentAPI.login(formData);
   
-      if (data.status) {
-        // ✅ SUCCESS
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("x_user_name", data.user.name);
-        localStorage.setItem("x_user_email", data.user.email);
-        localStorage.setItem("x_user_mobile", formData.mobile);
+      // ✅ 1. Check for token (Backend returns { token: "...", user: {...} })
+      if (data.token) {
         
-        // Check for pending enrollment
+        // ✅ 2. Store Token with the correct key 'student_token'
+        localStorage.setItem("student_token", data.token);
+        
+        // ✅ 3. Store User Object as JSON string (Required by Dashboard)
+        localStorage.setItem("student_user", JSON.stringify(data.user));
+        
+        // Optional: Save individual fields if other legacy components need them
+        localStorage.setItem("x_user_mobile", data.user.mobile); 
+
+        // 4. Handle Redirects
         const pendingPlan = localStorage.getItem("x_selected_plan");
         if (pendingPlan) {
             const plan = JSON.parse(pendingPlan);
@@ -30,7 +35,7 @@ export default function StudentLogin() {
                 planId: String(plan.planId),
                 amount: String(plan.amount),
                 title: plan.title,
-                mobile: formData.mobile,
+                mobile: data.user.mobile,
                 name: data.user.name,
                 email: data.user.email
             });
@@ -82,13 +87,15 @@ export default function StudentLogin() {
               onChange={e => setFormData({...formData, password: e.target.value})}
             />
           </div>
+          
           <div className="mt-2 flex items-start gap-2 text-xs text-blue-600 bg-blue-50 p-2 rounded-md">
               <Info size={16} className="shrink-0 mt-0.5" />
               <p>
-                <strong>Default Password:</strong> First 4 letters of Name + Last 4 digits of Mobile No. <br />
+                <strong>Default Password:</strong> First 4 letters of Name (CAPS) + Last 4 digits of Mobile No. <br />
                 <span className="text-blue-400">(e.g., If Name: <strong>Rahul</strong>, Mobile: ...<strong>1234</strong> → Pass: <strong>RAHU1234</strong>)</span>
               </p>
-            </div>
+          </div>
+
           <button 
             type="submit" 
             disabled={loading}
@@ -101,7 +108,6 @@ export default function StudentLogin() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-500">
             First time here?{" "}
-            {/* ✅ FIX: Redirect to Index Page for Registration */}
             <button 
               onClick={() => navigate("/?register=true")} 
               className="text-emerald-600 font-semibold hover:underline"
