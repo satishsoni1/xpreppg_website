@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Trash2, Save, CheckCircle } from "lucide-react";
+import { API_BASE_URL } from "@/config";
 
 export default function AdminQuestions() {
   const [examId, setExamId] = useState("1"); // Default or fetched from dropdown
@@ -33,7 +34,7 @@ export default function AdminQuestions() {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/api/admin/questions", {
+      const response = await fetch(`${API_BASE_URL}/admin/questions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, exam_id: examId })

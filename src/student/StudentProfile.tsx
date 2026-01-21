@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { StudentAPI } from "@/services/studentApi";
 import { User, Mail, Phone, BookOpen, Camera, Save, X, Loader2, Lock } from "lucide-react";
 import imageCompression from 'browser-image-compression';
+import { BASE_URL } from "@/config"; 
 
 export default function StudentProfile() {
   const [user, setUser] = useState<any>(null);
@@ -46,7 +47,7 @@ export default function StudentProfile() {
       password: "",
       photo: null
     });
-    setPhotoPreview(userData.photo_url ? `http://localhost:5001${userData.photo_url}` : null);
+    setPhotoPreview(userData.photo_url ? `${BASE_URL}${userData.photo_url}` : null);
   };
 
   // 2. Handle Photo Change

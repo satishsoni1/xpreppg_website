@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, ChevronRight, ChevronLeft, Flag, CheckCircle } from "lucide-react";
+import { API_BASE_URL } from "@/config";
 
 export default function StudentExamPortal() {
   const { examId } = useParams();
@@ -55,7 +56,7 @@ export default function StudentExamPortal() {
      if (!selected) return; // Nothing to save
 
      try {
-       await fetch("http://localhost:5001/api/student/exam/save-answer", {
+       await fetch(`${API_BASE_URL}/student/exam/save-answer`, {
          method: "POST",
          headers: { 
             "Content-Type": "application/json",
@@ -90,7 +91,7 @@ export default function StudentExamPortal() {
   const submitExam = async () => {
     await saveCurrentAnswer(); // Save last question
     // Call Submit API
-    await fetch("http://localhost:5001/api/student/exam/submit", {
+    await fetch(`${API_BASE_URL}/student/exam/submit`, {
          method: "POST",
          headers: { 
             "Content-Type": "application/json",

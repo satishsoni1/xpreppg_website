@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
 import { ArrowLeft, Download, Printer, Loader2, User, MapPin } from "lucide-react";
+import { BASE_URL } from "@/config";
 
 export default function StudentAdmitCard() {
   const navigate = useNavigate();
@@ -151,7 +152,7 @@ export default function StudentAdmitCard() {
           <div className="w-40 flex-shrink-0">
              <div className="w-40 h-48 border border-black bg-gray-100 flex items-center justify-center overflow-hidden">
                {selectedCard.photo_url ? (
-                 <img src={`http://localhost:5001${selectedCard.photo_url}`} alt="Candidate" className="w-full h-full object-cover" />
+                 <img src={`${BASE_URL}${selectedCard.photo_url}`} alt="Candidate" className="w-full h-full object-cover" />
                ) : (
                  <User className="w-16 h-16 text-gray-400" />
                )}
