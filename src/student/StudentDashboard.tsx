@@ -71,7 +71,7 @@ export default function StudentDashboard() {
         </div>
 
         {/* Card 2: Next Upcoming Exam */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        {/* <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="text-sm font-medium text-gray-500 mb-1">Next Exam</div>
           <div className="font-bold text-gray-900 truncate">
              {stats?.enrollments?.[0]?.title || "No Active Exam"}
@@ -81,7 +81,7 @@ export default function StudentDashboard() {
                 ? new Date(stats.enrollments[0].date).toDateString() 
                 : "Browse plans to enroll"}
           </div>
-        </div>
+        </div> */}
 
         {/* Card 3: Admit Card Status */}
         <div className="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-xl shadow-sm text-white relative overflow-hidden">
