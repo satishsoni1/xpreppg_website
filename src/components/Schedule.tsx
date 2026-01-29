@@ -27,9 +27,32 @@ export default function Schedule() {
       status: 'scheduled',
     },
     {
-      date: '24th May 2026',
+      date: '10th May 2026',
       title: 'Grand CBT 5',
+      description: 'Revision-oriented test',
+      status: 'scheduled',
+    },{
+      date: '7th June 2026',
+      title: 'Grand CBT 6',
+      description: 'Revision-oriented test',
+      status: 'scheduled',
+    },
+    {
+      date: '5th July 2026',
+      title: 'Grand CBT 7',
+      description: 'Revision-oriented test',
+      status: 'scheduled',
+    },
+    {
+      date: '2nd August 2026',
+      title: 'Grand CBT 8',
       description: 'Final – NEET pattern simulation',
+      status: 'scheduled',
+    },
+    {
+      date: '30th August 2026',
+      title: 'Grand CBT 8',
+      description: 'NEET PG Date',
       status: 'scheduled',
     },
   ];
