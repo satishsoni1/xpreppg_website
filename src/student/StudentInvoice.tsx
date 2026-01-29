@@ -113,10 +113,10 @@ export default function StudentInvoice() {
           
           <div className="mt-6 md:mt-0 text-right space-y-1">
             <h2 className="text-gray-900 font-bold text-lg">XPrepPG Pvt Ltd.</h2>
-            <p className="text-sm text-gray-500">123, Medical Hub, Tech Park</p>
-            <p className="text-sm text-gray-500">New Delhi, India - 110001</p>
+            {/* <p className="text-sm text-gray-500">123, Medical Hub, Tech Park</p>
+            <p className="text-sm text-gray-500">New Delhi, India - 110001</p> */}
             <p className="text-sm text-gray-500">support@xpreppg.com</p>
-            <p className="text-sm text-gray-500 mt-2">GSTIN: <span className="font-mono text-gray-700">27ABCDE1234F1Z5</span></p>
+            {/* <p className="text-sm text-gray-500 mt-2">GSTIN: <span className="font-mono text-gray-700">27ABCDE1234F1Z5</span></p> */}
           </div>
         </header>
 

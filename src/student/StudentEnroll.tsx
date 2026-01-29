@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { StudentAPI } from "@/services/studentApi"; // ✅ Use StudentAPI for everything
+import { StudentAPI } from "@/services/studentApi"; 
 import { openRazorpay } from "@/lib/razorpay";
 
 // Keep existing UI components
@@ -78,7 +78,6 @@ export default function StudentEnroll() {
      LOAD PLANS
   ------------------------------------------------------- */
   useEffect(() => {
-    // ✅ Uses StudentAPI to get plans (with Auth headers if needed)
     StudentAPI.getPlans()
       .then((res: any) => {
         const data = res.plans || res.data || [];
@@ -88,7 +87,7 @@ export default function StudentEnroll() {
   }, []);
 
   /* -------------------------------------------------------
-     WHEN PLAN CHANGES
+     WHEN PLAN CHANGES (Auto-Select Logic Added Here)
   ------------------------------------------------------- */
   useEffect(() => {
     if (!selectedPlan) return;
@@ -100,13 +99,19 @@ export default function StudentEnroll() {
       amount: selectedPlan.sellingPrice,
     }));
 
-    setSelectedExamIds([]);
+    // ✅ NEW LOGIC: Auto-select all exams if plan count matches available exams
+    if (availableExams.length > 0 && selectedPlan.exams === availableExams.length) {
+      setSelectedExamIds(availableExams.map((e) => e.id));
+    } else {
+      setSelectedExamIds([]);
+    }
+
     setDiscountCode("");
     setDiscountApplied(0);
     setFinalAmount(selectedPlan.sellingPrice);
     setCouponError("");
     setCouponSuccess("");
-  }, [selectedPlan]);
+  }, [selectedPlan, availableExams]);
 
   /* -------------------------------------------------------
      APPLY COUPON
@@ -123,7 +128,6 @@ export default function StudentEnroll() {
     setCouponLoading(true);
 
     try {
-      // ✅ Uses StudentAPI and sends selected exams for validation
       const res = await StudentAPI.validateCoupon({
         code: discountCode,
         amount: form.amount,
@@ -131,14 +135,12 @@ export default function StudentEnroll() {
         selectedExamIds: selectedExamIds 
       });
 
-      // API returns { valid: boolean, message: string, discountValue: number }
       if (!res.valid) {
         setCouponError(res.message);
         setCouponLoading(false);
         return;
       }
 
-      // Backend now handles all logic and returns the exact discount value
       const discount = res.discountValue;
 
       setDiscountApplied(discount);
@@ -172,7 +174,6 @@ export default function StudentEnroll() {
     const invoiceId = String(Date.now());
 
     try {
-      // ✅ Create Order (Uses StudentAPI to ensure Token is sent)
       const orderRes = await StudentAPI.createOrder({
         mobile: form.phone,
         plan: form.plan,
@@ -184,16 +185,13 @@ export default function StudentEnroll() {
         discountCode,
       });
 
-      // Handle Free Orders
       if (orderRes.free) {
         navigate(`/invoice/${invoiceId}?status=paid&paymentId=FREE`);
         return;
       }
 
-      // orderRes is the direct JSON object { key, orderId, amount }
       const { key, orderId, amount } = orderRes;
 
-      // Open Razorpay
       await openRazorpay({
         key,
         order_id: orderId,
@@ -201,7 +199,6 @@ export default function StudentEnroll() {
         name: "XPrepPG Exam Portal",
         description: `${form.plan}`,
         handler: async (resp: any) => {
-          // Verify Payment
           await StudentAPI.verifyPayment({
             ...resp,
             mobile: form.phone,
@@ -213,9 +210,7 @@ export default function StudentEnroll() {
             discountCode,
           });
 
-          // Redirect to Invoice/Success
           navigate(`/student/invoice/${resp.razorpay_order_id}`);
-          //navigate(`/invoice/${invoiceId}?status=paid&paymentId=${resp.razorpay_payment_id}`);
         },
         prefill: {
           name: form.fullName,
