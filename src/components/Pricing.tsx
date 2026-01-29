@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Star, Loader2 } from "lucide-react";
+import { Check, Star, Loader2, Zap, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PublicAPI } from "@/services/publicApi";
 
@@ -15,8 +15,7 @@ export default function Pricing() {
     const loadPlans = async () => {
       setLoading(true);
       try {
-        const res = await PublicAPI.getPlans(); 
-        
+        const res = await PublicAPI.getPlans();
         if (res.status && Array.isArray(res.plans)) {
           setTiers(res.plans);
         } else {
@@ -35,24 +34,22 @@ export default function Pricing() {
 
   // Handle Enrollment Click
   const handleEnrollClick = (tier: any) => {
-    const token = localStorage.getItem("token"); // Check for Auth Token
+    const token = localStorage.getItem("token");
     const user = localStorage.getItem("x_user_name");
 
-    // 1. Prepare Plan Data (Matches DB Schema)
+    // 1. Prepare Plan Data
     const selectedPlan = {
       planId: tier.id,
-      title: tier.name, // DB: name
-      amount: tier.selling_price, // DB: selling_price
-      originalAmount: tier.original_price, // DB: original_price
-      examCount: tier.exams_count // DB: exams_count
+      title: tier.name,
+      amount: tier.selling_price,
+      originalAmount: tier.original_price,
+      examCount: tier.exams_count
     };
 
     // 2. Logic: If NOT logged in, save plan & open Auth Modal
     if (!token || !user) {
-      // Save plan to storage so we can redirect AFTER they login/register
       localStorage.setItem("x_selected_plan", JSON.stringify(selectedPlan));
-      
-      // Trigger the existing Auth Modal (ensure your Modal handles Login/Register switching)
+      // Dispatch event to open the register modal available in the layout
       window.dispatchEvent(new Event("open-register-modal"));
       return;
     }
@@ -64,120 +61,137 @@ export default function Pricing() {
       title: selectedPlan.title
     });
 
-    navigate(`/enroll?${params.toString()}`);
+    navigate(`/student/login`);
   };
 
-  return (
-    <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-white animate-fade-in">
-      <div className="max-w-7xl mx-auto text-center">
-        
-        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">
-          Pricing Plans
-        </h2>
-        <div className="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 mx-auto my-4 rounded-full" />
+  // We take the first active plan to display (assuming the 999 plan is the primary one)
+  const primaryPlan = tiers.length > 0 ? tiers[0] : null;
 
-        <p className="text-lg text-gray-600 mb-16">
-          Choose the best package for your preparation
-        </p>
+  return (
+    <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+        <div className="absolute top-48 -left-24 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10 text-center">
+        
+        {/* Header */}
+        <div className="mb-12">
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+            Simple, Transparent Pricing
+          </h2>
+          <div className="w-20 h-1.5 bg-emerald-500 mx-auto my-6 rounded-full" />
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Get instant access to high-yield CBT exams and analytics. No hidden fees.
+          </p>
+        </div>
 
         {/* Loading State */}
         {loading && (
-          <div className="text-center py-10 flex flex-col items-center">
-            <Loader2 className="animate-spin text-primary w-10 h-10 mb-3" />
-            <p className="text-gray-600 font-medium">Fetching latest plans...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="animate-spin text-emerald-600 w-12 h-12 mb-4" />
+            <p className="text-slate-500 font-medium">Loading best offers...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && !loading && (
-          <div className="py-10 bg-red-50 rounded-xl border border-red-100 max-w-lg mx-auto">
-            <p className="text-red-600 text-lg font-semibold">{error}</p>
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg inline-block font-medium border border-red-100">
+            {error}
           </div>
         )}
 
-        {/* Plans Grid */}
-        {!loading && !error && tiers.length > 0 && (
-          <div className="flex justify-center mb-14">
-            <div className="max-w-md w-full">
-              <div className="relative rounded-2xl border bg-white p-8 shadow-xl border-emerald-500 ring-4 ring-emerald-50 transition hover:scale-105 duration-300">
+        {/* --- MAIN PRICING CARD --- */}
+        {!loading && !error && primaryPlan && (
+          <div className="flex justify-center mb-20">
+            <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 transform transition-all hover:scale-[1.02] duration-300 overflow-hidden">
+              
+              {/* Badge */}
+              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+              <div className="absolute top-6 right-0 bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-l-full uppercase tracking-wider border-l border-y border-emerald-200 shadow-sm flex items-center gap-1">
+                <Star size={12} fill="currentColor" /> Best Value
+              </div>
 
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 
-                  bg-gradient-to-r from-emerald-600 to-teal-600 
-                  text-white px-4 py-1 rounded-full text-sm font-semibold
-                  flex items-center gap-1 shadow-lg">
-                  <Star className="w-4 h-4" fill="currentColor" />
-                  Most Popular
+              <div className="p-8 sm:p-10">
+                {/* Plan Title */}
+                <div className="text-left mb-6">
+                  <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    {primaryPlan.name || "Grand CBT Pack"}
+                  </h3>
+                  <p className="text-slate-500 text-sm mt-1">
+                    Complete access to all mock exams
+                  </p>
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Standard Packages
-                </h3>
+                {/* Pricing */}
+                <div className="flex items-baseline gap-2 mb-8">
+                  <span className="text-5xl font-extrabold text-slate-900">
+                    ₹{primaryPlan.selling_price}
+                  </span>
+                  {primaryPlan.original_price && (
+                    <span className="text-lg text-slate-400 line-through decoration-slate-400/50">
+                      ₹{primaryPlan.original_price}
+                    </span>
+                  )}
+                </div>
 
-                <div className="space-y-4 mb-6">
-                  {tiers.map((tier) => (
-                    <div
-                      key={tier.id}
-                      className="text-left border border-gray-100 rounded-xl p-5 bg-gray-50 hover:bg-white hover:shadow-md hover:border-emerald-200 transition-all duration-300 group"
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                        <div>
-                           <p className="text-primary font-bold text-lg">
-                             {tier.name}
-                           </p>
-                           <p className="text-xs text-gray-500 mt-1 font-medium bg-gray-100 w-fit px-2 py-0.5 rounded">
-                             Includes {tier.exams_count} Exam{tier.exams_count > 1 ? 's' : ''}
-                           </p>
-                        </div>
-                        {tier.original_price && (
-                          <p className="text-sm line-through text-gray-400 mt-1">
-                            ₹{tier.original_price}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4">
-                        <p className="text-3xl font-extrabold text-gray-900 group-hover:text-primary transition-colors">
-                          ₹{tier.selling_price}
-                        </p>
-
-                        <button
-                          onClick={() => handleEnrollClick(tier)}
-                          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primaryDark text-white font-semibold 
-                            hover:bg-emerald-600 shadow-lg shadow-gray-200 hover:shadow-emerald-200 
-                            transition-all transform hover:-translate-y-0.5"
-                        >
-                          Enroll Now
-                        </button>
-                      </div>
+                {/* Feature Highlights inside Card */}
+                <div className="bg-slate-50 rounded-xl p-5 mb-8 border border-slate-100 text-left space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-emerald-100 p-1 rounded-full shrink-0 mt-0.5">
+                      <Zap className="w-3.5 h-3.5 text-emerald-600" fill="currentColor" />
                     </div>
-                  ))}
+                    <span className="text-sm text-slate-700 font-medium">Access to {primaryPlan.exams_count || "All"} Full-Length Exams</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="bg-blue-100 p-1 rounded-full shrink-0 mt-0.5">
+                      <Shield className="w-3.5 h-3.5 text-blue-600" fill="currentColor" />
+                    </div>
+                    <span className="text-sm text-slate-700 font-medium">Detailed Analytics & AI Insights</span>
+                  </div>
                 </div>
 
+                {/* CTA Button */}
+                <button
+                  onClick={() => handleEnrollClick(primaryPlan)}
+                  className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-lg 
+                    hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg hover:shadow-emerald-200 
+                    transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-2"
+                >
+                  Register Now
+                </button>
+                <p className="text-xs text-center text-slate-400 mt-4">
+                  Secure payment via Razorpay. Instant activation.
+                </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Features Section */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-10 shadow-inner border border-gray-100">
-          <h3 className="text-2xl font-bold text-gray-800 mb-8">
-            All Plans Include
+        {/* Global Features Grid */}
+        <div className="max-w-5xl mx-auto">
+          <h3 className="text-lg font-bold text-slate-700 mb-8 uppercase tracking-widest text-center">
+            Everything you need to succeed
           </h3>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-8 text-left max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 text-left">
             {[
-              "Detailed Score Analysis",
-              "Subject-wise Performance",
-              "All India Rank (AIR)",
-              "Difficulty Level Breakdown",
-              "Unlimited Revision Mode",
-              "24/7 Support Access",
-            ].map((f) => (
-              <div key={f} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white transition">
-                <div className="bg-emerald-100 p-1 rounded-full">
-                  <Check className="w-4 h-4 text-primary" strokeWidth={3} />
+              { t: "Real Exam Interface", d: "Simulate the exact NBE exam environment." },
+              { t: "Subject-wise Analytics", d: "Identify weak areas with precision." },
+              { t: "All India Rank", d: "Compare your performance with thousands." },
+              { t: "Expert Explanations", d: "Detailed solutions for every question." },
+              { t: "Mobile Friendly", d: "Practice anywhere, anytime on any device." },
+              { t: "24/7 Support", d: "Dedicated team to help you succeed." },
+            ].map((feature, idx) => (
+              <div key={idx} className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex gap-4 items-start">
+                <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600 shrink-0">
+                  <Check className="w-5 h-5" strokeWidth={3} />
                 </div>
-                <span className="text-gray-700 font-medium">{f}</span>
+                <div>
+                  <h4 className="font-bold text-slate-800 text-sm">{feature.t}</h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">{feature.d}</p>
+                </div>
               </div>
             ))}
           </div>
