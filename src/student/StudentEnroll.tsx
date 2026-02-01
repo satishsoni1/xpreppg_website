@@ -128,16 +128,20 @@ export default function StudentEnroll() {
     setCouponLoading(true);
 
     try {
+      // ✅ PASS planId HERE (from selectedPlan object)
       const res = await StudentAPI.validateCoupon({
         code: discountCode,
         amount: form.amount,
-        exams: form.exams,
+        planId: selectedPlan?.id || selectedPlan?.planId, // Send the Plan ID
         selectedExamIds: selectedExamIds 
       });
 
       if (!res.valid) {
         setCouponError(res.message);
         setCouponLoading(false);
+        // Reset discount if invalid
+        setDiscountApplied(0);
+        setFinalAmount(form.amount);
         return;
       }
 
@@ -145,7 +149,7 @@ export default function StudentEnroll() {
 
       setDiscountApplied(discount);
       setFinalAmount(form.amount - discount);
-      setCouponSuccess(res.message || `Coupon applied! You saved ₹${discount}`);
+      setCouponSuccess(res.message);
     } catch (err) {
       console.error(err);
       setCouponError("Unable to apply coupon.");
@@ -153,6 +157,43 @@ export default function StudentEnroll() {
       setCouponLoading(false);
     }
   };
+  // const applyCoupon = async () => {
+  //   setCouponError("");
+  //   setCouponSuccess("");
+
+  //   if (!discountCode.trim()) {
+  //     setCouponError("Please enter a coupon code.");
+  //     return;
+  //   }
+
+  //   setCouponLoading(true);
+
+  //   try {
+  //     const res = await StudentAPI.validateCoupon({
+  //       code: discountCode,
+  //       amount: form.amount,
+  //       exams: form.exams,
+  //       selectedExamIds: selectedExamIds 
+  //     });
+
+  //     if (!res.valid) {
+  //       setCouponError(res.message);
+  //       setCouponLoading(false);
+  //       return;
+  //     }
+
+  //     const discount = res.discountValue;
+
+  //     setDiscountApplied(discount);
+  //     setFinalAmount(form.amount - discount);
+  //     setCouponSuccess(res.message || `Coupon applied! You saved ₹${discount}`);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setCouponError("Unable to apply coupon.");
+  //   } finally {
+  //     setCouponLoading(false);
+  //   }
+  // };
 
   const removeCoupon = () => {
     setDiscountCode("");

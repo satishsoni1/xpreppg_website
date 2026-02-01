@@ -71,7 +71,7 @@ export const StudentAPI = {
   validateCoupon: async (data: { 
     code: string; 
     amount: number; 
-    exams: number; 
+    planId: number; 
     selectedExamIds: number[] // <--- ADD THIS TYPE
 }) => {
     const res = await fetch(`${API_BASE_URL}/coupons/validate`, {
