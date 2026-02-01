@@ -62,7 +62,22 @@ export const AdminAPI = {
     });
     return res.json();
   },
+  updateExam: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/exams/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 
+  deleteExam: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/exams/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
   // --- QUESTIONS ---
   getQuestions: async (examId: string | number) => {
     const res = await fetch(`${API_BASE_URL}/admin/questions/${examId}`, {
@@ -107,7 +122,14 @@ export const AdminAPI = {
     });
     return res.json();
   },
-
+  manualEnroll: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/enrollments/manual`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
   // --- FINANCE (PLANS & COUPONS) ---
   getPlans: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/plans`, {
@@ -137,6 +159,14 @@ export const AdminAPI = {
   createCoupon: async (data: any) => {
     const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
       method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateCoupon: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/coupons/${id}`, {
+      method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     });
