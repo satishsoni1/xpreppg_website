@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { AdminAPI } from "@/services/adminApi";
-import { Ticket, Power, Globe, FileText } from "lucide-react";
+import { Ticket, Power, Globe, Package, Loader2 } from "lucide-react";
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState<any[]>([]);
-  const [exams, setExams] = useState<any[]>([]); // Store list of exams
+  const [plans, setPlans] = useState<any[]>([]); // ✅ Store list of plans
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
   
   const [form, setForm] = useState({
     code: "",
@@ -14,7 +15,7 @@ export default function AdminCoupons() {
     min_order_amount: 0,
     valid_until: "",
     usage_limit: 100,
-    specific_exam_id: "" // New Field
+    specific_plan_id: "" // ✅ Changed from exam_id to plan_id based on requirement
   });
 
   useEffect(() => {
@@ -23,14 +24,14 @@ export default function AdminCoupons() {
 
   const fetchData = async () => {
     try {
-      // Fetch Coupons AND Exams (for the dropdown)
-      const [couponRes, examRes] = await Promise.all([
+      // Fetch Coupons AND Plans
+      const [couponRes, planRes] = await Promise.all([
         AdminAPI.getCoupons(),
-        AdminAPI.getExams() // Ensure this method exists in AdminAPI
+        AdminAPI.getPlans() // ✅ Fetch plans here
       ]);
 
       if (couponRes.status) setCoupons(couponRes.coupons);
-      if (examRes.status) setExams(examRes.exams);
+      if (planRes.status) setPlans(planRes.plans);
 
     } catch(err) { console.error(err); }
     finally { setLoading(false); }
@@ -38,14 +39,22 @@ export default function AdminCoupons() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const res = await AdminAPI.createCoupon(form);
+    setCreating(true);
+    
+    // Ensure payload matches backend expectation
+    const payload = {
+        ...form,
+        // Convert to number if selected, else null
+        specific_plan_id: form.specific_plan_id ? Number(form.specific_plan_id) : null 
+    };
+
+    const res = await AdminAPI.createCoupon(payload);
+    setCreating(false);
+
     if(res.status) {
-      alert("Coupon Created");
-      // Reset form (keep generic settings, clear specific ones)
-      setForm({ ...form, code: "", discount_value: "", specific_exam_id: "" });
-      // Re-fetch to get the new list with exam names joined
-      const updatedList = await AdminAPI.getCoupons();
-      if(updatedList.status) setCoupons(updatedList.coupons);
+      alert("Coupon Created Successfully");
+      setForm({ ...form, code: "", discount_value: "", specific_plan_id: "" });
+      fetchData(); // Refresh list
     } else {
       alert(res.message);
     }
@@ -66,13 +75,14 @@ export default function AdminCoupons() {
 
       {/* CREATE FORM */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+         <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Create New Coupon</h3>
          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
             
             {/* Row 1 */}
             <div className="md:col-span-1">
                <label className="text-xs font-bold text-gray-500 uppercase">Coupon Code</label>
                <input 
-                 required className="w-full border p-2.5 rounded-lg uppercase tracking-wider font-bold"
+                 required className="w-full border p-2.5 rounded-lg uppercase tracking-wider font-bold focus:ring-2 focus:ring-purple-500"
                  placeholder="SUMMER50"
                  value={form.code}
                  onChange={e => setForm({...form, code: e.target.value.toUpperCase()})}
@@ -80,16 +90,16 @@ export default function AdminCoupons() {
             </div>
 
             <div className="md:col-span-1">
-               <label className="text-xs font-bold text-gray-500 uppercase">Applicability</label>
+               <label className="text-xs font-bold text-gray-500 uppercase">Applicable Plan</label>
                <select 
                   className="w-full border p-2.5 rounded-lg bg-white"
-                  value={form.specific_exam_id}
-                  onChange={e => setForm({...form, specific_exam_id: e.target.value})}
+                  value={form.specific_plan_id}
+                  onChange={e => setForm({...form, specific_plan_id: e.target.value})}
                >
-                  <option value="">Global (All Exams)</option>
-                  {exams.map((exam) => (
-                    <option key={exam.id} value={exam.id}>
-                      {exam.title}
+                  <option value="">Global (All Plans)</option>
+                  {plans.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.name} (₹{plan.selling_price})
                     </option>
                   ))}
                </select>
@@ -144,19 +154,26 @@ export default function AdminCoupons() {
                />
             </div>
 
-            <button className="md:col-span-4 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition">
-               Create Coupon
+            <button 
+                type="submit"
+                disabled={creating}
+                className="md:col-span-4 bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition flex items-center justify-center gap-2"
+            >
+               {creating ? <Loader2 className="animate-spin" /> : <Ticket />} Create Coupon
             </button>
          </form>
       </div>
 
       {/* LIST TABLE */}
+      {loading ? (
+          <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-purple-600" /></div>
+      ) : (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
          <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 border-b font-bold text-gray-600">
                <tr>
                   <th className="p-4">Code</th>
-                  <th className="p-4">Scope</th>
+                  <th className="p-4">Applicability</th>
                   <th className="p-4">Discount</th>
                   <th className="p-4">Usage</th>
                   <th className="p-4">Expires</th>
@@ -165,43 +182,46 @@ export default function AdminCoupons() {
                </tr>
             </thead>
             <tbody className="divide-y">
+               {coupons.length === 0 && (
+                   <tr><td colSpan={7} className="p-8 text-center text-gray-500">No coupons found. Create one above.</td></tr>
+               )}
                {coupons.map(c => (
-                  <tr key={c.id} className="hover:bg-gray-50">
-                     <td className="p-4 font-bold text-gray-800 tracking-wide">{c.code}</td>
+                  <tr key={c.id} className="hover:bg-gray-50 transition">
+                     <td className="p-4 font-bold text-gray-800 tracking-wide font-mono bg-gray-50/50">{c.code}</td>
                      
                      {/* SCOPE COLUMN */}
                      <td className="p-4">
-                        {c.specific_exam_id ? (
-                           <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
-                              <FileText size={12} /> {c.exam_name || `Exam #${c.specific_exam_id}`}
+                        {c.specific_plan_id ? (
+                           <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit border border-blue-100">
+                              <Package size={12} /> {c.plan_name || `Plan #${c.specific_plan_id}`}
                            </span>
                         ) : (
-                           <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
+                           <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit border border-gray-200">
                               <Globe size={12} /> Global
                            </span>
                         )}
                      </td>
 
                      <td className="p-4">
-                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">
+                        <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold border border-emerald-200">
                            {c.discount_type === 'flat' ? '₹' : ''}{c.discount_value}{c.discount_type === 'percentage' ? '%' : ''} OFF
                         </span>
                      </td>
-                     <td className="p-4 text-gray-500">{c.used_count} / {c.usage_limit}</td>
+                     <td className="p-4 text-gray-600 font-medium">{c.used_count} / {c.usage_limit}</td>
                      <td className="p-4 text-gray-500">
                         {c.valid_until ? new Date(c.valid_until).toLocaleDateString() : 'No Expiry'}
                      </td>
                      <td className="p-4">
                         {c.is_active 
-                           ? <span className="text-green-600 font-bold text-xs">ACTIVE</span> 
-                           : <span className="text-red-500 font-bold text-xs">INACTIVE</span>
+                           ? <span className="text-emerald-600 font-bold text-xs bg-emerald-50 px-2 py-1 rounded">ACTIVE</span> 
+                           : <span className="text-red-500 font-bold text-xs bg-red-50 px-2 py-1 rounded">INACTIVE</span>
                         }
                      </td>
                      <td className="p-4">
                         <button 
                            onClick={() => toggleStatus(c.id, c.is_active)}
-                           className={`p-2 rounded hover:bg-gray-200 ${c.is_active ? 'text-red-500' : 'text-green-600'}`}
-                           title="Toggle Status"
+                           className={`p-2 rounded-full hover:bg-gray-100 transition ${c.is_active ? 'text-red-500 hover:text-red-700' : 'text-emerald-600 hover:text-emerald-800'}`}
+                           title={c.is_active ? "Deactivate" : "Activate"}
                         >
                            <Power size={18} />
                         </button>
@@ -211,6 +231,7 @@ export default function AdminCoupons() {
             </tbody>
          </table>
       </div>
+      )}
     </div>
   );
 }
