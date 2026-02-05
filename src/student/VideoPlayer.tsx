@@ -20,10 +20,10 @@ export default function VideoPlayer() {
     setError("");
     try {
       const res = await StudentAPI.getVideo(videoId);
-      if (res.url) {
-        setVideo(res);
+      if (res.status && res.video) {
+        setVideo(res.video);
       } else {
-        setError("Video content unavailable.");
+        setError(res.message || "Video content unavailable.");
       }
     } catch (err) {
       console.error(err);
