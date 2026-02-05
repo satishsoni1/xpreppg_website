@@ -5,22 +5,27 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { X, UploadCloud } from "lucide-react";
 import CityBottomSheet from "@/components/CitySelect";
 import { StudentAPI } from "@/services/studentApi";
-import imageCompression from 'browser-image-compression'; // 1. Import Compression
-import { AdminAPI } from "@/services/adminApi";
+import imageCompression from 'browser-image-compression';
 import { PublicAPI } from "@/services/publicApi";
+
+// Define interface for City to avoid 'any' type issues
+interface City {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   
-  // We keep loading state local since we are calling API directly here now
   const [loading, setLoading] = useState(false);
 
-  const [cities, setCities] = useState([]);
+  // Type the cities state
+  const [cities, setCities] = useState<City[]>([]);
   const [openCityPicker, setOpenCityPicker] = useState(false);
 
-  // 2. Change 'photo' to hold the FILE object, not string
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -43,18 +48,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 3. UPDATED: Compress & Handle File
   const handlePhotoUpload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview immediately (using object URL is faster than Base64)
     setPhotoPreview(URL.createObjectURL(file));
 
     try {
       const options = {
-        maxSizeMB: 0.2, // Limit to 200KB
-        maxWidthOrHeight: 1000, // Limit dimensions
+        maxSizeMB: 0.2, 
+        maxWidthOrHeight: 1000,
         useWebWorker: true,
       };
 
@@ -62,18 +65,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       setFormData((prev) => ({ ...prev, photo: compressedFile }));
     } catch (error) {
       console.error("Compression failed:", error);
-      // Fallback to original file if compression fails
       setFormData((prev) => ({ ...prev, photo: file }));
     }
   };
 
-  // 4. UPDATED: Submit as FormData
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
   
     try {
-      // Create FormData object (Standard for file uploads)
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("mobile", formData.mobile);
@@ -81,12 +81,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       submitData.append("category", formData.category);
       submitData.append("city", formData.city);
       
-      // Only append photo if it exists
       if (formData.photo) {
         submitData.append("photo", formData.photo);
       }
 
-      // Send to API
       const response = await StudentAPI.register(submitData);
   
       if (!response.status) {
@@ -94,12 +92,23 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         return;
       }
   
-      alert("Registration Successful! Please Login.");
-      setShowForm(false);
-      
-      setTimeout(() => {
-        window.location.href = "/student/login";
-      }, 1000);
+      // --- CHANGED LOGIC HERE ---
+      // Check if the selected city is active or inactive
+      const selectedCityObj = cities.find((c) => c.name === formData.city);
+
+      if (selectedCityObj && !selectedCityObj.is_active) {
+        // INACTIVE CITY FLOW: Show message, Close form, DO NOT Redirect to Login
+        alert(`Registration Successful.\n\nNOTE: All slots are full in ${formData.city}. Our team will connect with you shortly after registration.`);
+        setShowForm(false);
+      } else {
+        // ACTIVE CITY FLOW: Show success, Redirect to Login
+        alert("Registration Successful! Please Login.");
+        setShowForm(false);
+        setTimeout(() => {
+          window.location.href = "/student/login";
+        }, 1000);
+      }
+      // --------------------------
   
     } catch (error) {
       console.error("API Error:", error);
@@ -109,7 +118,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // Listen for modal open event
   useEffect(() => {
     const openModal = () => setShowForm(true);
     window.addEventListener("open-register-modal", openModal);
@@ -140,12 +148,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Inputs */}
               <input type="text" name="name" placeholder="Full Name" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
               <input type="tel" name="mobile" placeholder="Mobile Number" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
               <input type="email" name="email" placeholder="Email ID" onChange={handleChange} className="w-full border border-gray-300 rounded-lg p-3" required />
 
-              {/* Category (Simplified for brevity) */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2">Category</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -159,13 +165,17 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
 
-              {/* City Picker Trigger */}
               <div className="w-full border border-gray-300 rounded-lg p-3 cursor-pointer" onClick={() => setOpenCityPicker(true)}>
                 {formData.city || "Select City"}
               </div>
-              <CityBottomSheet cities={cities} value={formData.city} open={openCityPicker} setOpen={setOpenCityPicker} onSelect={(c:any) => setFormData(p => ({ ...p, city: c }))} />
+              <CityBottomSheet 
+                cities={cities} 
+                value={formData.city} 
+                open={openCityPicker} 
+                setOpen={setOpenCityPicker} 
+                onSelect={(c:any) => setFormData(p => ({ ...p, city: c }))} 
+              />
 
-              {/* Photo Upload UI */}
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-gray-50 transition">
                 <input 
                   type="file" 

@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
 import { Info, Loader2 } from "lucide-react";
+import { PublicAPI } from "@/services/publicApi";
+
+interface City {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
 
 export default function StudentLogin() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ mobile: "", password: "" });
-
+  const [cities, setCities] = useState<City[]>([]);
+  useEffect(() => {
+    PublicAPI.getCities()
+      .then((res) => setCities(res.cities))
+      .catch(() => console.error("Failed to load cities"));
+  }, []);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -23,6 +35,19 @@ export default function StudentLogin() {
         
         // ✅ 3. Store User Object as JSON string (Required by Dashboard)
         localStorage.setItem("student_user", JSON.stringify(data.user));
+        const cityStatus = cities.find((c: any) => c.name === data.user.city);
+        if (cityStatus && !cityStatus.is_active) {
+          alert(
+            `Login Restricted.\n\nThe slots for "${data.user.city}" are currently full. Our team will contact you directly.`
+          );
+          
+          // Security: Clear any token that might have been set by the API call or client
+          localStorage.removeItem("token");
+          localStorage.removeItem("student_user");
+          
+          setLoading(false);
+          return; 
+        }
         
         // Optional: Save individual fields if other legacy components need them
         localStorage.setItem("x_user_mobile", data.user.mobile); 
