@@ -7,6 +7,7 @@ import Schedule from "./components/Schedule";
 import PostExam from "./components/PostExam";
 import MainLayout from "./layouts/MainLayout";
 import { useEffect } from "react";
+import DemoVideo from "./components/DemoVideo";
 
 export default function App() {
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function App() {
       <Features />
       <Pricing />
       <Schedule />
+      <DemoVideo />
       <PostExam />
     </MainLayout>
   );
