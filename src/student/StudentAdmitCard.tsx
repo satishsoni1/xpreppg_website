@@ -178,7 +178,7 @@ export default function StudentAdmitCard() {
                <tr>
                  <td className="py-2 font-bold align-top">Examination Centre:</td>
                  <td className="py-2 font-bold uppercase text-lg">
-                   {selectedCard.centerName || "Nagpur-Central India Nursing College"}
+                   {selectedCard.center_name || ""}
                  </td>
                </tr>
 
@@ -186,23 +186,23 @@ export default function StudentAdmitCard() {
                <tr>
                  <td className="py-2 font-bold align-top">Address:</td>
                  <td className="py-2 text-gray-800">
-                   {selectedCard.centerAddress || "Khasra No 25/1B, Mouza Lonara, Lake Koradi Road, Lonara, Nagpur."}
+                   {selectedCard.address || ""}
                    <br/>
-                   <span className="font-semibold">Landmark: Near Lonara Lake</span>
+                   {selectedCard.city || ""}
                  </td>
                </tr>
 
                {/* Centre Code */}
                <tr>
                  <td className="py-2 font-bold align-top">Centre Code:</td>
-                 <td className="py-2 font-bold">N003</td>
+                 <td className="py-2 font-bold">{selectedCard.center_code || ""}</td>
                </tr>
 
                {/* Google Map Link */}
                <tr>
                  <td className="py-2 font-bold align-top">Google Map Link:</td>
                  <td className="py-2">
-                   <a href="#" className="text-blue-600 underline flex items-center gap-1 font-medium">
+                   <a href={selectedCard.map_link || "#"} className="text-blue-600 underline flex items-center gap-1 font-medium">
                      <MapPin size={16} /> Click here to go to the location of your examination centre
                    </a>
                  </td>
@@ -215,16 +215,16 @@ export default function StudentAdmitCard() {
         <div className="bg-gray-50 border border-gray-300 p-4 mb-6">
           <div className="flex justify-between items-center mb-2 border-b border-gray-300 pb-2">
             <span className="font-bold text-gray-700">Entry to Exam Centre Closes at:</span>
-            <span className="font-bold text-xl text-red-600">01:45 PM</span>
+            <span className="font-bold text-xl text-red-600">09:00 AM</span>
           </div>
           
           <div className="flex justify-between items-center mb-4">
             <span className="font-bold text-gray-700">Examination Timings:</span>
-            <span className="font-bold text-xl text-black">02:00 PM to 05:30 PM</span>
+            <span className="font-bold text-xl text-black">09:30 AM to 01:00 PM</span>
           </div>
 
           <p className="text-center font-bold text-red-600 uppercase text-sm border-t border-gray-300 pt-2">
-             No entry in the exam centre after 01:45 PM under any circumstances.
+             No entry in the exam centre after 09:00 PM under any circumstances.
           </p>
         </div>
 
