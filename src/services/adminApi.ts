@@ -216,5 +216,51 @@ export const AdminAPI = {
       body: JSON.stringify({ enrollment_id: enrollmentId, center_id: centerId }),
     });
     return res.json();
+  },
+  // --- EVALUATION ENGINE (Raw Attempts V2 -> Final Reports) ---
+  
+  // 1. Fetch Dropdown Filters (Students & Exams)
+  getEvaluationFilters: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/evaluation-filters`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 2. Fetch Raw Pending Attempts for the Queue Table
+  getPendingAttempts: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/pending-attempts`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // 3. Evaluate Specific Student/Exam (From Dropdown Page)
+  evaluateTargetedResults: async (data: { studentId?: string | null, examId?: string | null }) => {
+    const res = await fetch(`${API_BASE_URL}/admin/evaluate-results`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // 4. Evaluate Specific Selected Rows (From Checkbox Table Page)
+  evaluateSelectedAttempts: async (attemptIds: number[]) => {
+    const res = await fetch(`${API_BASE_URL}/admin/evaluate-selected`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ attemptIds }),
+    });
+    return res.json();
+  },
+  getEvaluatedResults: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/evaluated-results`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
   }
 };

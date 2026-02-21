@@ -34,6 +34,8 @@ import AdminCoupons from "./admin/AdminCoupons";
 import AdminReports from "./admin/AdminReports";
 import AdminJsonUpload from "./admin/AdminJsonUpload";
 import ReportCardDetail from "./student/ReportCardDetail";
+import PendingAttemptsTable from "./admin/ResultGeneratorPage";
+import StudentAttemptsList from "./admin/StudentAttemptsList";
 
 
 const router = createBrowserRouter([
@@ -70,6 +72,8 @@ const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
+      { path: "attempt", element: <StudentAttemptsList /> },
+      { path: "result-generate", element: <PendingAttemptsTable /> },
       { path: "exams", element: <AdminExams /> },
       { path: "centers", element: <AdminCenters /> },
       { path: "questions", element: <AdminQuestions /> },

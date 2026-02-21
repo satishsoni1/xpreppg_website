@@ -17,7 +17,7 @@ export default function AdminLayout() {
   const menu = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
     { name: "Manage Exams", path: "/admin/exams", icon: <FileText size={20} /> },
-    { name: "Upload JSON", path: "/admin/upload-json", icon: <Upload size={20} /> }, // ✅ New Item
+    { name: "Generate Result", path: "/admin/result-generate", icon: <Upload size={20} /> }, // ✅ New Item
     { name: "Question Bank", path: "/admin/questions", icon: <FileQuestion size={20} /> },
     { name: "Student List", path: "/admin/students", icon: <Users size={20} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={20} /> },
@@ -25,6 +25,7 @@ export default function AdminLayout() {
     { name: "Centers & Cities", path: "/admin/centers", icon: <MapPin size={20} /> },
     { name: "Plans", path: "/admin/plans", icon: <Package size={20} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={20} /> },
+    { name: "Attempted Result", path: "/admin/attempt", icon: <Ticket size={20} /> },
   ];
 
   const handleLogout = () => {
