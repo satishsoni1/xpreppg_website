@@ -1,163 +1,179 @@
-import { CheckCircle, XCircle, AlertCircle, HelpCircle } from "lucide-react";
+import React, { useState } from 'react';
+import { CheckCircle, XCircle, Clock, Tag, MinusCircle, AlertCircle, Filter, FileText } from 'lucide-react';
+import { API_BASE_URL } from "@/config"; // Adjust this path if your config is elsewhere
 
-interface Question {
-  id: string;
-  text: string;
-  options: string[]; // ["Option A", "Option B"...]
-  correctIndex: number;
-  studentAnswer: number | null; // ✅ Value comes directly from DB now
-  marks: number;
-  imagePath?: string;
-  difficulty?: string;
-  subject?: string;
-}
+export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any }) {
+  const [filter, setFilter] = useState<'ALL' | 'CORRECT' | 'WRONG' | 'SKIPPED'>('ALL');
 
-interface Section {
-  id: string;
-  title: string;
-  questions: Question[];
-}
+  if (!exam || !exam.questions || !attempt) {
+    return <div className="p-8 text-center text-slate-500">Incomplete data provided to viewer.</div>;
+  }
 
-interface SolvedPaperProps {
-  exam: {
-    title: string;
-    sections: Section[];
+  // Helper to construct the full image URL
+  const getFullImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith('https')) return path; // Already an absolute URL
+    
+    // Remove '/api' from the end of API_BASE_URL if it exists to get the pure backend root
+    const backendRoot = API_BASE_URL.replace(/\/api$/, ''); 
+    return `${backendRoot}${path.startsWith('/') ? '' : '/'}${path}`;
   };
-}
 
-export default function SolvedPaper({ exam }: SolvedPaperProps) {
-  if (!exam || !exam.sections) return <div>No data available</div>;
+  // Determine question status
+  const getQuestionStatus = (q: any, index: number) => {
+    const studentChoice = attempt.answers[index.toString()];
+    
+    if (studentChoice === undefined || studentChoice === null || studentChoice === "") {
+      return 'SKIPPED';
+    }
+    
+    const correctAnswer = q.correct_answer !== null ? q.correct_answer.toString() : null;
+    if (correctAnswer !== null && studentChoice.toString() === correctAnswer) {
+      return 'CORRECT';
+    }
+    
+    return 'WRONG';
+  };
+
+  // Filter questions based on selection
+  const filteredQuestions = exam.questions.map((q: any, index: number) => ({
+    ...q,
+    originalIndex: index,
+    status: getQuestionStatus(q, index)
+  })).filter((q: any) => filter === 'ALL' || q.status === filter);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-10">
+    <div className="flex flex-col h-full animate-fade-in bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
       
-      {/* Exam Header */}
-      <div className="bg-slate-900 text-white p-6 rounded-xl shadow-lg flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">{exam.title}</h1>
-          <p className="text-slate-400 text-sm mt-1">Detailed Solutions & Analysis</p>
+      {/* Sticky Filter Header */}
+      <div className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10 flex flex-wrap gap-2 items-center justify-between shadow-sm">
+        <div className="font-bold text-slate-800 flex items-center gap-2">
+          <FileText className="text-blue-500" size={20} />
+          {exam.title} Review
+        </div>
+        <div className="flex gap-2 text-sm font-bold">
+          <FilterButton label="All" active={filter === 'ALL'} onClick={() => setFilter('ALL')} color="bg-slate-100 text-slate-700" />
+          <FilterButton label="Correct" active={filter === 'CORRECT'} onClick={() => setFilter('CORRECT')} color="bg-emerald-50 text-emerald-700 border-emerald-200" icon={<CheckCircle size={14}/>} />
+          <FilterButton label="Wrong" active={filter === 'WRONG'} onClick={() => setFilter('WRONG')} color="bg-red-50 text-red-700 border-red-200" icon={<XCircle size={14}/>} />
+          <FilterButton label="Skipped" active={filter === 'SKIPPED'} onClick={() => setFilter('SKIPPED')} color="bg-gray-100 text-gray-500 border-gray-200" icon={<MinusCircle size={14}/>} />
         </div>
       </div>
 
-      {/* Sections Loop */}
-      {exam.sections.map((section, secIndex) => (
-        <div key={secIndex} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          
-          {/* Section Title */}
-          <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-bold text-gray-800">{section.title}</h2>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              {section.questions.length} Questions
-            </span>
-          </div>
+      {/* Questions List */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
+        {filteredQuestions.length > 0 ? (
+          filteredQuestions.map((q: any) => {
+            const indexStr = q.originalIndex.toString();
+            const studentChoice = attempt.answers[indexStr];
+            const timeTaken = attempt.timeSpent?.[indexStr] || attempt.time_spent?.[indexStr] || 0;
+            const correctAnswer = q.correct_answer?.toString();
 
-          {/* Questions Loop */}
-          <div className="divide-y divide-gray-100">
-            {section.questions.map((q, qIndex) => (
-              <QuestionItem key={q.id} question={q} index={qIndex + 1} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// --- Individual Question Item ---
-function QuestionItem({ question, index }: { question: Question; index: number }) {
-  const { text, options, correctIndex, studentAnswer, imagePath, marks } = question;
-
-  // Logic Status
-  const isUnattempted = studentAnswer === null;
-  const isCorrect = studentAnswer === correctIndex;
-  const isWrong = !isUnattempted && !isCorrect;
-
-  return (
-    <div className={`p-6 transition-colors ${
-        isCorrect ? "bg-emerald-50/30" : isWrong ? "bg-red-50/30" : "hover:bg-gray-50"
-      }`}
-    >
-      {/* Header Badge & Marks */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex gap-3">
-          <span className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-600 font-bold text-sm">
-            Q{index}
-          </span>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 border ${
-            isCorrect ? "bg-emerald-100 text-emerald-700 border-emerald-200" :
-            isWrong ? "bg-red-100 text-red-700 border-red-200" :
-            "bg-gray-100 text-gray-600 border-gray-200"
-          }`}>
-            {isCorrect && <><CheckCircle size={14} /> Correct (+{marks})</>}
-            {isWrong && <><XCircle size={14} /> Incorrect (-1)</>}
-            {isUnattempted && <><HelpCircle size={14} /> Unattempted</>}
-          </span>
-        </div>
-      </div>
-
-      {/* Question Body */}
-      <div className="pl-11">
-        <div className="text-gray-900 font-medium text-lg leading-relaxed whitespace-pre-wrap">
-          {text}
-        </div>
-
-        {/* Image Display */}
-        {imagePath && (
-          <div className="mt-4 mb-6">
-            <img 
-              src={imagePath} 
-              alt="Diagram" 
-              className="max-h-80 rounded-lg border border-gray-200 shadow-sm"
-              loading="lazy"
-            />
-          </div>
-        )}
-
-        {/* Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
-          {options.map((opt, idx) => {
-            let optionClass = "border-gray-200 bg-white text-gray-700";
-            let icon = null;
-
-            // 1. Highlight Correct Answer (Always Green)
-            if (idx === correctIndex) {
-              optionClass = "border-emerald-500 bg-emerald-50 text-emerald-900 font-medium ring-1 ring-emerald-500";
-              icon = <CheckCircle size={18} className="text-emerald-600" />;
-            }
-            
-            // 2. Highlight Wrong Selection (Red)
-            else if (idx === studentAnswer) {
-              optionClass = "border-red-500 bg-red-50 text-red-900 font-medium ring-1 ring-red-500";
-              icon = <XCircle size={18} className="text-red-600" />;
-            }
+            // Handle both column naming conventions
+            const imagePathRaw = q.image_url || q.image_path;
 
             return (
-              <div 
-                key={idx} 
-                className={`relative flex items-center justify-between p-3.5 rounded-lg border text-sm transition-all ${optionClass}`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs border ${
-                    idx === correctIndex ? "bg-emerald-200 border-emerald-300 text-emerald-800" :
-                    idx === studentAnswer ? "bg-red-200 border-red-300 text-red-800" :
-                    "bg-gray-100 border-gray-300 text-gray-500"
-                  }`}>
-                    {String.fromCharCode(65 + idx)}
-                  </span>
-                  <span>{opt}</span>
+              <div key={q.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
+                
+                {/* Status Indicator Bar */}
+                <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                  q.status === 'CORRECT' ? 'bg-emerald-500' : 
+                  q.status === 'WRONG' ? 'bg-red-500' : 'bg-slate-300'
+                }`} />
+
+                {/* Question Header Metadata */}
+                <div className="flex flex-wrap justify-between items-start gap-4 mb-4 ml-3 border-b border-slate-100 pb-3">
+                  <span className="font-black text-slate-400 text-sm">Q {q.originalIndex + 1}</span>
+                  <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider">
+                    {q.subject && <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded-md">{q.subject}</span>}
+                    {q.difficulty && <span className="bg-slate-100 text-slate-500 px-2 py-1 rounded-md">{q.difficulty}</span>}
+                    <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-md">
+                      <Clock size={12} /> {timeTaken}s
+                    </span>
+                  </div>
                 </div>
-                {icon}
+
+                {/* Question Text & Image */}
+                <div className="ml-3 mb-6 text-slate-800 text-lg font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question_text }} />
+                
+                {/* 🟢 FIXED IMAGE RENDERER 🟢 */}
+                {imagePathRaw && (
+                  <div className="ml-3 mb-6">
+                    <img 
+                      src={getFullImageUrl(imagePathRaw)!} 
+                      alt="Question Context" 
+                      className="max-h-80 w-auto rounded-lg border border-slate-200 object-contain bg-slate-50 p-2 shadow-sm"
+                      onError={(e) => {
+                        // If image fails to load, hide it to keep UI clean
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }} 
+                    />
+                  </div>
+                )}
+
+                {/* Options List */}
+                <div className="ml-3 space-y-3">
+                  {q.options.map((opt: string, optIdx: number) => {
+                    const optIdxStr = optIdx.toString();
+                    const isStudentChoice = studentChoice?.toString() === optIdxStr;
+                    const isCorrectAnswer = correctAnswer === optIdxStr;
+
+                    let optStyle = "bg-slate-50 border-slate-200 text-slate-600";
+                    let Icon = null;
+
+                    if (isCorrectAnswer) {
+                      optStyle = "bg-emerald-50 border-emerald-500 text-emerald-800 ring-1 ring-emerald-500 font-bold";
+                      Icon = <CheckCircle size={18} className="text-emerald-500" />;
+                    } else if (isStudentChoice && !isCorrectAnswer) {
+                      optStyle = "bg-red-50 border-red-500 text-red-800 ring-1 ring-red-500";
+                      Icon = <XCircle size={18} className="text-red-500" />;
+                    }
+
+                    return (
+                      <div key={optIdx} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${optStyle}`}>
+                        <div className="flex items-center gap-3">
+                           <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${isCorrectAnswer ? 'bg-emerald-500 text-white' : isStudentChoice ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                              {String.fromCharCode(65 + optIdx)}
+                           </span>
+                           <span dangerouslySetInnerHTML={{ __html: opt }} />
+                        </div>
+                        {Icon && <div>{Icon}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Marks feedback */}
+                <div className="ml-3 mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
+                    {q.status === 'CORRECT' ? (
+                       <span className="text-emerald-600 flex items-center gap-1"><CheckCircle size={16}/> +{q.marks || 4} Marks Awarded</span>
+                    ) : q.status === 'WRONG' ? (
+                       <span className="text-red-600 flex items-center gap-1"><AlertCircle size={16}/> {q.negative_marks || -1} Penalty</span>
+                    ) : (
+                       <span className="text-slate-400">0 Marks (Unattempted)</span>
+                    )}
+                  </div>
+                </div>
+
               </div>
             );
-          })}
-        </div>
-        
-        {/* Footer Tags */}
-        <div className="mt-4 flex gap-2">
-           {question.subject && <span className="text-xs font-semibold bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100">{question.subject}</span>}
-           {question.difficulty && <span className="text-xs font-semibold bg-purple-50 text-purple-600 px-2 py-1 rounded border border-purple-100">{question.difficulty}</span>}
-        </div>
+          })
+        ) : (
+          <div className="text-center py-20 text-slate-400 font-medium">
+            <Filter size={48} className="mx-auto mb-4 opacity-20" />
+            No questions match the current "{filter}" filter.
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+const FilterButton = ({ label, active, onClick, color, icon }: any) => (
+  <button 
+    onClick={onClick}
+    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all ${active ? color : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+  >
+    {icon} {label}
+  </button>
+);

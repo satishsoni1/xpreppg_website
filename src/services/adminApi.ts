@@ -44,6 +44,24 @@ export const AdminAPI = {
     });
     return res.json();
   },
+  // --- ADD TO AdminAPI.ts ---
+  createStudent: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/students`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  resetStudentPassword: async (id: number, newPassword: string) => {
+    const res = await fetch(`${API_BASE_URL}/admin/students/${id}/reset-password`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword }),
+    });
+    return res.json();
+  },
 
   // --- EXAMS ---
   getExams: async () => {
@@ -258,6 +276,23 @@ export const AdminAPI = {
   },
   getEvaluatedResults: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/evaluated-results`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  // --- RANKING ENGINE ---
+  generateRanks: async (examId: number, totalStudents: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/generate-ranks`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ examId, totalStudents }),
+    });
+    return res.json();
+  },
+  // --- FETCH SOLVED PAPER DETAILS (For Admin Viewer) ---
+  getStudentAttemptPaper: async (examId: number, studentId: number | string) => {
+    const res = await fetch(`${API_BASE_URL}/admin/student-attempt-paper?examId=${examId}&studentId=${studentId}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
