@@ -125,9 +125,9 @@ export default function StudentReportCard() {
               <Loader2 className="animate-spin text-emerald-600 mb-4" size={32} />
               <p className="text-gray-500 font-medium">Loading Question Paper...</p>
            </div>
-        ) : (examFullData ? (
-           <SolvedPaper exam={examFullData} />
-        ) : (
+        ) : (examFullData && attemptFullData ? (
+          <SolvedPaper exam={examFullData} attempt={attemptFullData} />
+       ) : (
            <div className="p-10 text-center text-gray-500 bg-white rounded-xl border">
               <p className="mb-2 font-semibold">Data Unavailable</p>
               <p className="text-sm">The question paper data could not be loaded.</p>
