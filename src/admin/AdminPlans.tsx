@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AdminAPI } from "@/services/adminApi";
-import { Plus, Trash2, Package, Save, Loader2 } from "lucide-react";
+import { Plus, Package, Save, Loader2, Eye, EyeOff } from "lucide-react"; // Replaced Trash2 with Eye/EyeOff
 
 export default function AdminPlans() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -41,11 +41,19 @@ export default function AdminPlans() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if(!window.confirm("Delete this plan?")) return;
-    const res = await AdminAPI.deletePlan(id);
-    if(res.status) fetchPlans();
-    else alert(res.message);
+  // NEW: Reusable toggle handler for both hiding and unhiding
+  const handleToggleStatus = async (id: number, currentStatus: boolean) => {
+    const newStatus = !currentStatus;
+    const actionText = newStatus ? "activate" : "hide";
+    
+    if(!window.confirm(`Are you sure you want to ${actionText} this plan?`)) return;
+    
+    const res = await AdminAPI.togglePlan(id, newStatus);
+    if(res.status) {
+      fetchPlans(); // Refresh the list
+    } else {
+      alert(res.message);
+    }
   };
 
   return (
@@ -117,21 +125,53 @@ export default function AdminPlans() {
       {/* PLANS LIST */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan) => (
-          <div key={plan.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition group">
+          <div 
+            key={plan.id} 
+            // Apply a grayed-out background and lower opacity if the plan is inactive
+            className={`rounded-xl shadow-sm border p-6 transition group ${
+              plan.is_active 
+                ? "bg-white border-gray-200 hover:shadow-md" 
+                : "bg-gray-50 border-gray-200 opacity-70"
+            }`}
+          >
              <div className="flex justify-between items-start mb-4">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">
-                   {plan.exams_count}
+                <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
+                      plan.is_active ? "bg-blue-50 text-blue-600" : "bg-gray-200 text-gray-500"
+                    }`}>
+                       {plan.exams_count}
+                    </div>
+                    {/* Status Badge */}
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                      plan.is_active ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                    }`}>
+                      {plan.is_active ? "Active" : "Hidden"}
+                    </span>
                 </div>
-                <button onClick={() => handleDelete(plan.id)} className="text-gray-300 hover:text-red-500 transition">
-                   <Trash2 size={18} />
+                
+                {/* Toggle Visibility Button */}
+                <button 
+                  onClick={() => handleToggleStatus(plan.id, plan.is_active)} 
+                  title={plan.is_active ? "Hide Plan" : "Activate Plan"}
+                  className={`p-2 rounded-lg transition ${
+                    plan.is_active 
+                      ? "text-gray-400 hover:text-orange-500 hover:bg-orange-50" 
+                      : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                  }`}
+                >
+                   {plan.is_active ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
              </div>
              
-             <h3 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h3>
+             <h3 className={`text-xl font-bold mb-1 ${plan.is_active ? "text-gray-900" : "text-gray-600"}`}>
+               {plan.name}
+             </h3>
              <p className="text-sm text-gray-500 mb-4">{plan.exams_count} Exams included</p>
              
              <div className="flex items-end gap-2 border-t pt-4">
-                <span className="text-3xl font-extrabold text-gray-900">₹{plan.selling_price}</span>
+                <span className={`text-3xl font-extrabold ${plan.is_active ? "text-gray-900" : "text-gray-500"}`}>
+                  ₹{plan.selling_price}
+                </span>
                 {plan.original_price && (
                    <span className="text-sm text-gray-400 line-through mb-1">₹{plan.original_price}</span>
                 )}

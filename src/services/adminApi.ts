@@ -165,7 +165,14 @@ export const AdminAPI = {
     });
     return res.json();
   },
-
+  togglePlan: async (id: number, status: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/admin/plans/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
   getCoupons: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
       method: "GET",
