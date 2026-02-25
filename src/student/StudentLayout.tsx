@@ -53,7 +53,7 @@ export default function StudentLayout() {
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-100">
-          <span className="text-xl font-bold text-emerald-700">Student Portal</span>
+          <span className="text-xl font-bold text-primary">Student Portal</span>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500">
             <X size={24} />
           </button>
@@ -67,7 +67,7 @@ export default function StudentLayout() {
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === item.path
-                  ? "bg-emerald-50 text-emerald-700"
+                  ? "bg-emerald-50 text-primary"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >

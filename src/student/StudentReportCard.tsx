@@ -119,15 +119,14 @@ export default function StudentReportCard() {
             <p className="text-sm text-gray-500">Solved Paper View</p>
           </div>
         </div>
-
         {paperLoading ? (
            <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
               <Loader2 className="animate-spin text-emerald-600 mb-4" size={32} />
               <p className="text-gray-500 font-medium">Loading Question Paper...</p>
            </div>
-        ) : (examFullData && attemptFullData ? (
-          <SolvedPaper exam={examFullData} attempt={attemptFullData} />
-       ) : (
+        ) : (examFullData && attemptFullData ? (     // <--- THIS IS THE FIX
+           <SolvedPaper exam={examFullData} attempt={attemptFullData} />  // <--- AND THIS
+        ) : (
            <div className="p-10 text-center text-gray-500 bg-white rounded-xl border">
               <p className="mb-2 font-semibold">Data Unavailable</p>
               <p className="text-sm">The question paper data could not be loaded.</p>
@@ -168,7 +167,7 @@ export default function StudentReportCard() {
                 className="bg-white border border-gray-200 p-6 rounded-xl hover:shadow-md hover:border-emerald-500 cursor-pointer transition group"
               >
                 <div className="flex justify-between items-start mb-4">
-                   <div className="bg-emerald-100 p-3 rounded-full text-emerald-700">
+                   <div className="bg-emerald-100 p-3 rounded-full text-primary">
                       <BarChart2 size={24} />
                    </div>
                    <div className="text-right">
@@ -177,7 +176,7 @@ export default function StudentReportCard() {
                       </span>
                    </div>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition">
+                <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition">
                   {item.exam_name}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
@@ -232,7 +231,7 @@ export default function StudentReportCard() {
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{selectedReport.exam_name}</h1>
-            <p className="text-gray-500 mt-1">Student ID: <span className="font-mono text-emerald-700">{selectedReport.student_id}</span></p>
+            <p className="text-gray-500 mt-1">Student ID: <span className="font-mono text-primary">{selectedReport.student_id}</span></p>
           </div>
           
           <div className="mt-6 md:mt-0 flex flex-col sm:flex-row gap-3">

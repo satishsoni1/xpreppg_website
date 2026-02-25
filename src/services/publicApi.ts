@@ -18,4 +18,23 @@ export const PublicAPI = {
     });
     return res.json();
   },
+  getUpcomingExam: async () => {
+    const res = await fetch(`${API_BASE_URL}/public/upcoming-exam`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    return res.json();
+  },
+  getExams: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/public/exams`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      return await res.json();
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+      return { status: false, exams: [] };
+    }
+  },
 };

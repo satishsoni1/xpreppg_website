@@ -1,40 +1,58 @@
 import { ArrowRight, Calendar, Brain, Users } from "lucide-react";
 import { useState, useEffect } from "react";
+import { PublicAPI } from "@/services/publicApi"; // Adjust this path to match your actual file location
 
 export default function Hero() {
   const [status, setStatus] = useState("");
   const [aspirantCount, setAspirantCount] = useState(2500);
+  const [upcomingDate, setUpcomingDate] = useState("Loading...");
 
-  // Logic to calculate aspirants
   useEffect(() => {
-    const calculateAspirants = () => {
-      const baseCount = 1800;
-      const minDailyIncrease = 30;
-      const maxDailyIncrease = 50;
-      const avgIncrease = (minDailyIncrease + maxDailyIncrease) / 2;
+    const fetchUpcomingExam = async () => {
+      try {
+        // Use the new PublicAPI method here
+        const data = await PublicAPI.getUpcomingExam();
+        
+        let examDateObj = new Date("2026-02-19"); // Default fallback
 
-      // Fixed start date for the calculation (e.g., Jan 1, 2026, or a date in the past)
-      // This ensures the number is consistent for every user on the same day
-      const startDate = new Date("2026-01-01"); 
-      const examDate = new Date("2026-02-19");
-      const today = new Date();
+        if (data.status && data.exam && data.exam.start_time) {
+          examDateObj = new Date(data.exam.start_time);
+          
+          // Format Date to "19th Feb 2026"
+          const day = examDateObj.getDate();
+          const suffix = ["th", "st", "nd", "rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
+          const month = examDateObj.toLocaleString('en-US', { month: 'short' });
+          const year = examDateObj.getFullYear();
+          
+          setUpcomingDate(`${day}${suffix} ${month} ${year}`);
+        } else {
+          setUpcomingDate("Coming Soon");
+        }
 
-      // If today is past the exam, stop increasing at the exam date
-      const targetDate = today > examDate ? examDate : today;
+        // --- Calculate Aspirants based on the DYNAMIC exam date ---
+        const baseCount = 1800;
+        const avgIncrease = 40; // Average of 30 and 50
+        const startDate = new Date("2026-01-01"); 
+        const today = new Date();
 
-      // Calculate days passed
-      const timeDiff = targetDate.getTime() - startDate.getTime();
-      const daysPassed = Math.max(0, Math.floor(timeDiff / (1000 * 3600 * 24)));
+        // Stop increasing if today is past the exam date
+        const targetDate = today > examDateObj ? examDateObj : today;
 
-      // Calculate total: Base + (Days * Average Increase)
-      // We add a little randomness based on the day of the month so it's not a perfectly round number
-      const dayRandomness = (targetDate.getDate() * 3) % 20; 
-      const totalCount = baseCount + (daysPassed * avgIncrease) + dayRandomness;
+        const timeDiff = targetDate.getTime() - startDate.getTime();
+        const daysPassed = Math.max(0, Math.floor(timeDiff / (1000 * 3600 * 24)));
 
-      setAspirantCount(Math.floor(totalCount));
+        const dayRandomness = (targetDate.getDate() * 3) % 20; 
+        const totalCount = baseCount + (daysPassed * avgIncrease) + dayRandomness;
+
+        setAspirantCount(Math.floor(totalCount));
+
+      } catch (error) {
+        console.error("Failed to fetch upcoming exam:", error);
+        setUpcomingDate("Coming Soon");
+      }
     };
 
-    calculateAspirants();
+    fetchUpcomingExam();
   }, []);
 
   function setShowForm(p0: boolean): void {
@@ -75,7 +93,7 @@ export default function Hero() {
           {/* Stats Cards Container */}
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
             
-            {/* Exam Date Card */}
+            {/* Exam Date Card (DYNAMIC) */}
             <div className="bg-white rounded-2xl shadow-xl p-5 border-2 border-primary w-full max-w-xs transform hover:scale-105 transition-transform duration-200">
               <div className="flex items-center space-x-4">
                 <div className="bg-emerald-100 p-3 rounded-full">
@@ -83,7 +101,9 @@ export default function Hero() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm text-gray-500 font-medium">Upcoming Exam</p>
-                  <p className="text-xl font-bold text-gray-900">19th Feb 2026</p>
+                  <p className={`text-xl font-bold text-gray-900 ${upcomingDate === 'Loading...' ? 'animate-pulse text-gray-400' : ''}`}>
+                    {upcomingDate}
+                  </p>
                 </div>
               </div>
             </div>

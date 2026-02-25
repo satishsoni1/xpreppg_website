@@ -193,4 +193,30 @@ export const StudentAPI = {
     });
     return res.json();
   },
+  sendResetOTP: async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/student/send-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return res.json();
+  },
+
+  verifyOTPAndReset: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/student/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  // --- ADD THIS TO StudentAPI.ts ---
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    const res = await fetch(`${API_BASE_URL}/student/change-password`, {
+      method: "POST",
+      headers: getAuthHeaders(), // Uses token!
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
 };

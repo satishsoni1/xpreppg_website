@@ -131,7 +131,7 @@ export default function AdminExams() {
         </div>
         <button 
             onClick={openCreateModal}
-            className="bg-emerald-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 hover:bg-emerald-700 transition shadow-lg shadow-emerald-200 font-semibold"
+            className="bg-primary text-white px-5 py-3 rounded-xl flex items-center gap-2 hover:bg-emerald-700 transition shadow-lg shadow-emerald-200 font-semibold"
         >
             <Plus size={20} /> Create New Exam
         </button>
@@ -309,7 +309,7 @@ export default function AdminExams() {
                         <button 
                             type="submit"
                             disabled={submitting}
-                            className="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-200 flex justify-center items-center gap-2"
+                            className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 transition shadow-lg shadow-emerald-200 flex justify-center items-center gap-2"
                         >
                             {submitting ? <Loader2 className="animate-spin" /> : <Save size={20} />} 
                             {editingId ? "Update Changes" : "Create Exam"}

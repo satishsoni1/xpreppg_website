@@ -104,7 +104,7 @@ export default function AdminCenters() {
               />
               <button 
                 onClick={handleAddCity}
-                className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-emerald-700 transition flex items-center gap-2"
+                className="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-emerald-700 transition flex items-center gap-2"
               >
                 <Plus size={18} /> Add City
               </button>
@@ -162,7 +162,7 @@ export default function AdminCenters() {
               />
               <button 
                  onClick={handleAddCenter} 
-                 className="bg-emerald-600 text-white py-3 rounded-lg font-bold md:col-span-2 hover:bg-emerald-700 transition"
+                 className="bg-primary text-white py-3 rounded-lg font-bold md:col-span-2 hover:bg-emerald-700 transition"
               >
                  Add Examination Center
               </button>

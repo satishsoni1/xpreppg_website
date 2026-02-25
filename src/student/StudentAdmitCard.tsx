@@ -57,7 +57,7 @@ export default function StudentAdmitCard() {
     <div className="text-center py-20">
       <h2 className="text-xl text-red-600 font-bold mb-2">No Admit Card Found</h2>
       <p className="text-gray-500 mb-6">{error}</p>
-      <button onClick={() => navigate("/student/dashboard")} className="px-6 py-2 bg-emerald-600 text-white rounded-lg">
+      <button onClick={() => navigate("/student/dashboard")} className="px-6 py-2 bg-primary text-white rounded-lg">
         Back to Dashboard
       </button>
     </div>
@@ -102,7 +102,7 @@ export default function StudentAdmitCard() {
           <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 font-medium">
             <Printer size={18} /> Print
           </button>
-          <button onClick={downloadPDF} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium shadow-sm">
+          <button onClick={downloadPDF} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary font-medium shadow-sm">
             <Download size={18} /> Download
           </button>
         </div>

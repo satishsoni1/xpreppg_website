@@ -53,7 +53,7 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
         </div>
         <div className="flex gap-2 text-sm font-bold">
           <FilterButton label="All" active={filter === 'ALL'} onClick={() => setFilter('ALL')} color="bg-slate-100 text-slate-700" />
-          <FilterButton label="Correct" active={filter === 'CORRECT'} onClick={() => setFilter('CORRECT')} color="bg-emerald-50 text-emerald-700 border-emerald-200" icon={<CheckCircle size={14}/>} />
+          <FilterButton label="Correct" active={filter === 'CORRECT'} onClick={() => setFilter('CORRECT')} color="bg-emerald-50 text-primary border-emerald-200" icon={<CheckCircle size={14}/>} />
           <FilterButton label="Wrong" active={filter === 'WRONG'} onClick={() => setFilter('WRONG')} color="bg-red-50 text-red-700 border-red-200" icon={<XCircle size={14}/>} />
           <FilterButton label="Skipped" active={filter === 'SKIPPED'} onClick={() => setFilter('SKIPPED')} color="bg-gray-100 text-gray-500 border-gray-200" icon={<MinusCircle size={14}/>} />
         </div>

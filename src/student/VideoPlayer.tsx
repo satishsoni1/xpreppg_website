@@ -153,7 +153,7 @@ export default function VideoPlayer() {
                    <FileText size={18} />
                 </div>
                 <div className="text-left">
-                   <p className="text-sm font-bold text-gray-700 group-hover:text-emerald-700">Lecture Notes.pdf</p>
+                   <p className="text-sm font-bold text-gray-700 group-hover:text-primary">Lecture Notes.pdf</p>
                    <p className="text-xs text-gray-400">2.4 MB</p>
                 </div>
              </button>

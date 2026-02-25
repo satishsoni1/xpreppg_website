@@ -90,7 +90,7 @@ export default function StudentDashboard() {
             {stats?.enrollments?.[0]?.admit_card_generated ? (
               <>
                 <p className="text-emerald-100 text-sm mb-3">Ready for download.</p>
-                <Link to="/student/admit-card" className="bg-white text-emerald-700 px-4 py-2 rounded-lg text-sm font-bold inline-flex items-center gap-2">
+                <Link to="/student/admit-card" className="bg-white text-primary px-4 py-2 rounded-lg text-sm font-bold inline-flex items-center gap-2">
                   <Download size={16} /> Download
                 </Link>
               </>
@@ -120,7 +120,7 @@ export default function StudentDashboard() {
               <CreditCard size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 group-hover:text-emerald-700">Enroll in New Exam</h3>
+              <h3 className="font-bold text-gray-900 group-hover:text-primary">Enroll in New Exam</h3>
               <p className="text-sm text-gray-500">Purchase a new plan, select dates & get invoice.</p>
             </div>
           </Link>

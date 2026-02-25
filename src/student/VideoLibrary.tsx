@@ -74,7 +74,7 @@ export default function VideoLibrary() {
             onClick={() => setActiveTab(sub)}
             className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all border ${
               activeTab === sub
-                ? "bg-emerald-600 text-white border-emerald-600 shadow-md transform scale-105"
+                ? "bg-primary text-white border-emerald-600 shadow-md transform scale-105"
                 : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
             }`}
           >
@@ -167,7 +167,7 @@ function LibraryCard({ item }: any) {
            )}
         </div>
 
-        <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2 group-hover:text-emerald-700 transition line-clamp-2">
+        <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2 group-hover:text-primary transition line-clamp-2">
           {item.title}
         </h3>
         
@@ -186,7 +186,7 @@ function LibraryCard({ item }: any) {
         ) : isVideo ? (
           <Link 
             to={`/student/videos/${item.id}`} 
-            className="w-full mt-auto flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-100 hover:border-emerald-600 font-bold py-2.5 rounded-lg transition"
+            className="w-full mt-auto flex items-center justify-center gap-2 bg-emerald-50 hover:bg-primary hover:text-white text-primary border border-emerald-100 hover:border-emerald-600 font-bold py-2.5 rounded-lg transition"
           >
             <PlayCircle size={18} /> Watch Class
           </Link>

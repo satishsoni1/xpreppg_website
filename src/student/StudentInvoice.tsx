@@ -60,7 +60,7 @@ export default function StudentInvoice() {
     <div className="text-center py-20">
       <h2 className="text-2xl text-red-600 font-bold mb-2">Invoice Unavailable</h2>
       <p className="text-gray-600 mb-6">{error}</p>
-      <button onClick={() => navigate("/student/dashboard")} className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+      <button onClick={() => navigate("/student/dashboard")} className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition">
         Return to Dashboard
       </button>
     </div>
@@ -87,7 +87,7 @@ export default function StudentInvoice() {
           </button> */}
           <button
             onClick={downloadPDF}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-secondary transition shadow-sm"
           >
             <Download size={18} /> Download PDF
           </button>
@@ -157,7 +157,7 @@ export default function StudentInvoice() {
                   </p>
                   <div className="mt-2 pt-2">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border ${
-                        data.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'
+                        data.status === 'paid' ? 'bg-emerald-50 text-primary border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'
                     }`}>
                         {data.status === 'paid' && <CheckCircle size={12} />}
                         {data.status}

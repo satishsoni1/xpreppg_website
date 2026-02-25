@@ -78,7 +78,7 @@ export default function StudentExamSelection() {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary transition">
                         {exam.title}
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
@@ -101,7 +101,7 @@ export default function StudentExamSelection() {
                     </div>
                     <button 
                       onClick={handleEnrollClick}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"
+                      className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm"
                     >
                       Enroll Now
                     </button>

@@ -1,64 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, CheckCircle2, Clock, Trophy, MapPin } from 'lucide-react';
+import { Calendar, CheckCircle2, Clock, Trophy, MapPin, Loader2, Radio } from 'lucide-react';
+import { PublicAPI } from '@/services/publicApi'; 
 
 export default function Schedule() {
-  const exams = [
-    {
-      date: '11th January 2026',
-      title: 'Grand CBT 1',
-      description: 'Comprehensive test covering all 19 subjects',
-      status: 'completed',
-    },
-    {
-      date: '19th February 2026',
-      title: 'Grand CBT 2',
-      description: 'Full-syllabus pattern exam',
-      status: 'upcoming',
-    },
-    {
-      date: '15th March 2026',
-      title: 'Grand CBT 3',
-      description: 'Revision-oriented test',
-      status: 'scheduled',
-    },
-    {
-      date: '19th April 2026',
-      title: 'Grand CBT 4',
-      description: 'Mock – NEET pattern simulation',
-      status: 'scheduled',
-    },
-    {
-      date: '10th May 2026',
-      title: 'Grand CBT 5',
-      description: 'Revision-oriented test',
-      status: 'scheduled',
-    },
-    {
-      date: '7th June 2026',
-      title: 'Grand CBT 6',
-      description: 'Revision-oriented test',
-      status: 'scheduled',
-    },
-    {
-      date: '5th July 2026',
-      title: 'Grand CBT 7',
-      description: 'Revision-oriented test',
-      status: 'scheduled',
-    },
-    {
-      date: '2nd August 2026',
-      title: 'Grand CBT 8',
-      description: 'Final – NEET pattern simulation',
-      status: 'scheduled',
-    },
-    {
-      date: '30th August 2026',
-      title: 'NEET PG 2026', 
-      description: 'The Big Day - Victory Awaits',
-      status: 'milestone',
-    },
-  ];
+  const [exams, setExams] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSchedule();
+  }, []);
+
+  const fetchSchedule = async () => {
+    try {
+      const res = await PublicAPI.getExams(); 
+      
+      if (res.status && res.exams) {
+        processExams(res.exams);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Failed to load schedule:", error);
+      setLoading(false);
+    }
+  };
+
+  const processExams = (rawExams: any[]) => {
+    // Sort exams by the JSON's 'date' field ascending
+    const sortedExams = [...rawExams].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    const processed = sortedExams.map((exam: any) => {
+      const examDate = new Date(exam.date);
+      
+      // We use 'timelineType' strictly for the visual rendering of the Node/Card
+      let timelineType = exam.status; // 'completed', 'live', or 'open'
+
+      // Special visual override for the final exam
+      if (exam.title.toLowerCase().includes('neet pg')) {
+        timelineType = 'milestone';
+      }
+
+      // Format date beautifully (e.g., 19th February 2026)
+      const day = examDate.getDate();
+      const suffix = ["th", "st", "nd", "rd"][(day % 10 > 3 ? 0 : (day % 100 - day % 10 !== 10) ? day % 10 : 0)];
+      const formattedDate = `${day}${suffix} ${examDate.toLocaleString('default', { month: 'long' })} ${examDate.getFullYear()}`;
+
+      return {
+        ...exam,
+        formattedDate,
+        timelineType,
+        description: `CBT Examination • Duration: ${exam.duration} Minutes`
+      };
+    });
+
+    setExams(processed);
+    setLoading(false);
+  };
 
   // Animation variants
   const containerVariants = {
@@ -71,8 +69,16 @@ export default function Schedule() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 50 } },
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="animate-spin text-emerald-600" size={48} />
+      </div>
+    );
+  }
+
   return (
-    <section id="schedule" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 overflow-hidden">
+    <section id="schedule" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 overflow-hidden min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <motion.div 
@@ -94,7 +100,6 @@ export default function Schedule() {
 
         <div className="relative">
           {/* Timeline Line */}
-          {/* Mobile: Left aligned (left-8). Desktop: Center aligned (left-1/2) */}
           <div className="absolute left-8 md:left-1/2 transform md:-translate-x-1/2 h-full w-1 bg-slate-200 rounded-full">
             <motion.div 
               className="absolute top-0 left-0 w-full bg-gradient-to-b from-emerald-500 via-teal-400 to-blue-500 rounded-full"
@@ -114,29 +119,30 @@ export default function Schedule() {
           >
             {exams.map((exam, index) => {
               const isEven = index % 2 === 0;
-              const isUpcoming = exam.status === 'upcoming';
+              
+              // Booleans based on our processed visual types & API status
+              const isLive = exam.status === 'live';
               const isCompleted = exam.status === 'completed';
-              const isMilestone = exam.status === 'milestone';
+              const isOpen = exam.status === 'open';
+              const isMilestone = exam.timelineType === 'milestone';
 
               return (
                 <motion.div
-                  key={index}
+                  key={exam.id || index}
                   variants={itemVariants as any}
-                  // Mobile: Always flex-row. Desktop: Alternating.
                   className={`relative flex items-center md:justify-between ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
                 >
-                  {/* Empty Spacer for Desktop Layout (Keeps layout balanced) */}
+                  {/* Empty Spacer for Desktop Layout */}
                   <div className="hidden md:block md:w-5/12"></div>
 
                   {/* Center Node / Icon */}
-                  {/* Mobile: Left aligned (left-8). Desktop: Center aligned (left-1/2) */}
                   <div className="absolute left-8 md:left-1/2 transform -translate-x-1/2 flex items-center justify-center z-10">
                     <motion.div 
                       whileHover={{ scale: 1.1 }}
                       className={`
                         w-10 h-10 md:w-14 md:h-14 rounded-full border-4 flex items-center justify-center shadow-md transition-colors duration-300
-                        ${isUpcoming 
-                          ? 'bg-emerald-600 border-white ring-4 ring-emerald-100 scale-110' 
+                        ${isLive 
+                          ? 'bg-blue-600 border-white ring-4 ring-blue-100 scale-110' 
                           : isMilestone
                             ? 'bg-amber-400 border-white ring-4 ring-amber-100'
                             : isCompleted
@@ -149,7 +155,7 @@ export default function Schedule() {
                         <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
                       ) : isMilestone ? (
                         <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                      ) : isUpcoming ? (
+                      ) : isLive ? (
                         <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       ) : (
                         <span className="text-slate-400 font-bold font-mono text-sm md:text-base">{index + 1}</span>
@@ -158,7 +164,6 @@ export default function Schedule() {
                   </div>
 
                   {/* Content Card */}
-                  {/* Mobile: Full width with left padding. Desktop: 5/12 width */}
                   <div className={`w-full pl-20 md:pl-0 md:w-5/12`}>
                     <motion.div
                       whileHover={{ y: -5 }}
@@ -166,36 +171,36 @@ export default function Schedule() {
                         relative p-6 rounded-2xl border transition-all duration-300 shadow-sm group
                         ${isEven ? 'md:text-right md:pr-10' : 'md:text-left md:pl-10'}
                         text-left
-                        ${isUpcoming 
-                          ? 'bg-white border-emerald-500 ring-2 md:ring-4 ring-emerald-50 shadow-emerald-100' 
+                        ${isLive 
+                          ? 'bg-white border-blue-500 ring-2 md:ring-4 ring-blue-50 shadow-blue-100' 
                           : isMilestone
                             ? 'bg-slate-900 border-slate-700 text-white'
                             : isCompleted
                               ? 'bg-emerald-50/50 border-emerald-200'
-                              : 'bg-white border-slate-100 hover:border-emerald-200'
+                              : 'bg-white border-slate-100 hover:border-blue-100'
                         }
                       `}
                     >
-                       {/* Upcoming Badge - Mobile optimized positioning */}
-                       {isUpcoming && (
+                       {/* Floating Live Badge */}
+                       {isLive && (
                         <div className={`
                           absolute -top-3 left-6 
                           md:-top-4 
                           ${isEven ? 'md:left-auto md:right-8' : 'md:left-8'}
-                          bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-2
+                          bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md flex items-center gap-2
                         `}>
                           <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                           </span>
-                          Target
+                          Live Now
                         </div>
                       )}
 
                       <div className={`flex flex-col ${isEven ? 'md:items-end' : 'md:items-start'} items-start`}>
-                        <div className={`flex items-center gap-2 mb-2 text-sm font-bold tracking-wide ${isMilestone ? 'text-emerald-300' : 'text-emerald-600'}`}>
+                        <div className={`flex items-center gap-2 mb-2 text-sm font-bold tracking-wide ${isMilestone ? 'text-amber-300' : isLive ? 'text-blue-600' : 'text-slate-500'}`}>
                           <Calendar className="w-4 h-4" />
-                          <span>{exam.date}</span>
+                          <span>{exam.formattedDate}</span>
                         </div>
                         
                         <h3 className={`text-xl font-bold mb-2 ${isMilestone ? 'text-white' : 'text-slate-800'}`}>
@@ -206,19 +211,29 @@ export default function Schedule() {
                           {exam.description}
                         </p>
 
-                        {/* Status Tags */}
-                        <div className="mt-3">
+                        {/* Tag rendering based directly on exact status string */}
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          
                           {isCompleted && (
-                            <span className="inline-flex items-center text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">
-                              <CheckCircle2 className="w-3 h-3 mr-1" /> Done
+                            <span className="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1.5 rounded-md border border-emerald-200">
+                              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" /> Exam Completed
                             </span>
                           )}
-                          {exam.status === 'scheduled' && (
-                            <span className="inline-flex items-center text-xs font-medium text-slate-400">
-                              <Clock className="w-3 h-3 mr-1" /> Scheduled
+                          
+                          {isOpen && (
+                            <span className="inline-flex items-center text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-md border border-slate-200">
+                              <Clock className="w-3.5 h-3.5 mr-1.5" /> Scheduled
                             </span>
                           )}
+
+                          {isLive && (
+                            <span className="inline-flex items-center text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1.5 rounded-md border border-blue-200">
+                              <Radio className="w-3.5 h-3.5 mr-1.5 animate-pulse text-blue-600" /> Currently Open
+                            </span>
+                          )}
+
                         </div>
+
                       </div>
                     </motion.div>
                   </div>

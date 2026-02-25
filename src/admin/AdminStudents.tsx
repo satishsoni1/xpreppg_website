@@ -128,7 +128,7 @@ export default function AdminStudents() {
                 <Plus size={18} /> Add Student
             </button>
 
-            <button onClick={handleExport} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm whitespace-nowrap">
+            <button onClick={handleExport} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl font-bold hover:bg-emerald-700 transition shadow-sm whitespace-nowrap">
                 <Download size={18} /> Export
             </button>
          </div>
