@@ -121,7 +121,7 @@ export default function Schedule() {
               const isEven = index % 2 === 0;
               
               // Booleans based on our processed visual types & API status
-              const isLive = exam.status === 'live';
+              const isLive = (exam.status === 'live' || exam.status === 'upcoming');
               const isCompleted = exam.status === 'completed';
               const isOpen = exam.status === 'open';
               const isMilestone = exam.timelineType === 'milestone';
