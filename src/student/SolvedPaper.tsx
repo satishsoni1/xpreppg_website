@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, Clock, Tag, MinusCircle, AlertCircle, Filter, FileText } from 'lucide-react';
+// 🟢 Added Lightbulb to imports
+import { CheckCircle, XCircle, Clock, Tag, MinusCircle, AlertCircle, Filter, FileText, Lightbulb } from 'lucide-react';
 import { API_BASE_URL } from "@/config"; // Adjust this path if your config is elsewhere
 
 export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any }) {
@@ -95,7 +96,7 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                 {/* Question Text & Image */}
                 <div className="ml-3 mb-6 text-slate-800 text-lg font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question_text }} />
                 
-                {/* 🟢 FIXED IMAGE RENDERER 🟢 */}
+                {/* IMAGE RENDERER */}
                 {imagePathRaw && (
                   <div className="ml-3 mb-6">
                     <img 
@@ -154,6 +155,20 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                     )}
                   </div>
                 </div>
+
+                {/* 🟢 EXPLANATION SECTION 🟢 */}
+                {q.description && (
+                  <div className="ml-3 mt-4 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                    <div className="flex items-center gap-2 text-indigo-700 font-bold mb-3 text-sm tracking-wide">
+                      <Lightbulb size={16} className="text-indigo-500" />
+                      Explanation
+                    </div>
+                    <div 
+                      className="text-slate-700 text-sm leading-relaxed" 
+                      dangerouslySetInnerHTML={{ __html: q.description }} 
+                    />
+                  </div>
+                )}
 
               </div>
             );
