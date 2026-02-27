@@ -12,6 +12,15 @@ const getAuthHeaders = () => {
     "Authorization": `Bearer ${token}`,
   };
 };
+const getUploadHeaders = () => {
+  const token = localStorage.getItem("admin_token");
+  if (!token) {
+    throw new Error("Admin token not found. Please login.");
+  }
+  return {
+    "Authorization": `Bearer ${token}`,
+  };
+};
 
 export const AdminAPI = {
   
@@ -302,6 +311,14 @@ export const AdminAPI = {
     const res = await fetch(`${API_BASE_URL}/admin/student-attempt-paper?examId=${examId}&studentId=${studentId}`, {
       method: "GET",
       headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  uploadImage: async (formData: FormData) => {
+    const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
+      method: "POST",
+      headers: getUploadHeaders(), // Using the special upload headers
+      body: formData,
     });
     return res.json();
   }
