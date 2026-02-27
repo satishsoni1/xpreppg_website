@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// 🟢 Added Lightbulb to imports
 import { CheckCircle, XCircle, Clock, Tag, MinusCircle, AlertCircle, Filter, FileText, Lightbulb } from 'lucide-react';
 import { API_BASE_URL } from "@/config"; // Adjust this path if your config is elsewhere
 
@@ -71,6 +70,8 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
 
             // Handle both column naming conventions
             const imagePathRaw = q.image_url || q.image_path;
+            // Handle explanation image naming convention (adjust if your DB uses a different name)
+            const explanationImagePath = q.description_image || q.explanation_image;
 
             return (
               <div key={q.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
@@ -96,7 +97,7 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                 {/* Question Text & Image */}
                 <div className="ml-3 mb-6 text-slate-800 text-lg font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: q.question_text }} />
                 
-                {/* IMAGE RENDERER */}
+                {/* QUESTION IMAGE RENDERER */}
                 {imagePathRaw && (
                   <div className="ml-3 mb-6">
                     <img 
@@ -104,7 +105,6 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                       alt="Question Context" 
                       className="max-h-80 w-auto rounded-lg border border-slate-200 object-contain bg-slate-50 p-2 shadow-sm"
                       onError={(e) => {
-                        // If image fails to load, hide it to keep UI clean
                         (e.target as HTMLImageElement).style.display = 'none';
                       }} 
                     />
@@ -156,17 +156,34 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                   </div>
                 </div>
 
-                {/* 🟢 EXPLANATION SECTION 🟢 */}
-                {q.description && (
-                  <div className="ml-3 mt-4 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
-                    <div className="flex items-center gap-2 text-indigo-700 font-bold mb-3 text-sm tracking-wide">
+                {/* 🟢 EXPLANATION SECTION (WITH IMAGE SUPPORT) 🟢 */}
+                {(q.description || explanationImagePath) && (
+                  <div className="ml-3 mt-4 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100 flex flex-col gap-3">
+                    <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm tracking-wide">
                       <Lightbulb size={16} className="text-indigo-500" />
                       Explanation
                     </div>
-                    <div 
-                      className="text-slate-700 text-sm leading-relaxed" 
-                      dangerouslySetInnerHTML={{ __html: q.description }} 
-                    />
+                    
+                    {/* Explanation Text */}
+                    {q.description && (
+                      <div 
+                        className="text-slate-700 text-sm leading-relaxed" 
+                        dangerouslySetInnerHTML={{ __html: q.description }} 
+                      />
+                    )}
+
+                    {/* Explanation Image */}
+                    {explanationImagePath && (
+                      <img 
+                        src={getFullImageUrl(explanationImagePath)!} 
+                        alt="Explanation Diagram" 
+                        className="max-h-80 w-auto rounded-lg border border-indigo-200 object-contain bg-white p-2 shadow-sm mt-2"
+                        onError={(e) => {
+                          // Hide if image fails to load to keep UI clean
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }} 
+                      />
+                    )}
                   </div>
                 )}
 
