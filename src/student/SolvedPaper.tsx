@@ -175,7 +175,7 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                     {/* Explanation Image */}
                     {explanationImagePath && (
                       <img 
-                        src={getFullImageUrl(explanationImagePath)!} 
+                        src={explanationImagePath} 
                         alt="Explanation Diagram" 
                         className="max-h-80 w-auto rounded-lg border border-indigo-200 object-contain bg-white p-2 shadow-sm mt-2"
                         onError={(e) => {
