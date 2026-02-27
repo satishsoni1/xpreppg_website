@@ -402,9 +402,9 @@ export default function AdminQuestions() {
 
                   {/* Question Text & Image */}
                   <div className="text-slate-800 text-lg font-medium leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: q.question_text }} />
-                  {q.image_url && (
+                  {q.image_path && (
                     <div className="mb-6">
-                      <img src={q.image_url} alt="Question" className="max-h-64 w-auto rounded-lg border border-slate-200 object-contain bg-slate-50 p-2" />
+                      <img src={q.image_path} alt="Question" className="max-h-64 w-auto rounded-lg border border-slate-200 object-contain bg-slate-50 p-2" />
                     </div>
                   )}
 
