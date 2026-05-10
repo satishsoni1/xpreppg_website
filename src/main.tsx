@@ -36,6 +36,7 @@ import AdminJsonUpload from "./admin/AdminJsonUpload";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
 import StudentAttemptsList from "./admin/StudentAttemptsList";
+import PrivacyPolicy from "./pages/PrivacyPage";
 
 
 const router = createBrowserRouter([
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
   { path: "/student/login", element: <StudentLogin /> },
   { path: "/exam-portal/:examId", element: <StudentExamPortal /> },
   { path: "/admin/login", element: <AdminLogin /> },
+  { path: "/privacy", element: <PrivacyPolicy /> },
   {
     path: "/student",
     element: <StudentLayout />, // Wraps all student pages with Sidebar

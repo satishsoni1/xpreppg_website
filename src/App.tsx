@@ -8,6 +8,7 @@ import PostExam from "./components/PostExam";
 import MainLayout from "./layouts/MainLayout";
 import { useEffect } from "react";
 import DemoVideo from "./components/DemoVideo";
+import PrivacyPolicy from "./pages/PrivacyPage";
 
 export default function App() {
   useEffect(() => {
