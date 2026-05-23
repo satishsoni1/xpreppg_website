@@ -89,38 +89,37 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+        <div className="md:hidden bg-white border-t border-secondaryMiddle shadow-lg">
           <div className="px-4 py-6 space-y-4">
             {navItems.map((item) => (
               <a
                 key={item.label}
-                onClick={() => {navigate(item.to); setMobileMenuOpen(false); }}
+                onClick={() => { navigate(item.to); setMobileMenuOpen(false); }}
                 className="block text-gray-700 hover:text-primary font-medium py-2 cursor-pointer"
               >
                 {item.label}
               </a>
             ))}
-            
-            <hr className="border-gray-100 my-2" />
 
-            {/* Student Login Button (Mobile) */}
-            <button 
+            <hr className="border-secondaryMiddle my-2" />
+
+            <button
               onClick={() => { navigate("/student/login"); setMobileMenuOpen(false); }}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+              className="w-full flex items-center justify-center gap-2 bg-white border border-secondaryDark text-primary px-6 py-3 rounded-lg font-semibold hover:bg-secondary transition-all"
             >
               <LogIn className="w-5 h-5" />
               Student Login
             </button>
 
-            {/* Register Button (Mobile) */}
-            <button onClick={() => {
+            <button
+              onClick={() => {
                 window.dispatchEvent(new Event("open-register-modal"));
                 window.scrollTo({ top: 0, behavior: "smooth" });
                 setMobileMenuOpen(false);
-              }} 
-              className="w-full bg-gradient-to-r from-primary to-primaryDark text-white px-6 py-3 rounded-lg font-semibold shadow-md"
+              }}
+              className="w-full bg-gradient-to-r from-navy to-primary text-white px-6 py-3 rounded-lg font-semibold shadow-md"
             >
-              Register Now
+              Start Revising
             </button>
           </div>
         </div>

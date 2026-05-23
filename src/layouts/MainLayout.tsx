@@ -143,8 +143,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <X className="w-6 h-6" />
             </button>
 
-            <h2 className="text-2xl font-bold text-center text-emerald-700 mb-6">
-              Register for NEET PG CBT
+            <h2 className="text-2xl font-bold text-center text-primary mb-6">
+              Register for XREVISE
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -158,7 +158,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                    {["Pre-Intern", "Intern", "Post-Intern"].map(cat => (
                      <div key={cat} 
                           onClick={() => setFormData(p => ({...p, category: cat}))}
-                          className={`p-2 rounded border text-center cursor-pointer text-sm ${formData.category === cat ? 'bg-emerald-100 border-emerald-500' : ''}`}>
+                          className={`p-2 rounded border text-center cursor-pointer text-sm ${formData.category === cat ? 'bg-secondaryMiddle border-primary' : ''}`}>
                         {cat}
                      </div>
                    ))}
@@ -187,7 +187,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 
                 <label htmlFor="photo-upload" className="cursor-pointer block">
                   {photoPreview ? (
-                    <img src={photoPreview} alt="Preview" className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-emerald-100" />
+                    <img src={photoPreview} alt="Preview" className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-secondaryMiddle" />
                   ) : (
                     <div className="py-4">
                       <UploadCloud className="w-10 h-10 text-gray-400 mx-auto mb-2" />
@@ -198,7 +198,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 </label>
               </div>
 
-              <button type="submit" disabled={loading} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition disabled:opacity-50">
+              <button type="submit" disabled={loading} className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primaryDark transition disabled:opacity-50">
                 {loading ? "Processing..." : "Register Now"}
               </button>
             </form>

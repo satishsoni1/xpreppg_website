@@ -1,34 +1,36 @@
 
 import Hero from "./components/Hero";
-import About from "./components/About";
+import WhyXRevise from "./components/WhyXRevise";
+import HowItWorks from "./components/HowItWorks";
 import Features from "./components/Features";
+import RevisionSchedule from "./components/RevisionSchedule";
+import PerformanceSection from "./components/PerformanceSection";
 import Pricing from "./components/Pricing";
-import Schedule from "./components/Schedule";
-import PostExam from "./components/PostExam";
+import DemoVideo from "./components/DemoVideo";
+import MissionCTA from "./components/MissionCTA";
 import MainLayout from "./layouts/MainLayout";
 import { useEffect } from "react";
-import DemoVideo from "./components/DemoVideo";
-import PrivacyPolicy from "./pages/PrivacyPage";
 
 export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("register")) {
-      // 1. Remove the query param so it doesn't persist on refresh
       window.history.replaceState({}, document.title, "/");
-      // 2. Trigger the modal
       window.dispatchEvent(new Event("open-register-modal"));
     }
   }, []);
+
   return (
     <MainLayout>
       <Hero />
-      <About />
+      <WhyXRevise />
+      <HowItWorks />
       <Features />
+      <RevisionSchedule />
+      <PerformanceSection />
       <Pricing />
-      <Schedule />
       <DemoVideo />
-      <PostExam />
+      <MissionCTA />
     </MainLayout>
   );
 }

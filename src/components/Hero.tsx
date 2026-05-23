@@ -1,146 +1,113 @@
-import { ArrowRight, Calendar, Brain, Users } from "lucide-react";
+import { ArrowRight, Brain, BookOpen, Calendar, BarChart2, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
-import { PublicAPI } from "@/services/publicApi"; // Adjust this path to match your actual file location
+import logo from "@/assets/logo.png";
 
 export default function Hero() {
-  const [status, setStatus] = useState("");
-  const [aspirantCount, setAspirantCount] = useState(2500);
-  const [upcomingDate, setUpcomingDate] = useState("Loading...");
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const fetchUpcomingExam = async () => {
-      try {
-        // Use the new PublicAPI method here
-        const data = await PublicAPI.getUpcomingExam();
-        
-        let examDateObj = new Date("2026-02-19"); // Default fallback
-
-        if (data.status && data.exam && data.exam.start_time) {
-          examDateObj = new Date(data.exam.start_time);
-          
-          // Format Date to "19th Feb 2026"
-          const day = examDateObj.getDate();
-          const suffix = ["th", "st", "nd", "rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
-          const month = examDateObj.toLocaleString('en-US', { month: 'short' });
-          const year = examDateObj.getFullYear();
-          
-          setUpcomingDate(`${day}${suffix} ${month} ${year}`);
-        } else {
-          setUpcomingDate("Coming Soon");
-        }
-
-        // --- Calculate Aspirants based on the DYNAMIC exam date ---
-        const baseCount = 1800;
-        const avgIncrease = 40; // Average of 30 and 50
-        const startDate = new Date("2026-01-01"); 
-        const today = new Date();
-
-        // Stop increasing if today is past the exam date
-        const targetDate = today > examDateObj ? examDateObj : today;
-
-        const timeDiff = targetDate.getTime() - startDate.getTime();
-        const daysPassed = Math.max(0, Math.floor(timeDiff / (1000 * 3600 * 24)));
-
-        const dayRandomness = (targetDate.getDate() * 3) % 20; 
-        const totalCount = baseCount + (daysPassed * avgIncrease) + dayRandomness;
-
-        setAspirantCount(Math.floor(totalCount));
-
-      } catch (error) {
-        console.error("Failed to fetch upcoming exam:", error);
-        setUpcomingDate("Coming Soon");
-      }
-    };
-
-    fetchUpcomingExam();
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
   }, []);
 
-  function setShowForm(p0: boolean): void {
-    window.dispatchEvent(new Event("open-register-modal"));
-  }
-
   return (
-    <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary via-secondaryMiddle to-secondaryDark opacity-70"></div>
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-40 left-10 w-72 h-72 bg-secondaryDark rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-secondaryMiddle rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    <section className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-navy" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(37,99,235,0.18)_0%,_transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(147,197,253,0.08)_0%,_transparent_60%)]" />
+      {/* Grid pattern */}
+      <div className="absolute inset-0 opacity-[0.04]"
+        style={{ backgroundImage: "linear-gradient(rgba(147,197,253,1) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-      <div className="relative max-w-7xl mx-auto">
-        <div className="text-center">
-          <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm mb-8 border border-emerald-100">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-            </span>
-            <span className="text-sm font-semibold text-gray-700">
-              India's First NEET PG CBT Platform
-            </span>
-          </div>
+      <div className={`relative max-w-7xl mx-auto w-full pt-24 pb-16 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+        <div className="flex flex-col lg:flex-row items-center gap-16">
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            Experience the Real
-            <span className="block bg-gradient-to-r from-primary to-primaryDark bg-clip-text text-transparent">
-              NEET PG Exam
-            </span>
-          </h1>
-
-          <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Full-length CBT simulations, and in-depth performance analytics after every exam.
-          </p>
-
-          {/* Stats Cards Container */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
-            
-            {/* Exam Date Card (DYNAMIC) */}
-            <div className="bg-white rounded-2xl shadow-xl p-5 border-2 border-primary w-full max-w-xs transform hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center space-x-4">
-                <div className="bg-emerald-100 p-3 rounded-full">
-                  <Calendar className="w-6 h-6 text-primary" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-500 font-medium">Upcoming Exam</p>
-                  <p className={`text-xl font-bold text-gray-900 ${upcomingDate === 'Loading...' ? 'animate-pulse text-gray-400' : ''}`}>
-                    {upcomingDate}
-                  </p>
-                </div>
-              </div>
+          {/* Left — Text */}
+          <div className="flex-1 text-center lg:text-left">
+            {/* Tag */}
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span className="text-white/70 text-sm font-medium tracking-wide">Structured PYT Recall Program</span>
             </div>
 
-            {/* Active Aspirants Card */}
-            <div className="bg-white rounded-2xl shadow-xl p-5 border-2 border-blue-500 w-full max-w-xs transform hover:scale-105 transition-transform duration-200">
-              <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-500 font-medium">Active Aspirants</p>
-                  <p className="text-xl font-bold text-gray-900">
-                    {aspirantCount.toLocaleString()}+
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Brand name */}
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight mb-4 leading-none">
+              <span className="text-primary">X</span>
+              <span className="text-white">REVISE</span>
+            </h1>
 
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => setShowForm(true)}
-              className="group bg-gradient-to-r from-primary to-primaryDark text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200 flex items-center space-x-2"
-            >
-              <Brain className="w-6 h-6" />
-              <span>Register Now</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-          {status && (
-            <p className="text-center text-green-600 mt-3 font-medium">
-              {status}
+            {/* Tagline */}
+            <p className="text-2xl sm:text-3xl font-semibold text-white/80 mb-3 tracking-wide">
+              Revise. Test. Analyze. Improve.
             </p>
-          )}
+
+            <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              A focused NEET PG revision program built around 800+ Previously Asked Topics — structured, daily, and results-driven.
+            </p>
+
+            {/* Stats row */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-6 mb-10">
+              {[
+                { icon: BookOpen, value: "800+", label: "PYT Topics" },
+                { icon: Calendar, value: "15", label: "Day Schedule" },
+                { icon: Brain, value: "50", label: "MCQs/Day" },
+                { icon: BarChart2, value: "750+", label: "High-Yield MCQs" },
+              ].map(({ icon: Icon, value, label }) => (
+                <div key={label} className="flex flex-col items-center lg:items-start">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <Icon className="w-4 h-4 text-accent" />
+                    <span className="text-3xl font-bold text-white">{value}</span>
+                  </div>
+                  <span className="text-xs text-white/40 font-medium uppercase tracking-wider">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4">
+              <button
+                onClick={() => window.dispatchEvent(new Event("open-register-modal"))}
+                className="group flex items-center gap-3 bg-primary hover:bg-primaryDark text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-200 shadow-lg shadow-primary/30 hover:shadow-primary/50"
+              >
+                Join XREVISE
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <a
+                href="#schedule"
+                className="flex items-center gap-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200"
+              >
+                View 15-Day Schedule
+              </a>
+            </div>
+          </div>
+
+          {/* Right — Logo card */}
+          <div className="flex-shrink-0 w-full max-w-sm">
+            <div className="relative">
+              {/* Glow */}
+              <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-3xl scale-110" />
+              <div className="relative bg-white/5 border border-white/10 rounded-3xl p-10 backdrop-blur-sm text-center">
+                <img src={logo} alt="XREVISE Logo" className="w-48 mx-auto mb-6 drop-shadow-lg" />
+                <div className="border-t border-white/10 pt-6 space-y-3">
+                  {[
+                    "NEET PG · INI-CET · FMGE",
+                    "AIIMS · PGI",
+                  ].map((t) => (
+                    <p key={t} className="text-white/50 text-sm font-medium">{t}</p>
+                  ))}
+                  <p className="text-accent font-bold text-base pt-1">Repeated Revision Builds Recall</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-30">
+        <span className="text-white text-xs uppercase tracking-widest">Scroll</span>
+        <ChevronDown className="w-4 h-4 text-white animate-bounce" />
       </div>
     </section>
   );

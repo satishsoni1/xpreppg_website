@@ -18,7 +18,7 @@ export default function DemoVideo() {
         </div>
 
         {/* Video Container */}
-        <div className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border-4 border-white ring-1 ring-gray-200 bg-gray-900 aspect-video">
+        <div className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-2xl border-4 border-secondaryDark ring-1 ring-secondaryMiddle bg-navy aspect-video">
           
           {/* ✅ HTML5 Video Tag for S3 MP4 */}
           <video 
@@ -39,7 +39,7 @@ export default function DemoVideo() {
           <p className="text-gray-600 mb-4">Master high-yield topics with experts.</p>
           <button 
             onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 bg-emerald-600 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-700 transition shadow-lg hover:shadow-emerald-200"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-navy to-primary text-white px-8 py-3 rounded-full font-bold hover:shadow-lg hover:shadow-primary/30 transition"
           >
             <PlayCircle size={20} /> Enroll for Next Session
           </button>

@@ -71,7 +71,7 @@ export default function AdminPlans() {
             <input 
               required
               placeholder="e.g. Gold Pack (5 Exams)" 
-              className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-emerald-500" 
+              className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-primary"
               value={form.name}
               onChange={e => setForm({...form, name: e.target.value})}
             />
@@ -137,13 +137,13 @@ export default function AdminPlans() {
              <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
-                      plan.is_active ? "bg-blue-50 text-blue-600" : "bg-gray-200 text-gray-500"
+                      plan.is_active ? "bg-secondary text-primary" : "bg-gray-200 text-gray-500"
                     }`}>
                        {plan.exams_count}
                     </div>
                     {/* Status Badge */}
                     <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
-                      plan.is_active ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                      plan.is_active ? "bg-secondaryMiddle text-primary" : "bg-gray-200 text-gray-600"
                     }`}>
                       {plan.is_active ? "Active" : "Hidden"}
                     </span>
@@ -154,9 +154,9 @@ export default function AdminPlans() {
                   onClick={() => handleToggleStatus(plan.id, plan.is_active)} 
                   title={plan.is_active ? "Hide Plan" : "Activate Plan"}
                   className={`p-2 rounded-lg transition ${
-                    plan.is_active 
-                      ? "text-gray-400 hover:text-orange-500 hover:bg-orange-50" 
-                      : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                    plan.is_active
+                      ? "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                      : "text-gray-400 hover:text-primary hover:bg-secondary"
                   }`}
                 >
                    {plan.is_active ? <EyeOff size={20} /> : <Eye size={20} />}
