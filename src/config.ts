@@ -5,12 +5,12 @@
 // export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 //staging
-// export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://staging.xpreppg.com/api";
-// export const BASE_URL = import.meta.env.VITE_API_URL || "https://staging.xpreppg.com";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://staging.xpreppg.com/api";
+export const BASE_URL = import.meta.env.VITE_API_URL || "https://staging.xpreppg.com";
 
 //live
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://xpreppg.com/api";
-export const BASE_URL = import.meta.env.VITE_API_URL || "https://xpreppg.com";
+// export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://xpreppg.com/api";
+// export const BASE_URL = import.meta.env.VITE_API_URL || "https://xpreppg.com";
 
 // Helper for specific routes if needed
 export const ENDPOINTS = {
