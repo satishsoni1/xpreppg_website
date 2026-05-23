@@ -1,4 +1,4 @@
-import { Menu, X, LogIn } from 'lucide-react'; // Added LogIn icon
+import { Menu, X, LogIn, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import logo from '@/assets/logo.png';
 import { useNavigate } from 'react-router-dom';
@@ -20,12 +20,13 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
+  const navItems: { label: string; to: string; badge?: string }[] = [
     { label: 'About', to: '/about' },
     { label: 'Features', to: '/features' },
     { label: 'Pricing', to: '/pricing' },
     { label: 'Schedule', to: '/schedule' },
     { label: 'Post Exam', to: '/post-exam' },
+    { label: 'Poster Shop', to: '/shop', badge: 'New' },
     { label: 'Contact', to: '/contact' },
   ];
 
@@ -47,15 +48,31 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                onClick={() => navigate(item.to)}
-                className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 cursor-pointer"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) =>
+              item.badge ? (
+                <a
+                  key={item.label}
+                  onClick={() => navigate(item.to)}
+                  className="relative flex items-center gap-1.5 cursor-pointer group"
+                >
+                  <span className="flex items-center gap-1 bg-gradient-to-r from-primary to-primaryDark text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-md shadow-primary/30 group-hover:shadow-primary/50 group-hover:-translate-y-0.5 transition-all duration-200">
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    {item.label}
+                  </span>
+                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-bounce shadow-sm">
+                    {item.badge}
+                  </span>
+                </a>
+              ) : (
+                <a
+                  key={item.label}
+                  onClick={() => navigate(item.to)}
+                  className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 cursor-pointer"
+                >
+                  {item.label}
+                </a>
+              )
+            )}
 
             {/* Student Login Button (Desktop) */}
             <button
@@ -91,15 +108,31 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-secondaryMiddle shadow-lg">
           <div className="px-4 py-6 space-y-4">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                onClick={() => { navigate(item.to); setMobileMenuOpen(false); }}
-                className="block text-gray-700 hover:text-primary font-medium py-2 cursor-pointer"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) =>
+              item.badge ? (
+                <a
+                  key={item.label}
+                  onClick={() => { navigate(item.to); setMobileMenuOpen(false); }}
+                  className="flex items-center justify-between py-2 cursor-pointer"
+                >
+                  <span className="flex items-center gap-2 text-primary font-semibold">
+                    <ShoppingBag className="w-4 h-4" />
+                    {item.label}
+                  </span>
+                  <span className="bg-yellow-400 text-yellow-900 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    {item.badge}
+                  </span>
+                </a>
+              ) : (
+                <a
+                  key={item.label}
+                  onClick={() => { navigate(item.to); setMobileMenuOpen(false); }}
+                  className="block text-gray-700 hover:text-primary font-medium py-2 cursor-pointer"
+                >
+                  {item.label}
+                </a>
+              )
+            )}
 
             <hr className="border-secondaryMiddle my-2" />
 

@@ -33,6 +33,8 @@ import AdminPlans from "./admin/AdminPlans";
 import AdminCoupons from "./admin/AdminCoupons";
 import AdminReports from "./admin/AdminReports";
 import AdminJsonUpload from "./admin/AdminJsonUpload";
+import AdminPosters from "./admin/AdminPosters";
+import ShopPage from "./pages/ShopPage";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
 import StudentAttemptsList from "./admin/StudentAttemptsList";
@@ -41,6 +43,7 @@ import PrivacyPolicy from "./pages/PrivacyPage";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
+  { path: "/shop", element: <ShopPage /> },
   { path: "/about", element: <AboutPage /> },
   { path: "/features", element: <FeaturesPage /> },
   { path: "/pricing", element: <PricingPage /> },
@@ -85,8 +88,8 @@ const router = createBrowserRouter([
       { path: "students", element: <AdminStudents /> },
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "report", element: <AdminReports /> },
-      { path: "upload-json", element: <AdminJsonUpload /> }, // ✅ Added Route
-      
+      { path: "upload-json", element: <AdminJsonUpload /> },
+      { path: "posters", element: <AdminPosters /> },
     ]
   }
 ]);

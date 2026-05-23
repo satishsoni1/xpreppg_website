@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { 
-  LayoutDashboard, FileQuestion, Users, CreditCard, 
-  MapPin, LogOut, FileText, Menu, ChevronLeft, 
-  Package, Ticket, Upload, BarChart3, Award 
+import {
+  LayoutDashboard, FileQuestion, Users, CreditCard,
+  MapPin, LogOut, FileText, Menu, ChevronLeft,
+  Package, Ticket, Upload, BarChart3, Award, ImageIcon
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -38,6 +38,9 @@ export default function AdminLayout() {
     { name: "Plans", path: "/admin/plans", icon: <Package size={20} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={20} /> },
     { name: "Centers & Cities", path: "/admin/centers", icon: <MapPin size={20} /> },
+
+    // 5. Store
+    { name: "Posters", path: "/admin/posters", icon: <ImageIcon size={20} /> },
   ];
 
   const handleLogout = () => {

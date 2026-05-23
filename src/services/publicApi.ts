@@ -37,4 +37,17 @@ export const PublicAPI = {
       return { status: false, exams: [] };
     }
   },
+
+  getPosters: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/posters`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      return await res.json();
+    } catch (error) {
+      console.error("Error fetching posters:", error);
+      return { status: false, posters: [] };
+    }
+  },
 };

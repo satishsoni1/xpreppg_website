@@ -317,9 +317,44 @@ export const AdminAPI = {
   uploadImage: async (formData: FormData) => {
     const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
       method: "POST",
-      headers: getUploadHeaders(), // Using the special upload headers
+      headers: getUploadHeaders(),
       body: formData,
     });
     return res.json();
-  }
+  },
+
+  // --- POSTERS ---
+  getPosters: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/posters`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createPoster: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/posters`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  togglePoster: async (id: number, status: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/admin/posters/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
+
+  deletePoster: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/posters/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
 };
