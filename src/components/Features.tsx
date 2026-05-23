@@ -8,7 +8,7 @@ const features = [
     gradient: 'from-primary to-primaryDark',
     tag: "Core",
   },
-  {
+  { 
     icon: CalendarCheck,
     title: 'Daily Scheduled Tests',
     description: 'Systematic revision through a carefully planned 15-day cycle — each day has a clear focus, no guesswork.',
