@@ -170,7 +170,7 @@ export default function Pricing() {
               { t: "15-Day Revision Schedule", d: "Structured day-wise plan from Anatomy to OBG." },
               { t: "50 MCQs per Daily Test", d: "Active recall builds stronger retention." },
               { t: "Performance Analysis", d: "Score, accuracy, weak areas, and revision insights." },
-              { t: "750+ High-Yield MCQs", d: "Expert-curated from actual previous year papers." },
+              { t: "4000+ High-Yield MCQs", d: "Expert-curated from actual previous year papers." },
               { t: "Multi-Exam Coverage", d: "NEET PG · INI-CET · FMGE · AIIMS · PGI." },
             ].map((feature, idx) => (
               <div key={idx} className="bg-white p-5 rounded-xl border border-secondaryMiddle shadow-sm hover:shadow-md hover:border-primary/20 transition-all flex gap-4 items-start">
