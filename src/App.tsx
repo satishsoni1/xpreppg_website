@@ -6,6 +6,7 @@ import Features from "./components/Features";
 import RevisionSchedule from "./components/RevisionSchedule";
 import PerformanceSection from "./components/PerformanceSection";
 import Pricing from "./components/Pricing";
+import PosterShopSection from "./components/PosterShopSection";
 import DemoVideo from "./components/DemoVideo";
 import MissionCTA from "./components/MissionCTA";
 import MainLayout from "./layouts/MainLayout";
@@ -23,12 +24,15 @@ export default function App() {
   return (
     <MainLayout>
       <Hero />
+      <PosterShopSection />
       <WhyXRevise />
+      
       <HowItWorks />
       <Features />
       <RevisionSchedule />
       <PerformanceSection />
       <Pricing />
+      
       <DemoVideo />
       <MissionCTA />
     </MainLayout>

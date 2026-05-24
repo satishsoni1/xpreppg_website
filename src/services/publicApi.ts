@@ -38,9 +38,13 @@ export const PublicAPI = {
     }
   },
 
-  getPosters: async () => {
+  getPosters: async (filters?: { subject?: string; tag?: string }) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/posters`, {
+      const params = new URLSearchParams();
+      if (filters?.subject) params.set("subject", filters.subject);
+      if (filters?.tag) params.set("tag", filters.tag);
+      const query = params.toString() ? `?${params}` : "";
+      const res = await fetch(`${API_BASE_URL}/posters${query}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -48,6 +52,18 @@ export const PublicAPI = {
     } catch (error) {
       console.error("Error fetching posters:", error);
       return { status: false, posters: [] };
+    }
+  },
+
+  getPosterSubjects: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/poster-subjects`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      return await res.json();
+    } catch (error) {
+      return { status: false, subjects: [] };
     }
   },
 };

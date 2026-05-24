@@ -18,12 +18,23 @@ const days = [
   { day: 15, subjects: ["Obstetrics & Gynecology", "PSM"] },
 ];
 
-const phaseColors = [
-  "border-primary/40 bg-primary/5",
-  "border-navyLight/40 bg-navyLight/5",
-];
+// Generate real calendar dates starting from tomorrow
+function getStartDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatDate(base: Date, offset: number) {
+  const d = new Date(base);
+  d.setDate(base.getDate() + offset);
+  return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+}
 
 export default function RevisionSchedule() {
+  const startDate = getStartDate();
+
   return (
     <section id="schedule" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-navy to-navyLight">
       <div className="max-w-7xl mx-auto">
@@ -38,37 +49,42 @@ export default function RevisionSchedule() {
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-accent to-primary mx-auto rounded-full mb-6" />
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Day-by-day subject plan — from Anatomy on Day 1 to OBG + PSM on Day 15. Every day builds on the last.
+            Date-wise subject plan — starting {formatDate(startDate, 0)}. Every day builds on the last.
           </p>
         </div>
 
         {/* Schedule grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-12">
-          {days.map(({ day, subjects }) => {
+          {days.map(({ day, subjects }, idx) => {
             const isRevision = day > 9;
+            const dateLabel = formatDate(startDate, idx);
+
             return (
               <div
                 key={day}
                 className={`relative rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 ${
-                  isRevision
-                    ? "border-accent/30 bg-white/5"
-                    : "border-white/10 bg-white/5"
+                  isRevision ? "border-accent/30 bg-white/5" : "border-white/10 bg-white/5"
                 }`}
               >
-                {/* Day badge */}
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 ${
-                  isRevision
-                    ? "bg-accent/20 text-accent"
-                    : "bg-primary/20 text-primary"
-                }`}>
-                  <Calendar className="w-3 h-3" />
-                  Day {day}
-                </div>
-                {isRevision && (
-                  <div className="absolute top-3 right-3 bg-accent/20 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    RAPID
+                {/* Date + Day badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                    isRevision ? "bg-accent/20 text-accent" : "bg-primary/20 text-primary"
+                  }`}>
+                    <Calendar className="w-3 h-3" />
+                    Day {day}
                   </div>
-                )}
+                  {isRevision && (
+                    <div className="bg-accent/20 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      RAPID
+                    </div>
+                  )}
+                </div>
+
+                {/* Calendar date */}
+                <p className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mb-3">
+                  {dateLabel}
+                </p>
 
                 {/* Subjects */}
                 <div className="space-y-1.5">
@@ -84,7 +100,7 @@ export default function RevisionSchedule() {
           })}
         </div>
 
-        {/* Phase labels */}
+        {/* Phase legend */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-10">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-primary/20 border border-primary/30" />
@@ -107,7 +123,7 @@ export default function RevisionSchedule() {
               onClick={() => window.dispatchEvent(new Event("open-register-modal"))}
               className="bg-primary hover:bg-primaryDark text-white px-8 py-3.5 rounded-xl font-bold text-base transition-all shadow-lg shadow-primary/30 whitespace-nowrap"
             >
-              Start Day 1 Today
+              Start Day 1 — {formatDate(startDate, 0)}
             </button>
           </div>
         </div>

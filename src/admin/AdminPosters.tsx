@@ -11,7 +11,7 @@ export default function AdminPosters() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const emptyForm = { title: "", description: "", price: "", original_price: "", subject: "" };
+  const emptyForm = { title: "", description: "", price: "", original_price: "", subject: "", tags: "" };
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => { fetchPosters(); }, []);
@@ -141,11 +141,29 @@ export default function AdminPosters() {
               />
 
               <input
-                placeholder="Subject tag (e.g. Anatomy, Pharmacology)"
+                placeholder="Subject (e.g. Anatomy, Pharmacology, Pathology)"
                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
                 value={form.subject}
                 onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
               />
+
+              <div>
+                <input
+                  placeholder="Tags — comma separated (e.g. high-yield, neet pg, flow chart, mnemonics)"
+                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
+                  value={form.tags}
+                  onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
+                />
+                {form.tags && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {form.tags.split(",").map(t => t.trim()).filter(Boolean).map(t => (
+                      <span key={t} className="bg-secondary text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full border border-secondaryDark">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <textarea
                 required

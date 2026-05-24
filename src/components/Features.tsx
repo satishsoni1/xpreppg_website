@@ -31,17 +31,10 @@ const features = [
   },
   {
     icon: Target,
-    title: '750+ High-Yield MCQs',
-    description: 'Expert-curated question bank from actual previous year papers — focused for rapid revision and active recall.',
+    title: '5000+ Previous Year MCQs',
+    description: 'Question bank built entirely from previous year papers — focused on repeated patterns for rapid revision and active recall.',
     gradient: 'from-navyLight to-primary',
     tag: "MCQ Bank",
-  },
-  {
-    icon: Layers,
-    title: 'Multi-Exam Coverage',
-    description: 'One structured program for NEET PG, INI-CET, FMGE, AIIMS & PGI — covering every major medical PG entrance.',
-    gradient: 'from-primaryDeep to-navy',
-    tag: "5 Exams",
   },
 ];
 
