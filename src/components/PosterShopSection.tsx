@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ShoppingBag, ChevronRight, Lock, Star,
+  ShoppingBag, ChevronRight, Lock,
   Zap, CalendarDays, Target, ImageIcon,
   LayoutGrid, BookOpen, Layers, Timer,
+  ShoppingCart,
 } from "lucide-react";
-import { PublicAPI } from "@/services/publicApi";
+import { POSTER_PACKAGES } from "@/data/posterPackages";
 
 const FEATURES = [
   {
@@ -74,40 +74,10 @@ const FEATURES = [
   },
 ];
 
-const SUBJECT_ICONS: Record<string, string> = {
-  Anatomy: "🫀",
-  Physiology: "⚡",
-  Biochemistry: "🧬",
-  Pathology: "🔬",
-  Pharmacology: "💊",
-  Microbiology: "🦠",
-  "Community Medicine": "🏥",
-  "Forensic Medicine": "⚖️",
-  "Obstetrics & Gynecology": "👶",
-  Pediatrics: "🧒",
-  Medicine: "🩺",
-  Surgery: "✂️",
-  Orthopedics: "🦴",
-  Ophthalmology: "👁️",
-  ENT: "👂",
-  Dermatology: "🩹",
-  Psychiatry: "🧠",
-  Radiology: "☢️",
-};
-
-interface Poster {
-  id: number;
-  title: string;
-  subject: string;
-  price: number;
-  original_price?: number;
-  image_url: string;
-}
-
 function MiniProtectedImage({ src, alt }: { src: string; alt: string }) {
   return (
     <div
-      className="relative w-full h-full select-none overflow-hidden"
+      className="relative flex-1 h-full select-none overflow-hidden"
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
@@ -130,26 +100,23 @@ function MiniProtectedImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <div className="h-px flex-1 bg-gray-200" />
+      <span className="text-xs font-bold uppercase tracking-widest text-gray-400 px-3 py-1 bg-gray-100 rounded-full">{label}</span>
+      <div className="h-px flex-1 bg-gray-200" />
+    </div>
+  );
+}
+
 export default function PosterShopSection() {
   const navigate = useNavigate();
-  const [featured, setFeatured] = useState<Poster[]>([]);
-  const [subjects, setSubjects] = useState<{ subject: string; count: number }[]>([]);
+  const goToShop = () => navigate("/shop");
 
-  useEffect(() => {
-    PublicAPI.getPosters().then(res => {
-      if (res.status && Array.isArray(res.posters)) setFeatured(res.posters.slice(0, 6));
-    });
-    PublicAPI.getPosterSubjects().then(res => {
-      if (res.status && Array.isArray(res.subjects)) setSubjects(res.subjects);
-    });
-  }, []);
-
-  const goToShop = (subject?: string) =>
-    navigate(subject ? `/shop?subject=${encodeURIComponent(subject)}` : "/shop");
-
-  const displaySubjects = subjects.length > 0
-    ? subjects.slice(0, 8)
-    : Object.keys(SUBJECT_ICONS).slice(0, 8).map(s => ({ subject: s, count: 0 }));
+  const shortCombo = POSTER_PACKAGES.filter(p => p.subject === "Short Subject Combo");
+  const mediumCombos = POSTER_PACKAGES.filter(p => p.subject === "Medium Subject Combo");
+  const longPacks = POSTER_PACKAGES.filter(p => p.subject === "Long Subject Pack");
 
   return (
     <section className="py-20 bg-gradient-to-b from-white via-secondary to-white">
@@ -204,107 +171,97 @@ export default function PosterShopSection() {
             </div>
           </div>
           <button
-            onClick={() => goToShop()}
+            onClick={goToShop}
             className="shrink-0 flex items-center gap-2 bg-primary hover:bg-primaryDark text-white px-6 py-3 rounded-full font-bold transition-colors shadow-lg"
           >
             <ShoppingBag size={16} /> Browse Posters <ChevronRight size={16} />
           </button>
         </div>
 
-        {/* ── Browse by Subject ─────────────────────────────────────────── */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-bold text-navy text-xl">Browse by Subject</h3>
-            <button onClick={() => goToShop()} className="text-primary text-sm font-semibold hover:underline flex items-center gap-1">
-              View all <ChevronRight size={14} />
-            </button>
+        {/* ── All 9 Products ────────────────────────────────────────────── */}
+        <div className="space-y-8 mb-12">
+
+          {/* Short Subject Combo */}
+          <div>
+            <SectionDivider label="Short Subject Combo" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {shortCombo.map(pack => (
+                <ProductCard key={pack.id} pack={pack} onClick={goToShop} />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {displaySubjects.map(({ subject, count }) => (
-              <button
-                key={subject}
-                onClick={() => goToShop(subject)}
-                className="group flex flex-col items-center gap-2 bg-white border border-gray-100 rounded-2xl p-4 hover:border-primary hover:shadow-md hover:shadow-primary/10 transition-all duration-200"
-              >
-                <span className="text-2xl">{SUBJECT_ICONS[subject] ?? "📌"}</span>
-                <span className="text-xs font-semibold text-gray-700 group-hover:text-primary transition-colors text-center leading-tight">{subject}</span>
-                {count > 0 && <span className="text-[10px] text-gray-400">{count} poster{count !== 1 ? "s" : ""}</span>}
-              </button>
-            ))}
+
+          {/* Medium Subject Combos */}
+          <div>
+            <SectionDivider label="Medium Subject Combos" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {mediumCombos.map(pack => (
+                <ProductCard key={pack.id} pack={pack} onClick={goToShop} />
+              ))}
+            </div>
+          </div>
+
+          {/* Long Subject Packs */}
+          <div>
+            <SectionDivider label="Long Subject Packs" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {longPacks.map(pack => (
+                <ProductCard key={pack.id} pack={pack} onClick={goToShop} />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ── Featured Posters ──────────────────────────────────────────── */}
-        {featured.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                <h3 className="font-bold text-navy text-xl">Featured Posters</h3>
-              </div>
-              <button onClick={() => goToShop()} className="text-primary text-sm font-semibold hover:underline flex items-center gap-1">
-                Shop all <ChevronRight size={14} />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {featured.map(poster => {
-                const discount = poster.original_price
-                  ? Math.round((1 - poster.price / poster.original_price) * 100) : 0;
-                return (
-                  <div
-                    key={poster.id}
-                    onClick={() => goToShop()}
-                    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-secondaryDark transition-all duration-300 overflow-hidden cursor-pointer"
-                  >
-                    <div className="aspect-[3/4] overflow-hidden">
-                      <MiniProtectedImage src={poster.image_url} alt={poster.title} />
-                    </div>
-                    <div className="p-3">
-                      {poster.subject && (
-                        <span className="text-[10px] font-bold text-primary bg-secondary px-2 py-0.5 rounded-full">{poster.subject}</span>
-                      )}
-                      <p className="font-semibold text-gray-900 text-xs leading-snug mt-1.5 mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                        {poster.title}
-                      </p>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-navy text-sm">₹{poster.price}</span>
-                        {discount > 0 && <span className="text-[10px] font-bold text-green-600">{discount}% off</span>}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ── Build Bundle CTA ──────────────────────────────────────────── */}
-        <div className="bg-gradient-to-br from-primary via-primaryDark to-navy rounded-2xl p-8 md:p-10 text-center">
-          <p className="text-accent text-xs font-bold uppercase tracking-widest mb-3">Build Your Bundle</p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-            Mix & Match Across All Subjects
-          </h3>
-          <p className="text-white/70 max-w-xl mx-auto mb-7 text-base">
-            Add Anatomy, Pharmacology, Pathology and more to your cart — order as one bundle and get everything delivered together.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => goToShop()}
-              className="flex items-center justify-center gap-2 bg-white text-primary px-8 py-3.5 rounded-full font-bold hover:bg-secondary transition-colors shadow-lg"
-            >
-              <ShoppingBag size={18} /> Start Building Your Bundle
-            </button>
-            <a
-              href="https://wa.me/918446036521"
-              target="_blank"
-              className="flex items-center justify-center gap-2 bg-white/10 border border-white/30 text-white px-8 py-3.5 rounded-full font-bold hover:bg-white/20 transition-colors"
-            >
-              Custom / Bulk Order
-            </a>
-          </div>
+        {/* ── View All CTA ──────────────────────────────────────────────── */}
+        <div className="text-center">
+          <button
+            onClick={goToShop}
+            className="inline-flex items-center gap-2 bg-primary hover:bg-primaryDark text-white px-10 py-4 rounded-full font-bold text-base transition-colors shadow-lg"
+          >
+            <ShoppingCart size={18} /> Order Now — ₹319 onwards
+          </button>
+          <p className="text-gray-400 text-xs mt-3">+ Flat ₹150 delivery charge per order</p>
         </div>
 
       </div>
     </section>
+  );
+}
+
+// ── Product card (home page preview) ─────────────────────────────────────────
+function ProductCard({ pack, onClick }: { pack: typeof POSTER_PACKAGES[0]; onClick: () => void }) {
+  const discount = pack.original_price
+    ? Math.round((1 - pack.price / pack.original_price) * 100) : 0;
+
+  return (
+    <div
+      onClick={onClick}
+      className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-secondaryDark transition-all duration-300 overflow-hidden cursor-pointer"
+    >
+      <div className="aspect-[4/3] overflow-hidden relative flex">
+        {pack.image_url2 ? (
+          <>
+            <MiniProtectedImage src={pack.image_url} alt={pack.title} />
+            <MiniProtectedImage src={pack.image_url2} alt={pack.title} />
+          </>
+        ) : (
+          <MiniProtectedImage src={pack.image_url} alt={pack.title} />
+        )}
+        {discount > 0 && (
+          <span className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{discount}% OFF</span>
+        )}
+      </div>
+      <div className="p-4">
+        <span className="text-[10px] font-bold text-primary bg-secondary px-2 py-0.5 rounded-full">{pack.subject}</span>
+        <p className="font-semibold text-gray-900 text-sm leading-snug mt-2 mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+          {pack.title}
+        </p>
+        <p className="text-gray-400 text-[10px] mb-2">{pack.posterCount}</p>
+        <div className="flex items-center gap-2">
+          <span className="font-extrabold text-navy text-base">₹{pack.price}</span>
+          {pack.original_price && <span className="text-xs text-gray-400 line-through">₹{pack.original_price}</span>}
+        </div>
+      </div>
+    </div>
   );
 }
