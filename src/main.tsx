@@ -39,6 +39,9 @@ import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
 import StudentAttemptsList from "./admin/StudentAttemptsList";
 import PrivacyPolicy from "./pages/PrivacyPage";
+import CbtPage from "./pages/CbtPage";
+import CbtRegisterPage from "./pages/CbtRegisterPage";
+import XreviseRegisterPage from "./pages/XreviseRegisterPage";
 
 
 const router = createBrowserRouter([
@@ -56,6 +59,9 @@ const router = createBrowserRouter([
   { path: "/exam-portal/:examId", element: <StudentExamPortal /> },
   { path: "/admin/login", element: <AdminLogin /> },
   { path: "/privacy", element: <PrivacyPolicy /> },
+  { path: "/cbt", element: <CbtPage /> },
+  { path: "/cbt-register", element: <CbtRegisterPage /> },
+  { path: "/xrevise-register", element: <XreviseRegisterPage /> },
   {
     path: "/student",
     element: <StudentLayout />, // Wraps all student pages with Sidebar

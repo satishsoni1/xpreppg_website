@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import {
-  ShoppingBag, ChevronRight, Lock,
+  ShoppingBag, ChevronRight,
   Zap, CalendarDays, Target, ImageIcon,
   LayoutGrid, BookOpen, Layers, Timer,
   ShoppingCart,
 } from "lucide-react";
 import { POSTER_PACKAGES } from "@/data/posterPackages";
+import ImageSlider from "@/components/ImageSlider";
 
 const FEATURES = [
   {
@@ -74,31 +75,6 @@ const FEATURES = [
   },
 ];
 
-function MiniProtectedImage({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div
-      className="relative flex-1 h-full select-none overflow-hidden"
-      onContextMenu={(e) => e.preventDefault()}
-      onDragStart={(e) => e.preventDefault()}
-    >
-      <img
-        src={src} alt={alt} draggable="false"
-        className="w-full h-full object-cover"
-        style={{ pointerEvents: "none", userSelect: "none" }}
-      />
-      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-around overflow-hidden">
-        {[...Array(4)].map((_, i) => (
-          <span key={i} className="text-white/20 font-bold text-[9px] whitespace-nowrap tracking-widest select-none" style={{ transform: "rotate(-35deg)" }}>
-            © XREVISE Preview
-          </span>
-        ))}
-      </div>
-      <div className="absolute bottom-1 right-1 bg-black/40 text-white/70 text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 pointer-events-none select-none">
-        <Lock size={7} /> Protected
-      </div>
-    </div>
-  );
-}
 
 function SectionDivider({ label }: { label: string }) {
   return (
@@ -238,17 +214,15 @@ function ProductCard({ pack, onClick }: { pack: typeof POSTER_PACKAGES[0]; onCli
       onClick={onClick}
       className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-secondaryDark transition-all duration-300 overflow-hidden cursor-pointer"
     >
-      <div className="aspect-[4/3] overflow-hidden relative flex">
-        {pack.image_url2 ? (
-          <>
-            <MiniProtectedImage src={pack.image_url} alt={pack.title} />
-            <MiniProtectedImage src={pack.image_url2} alt={pack.title} />
-          </>
-        ) : (
-          <MiniProtectedImage src={pack.image_url} alt={pack.title} />
-        )}
+      <div className="aspect-[4/3] overflow-hidden relative">
+        <ImageSlider
+          images={[pack.image_url, ...(pack.image_url2 ? [pack.image_url2] : [])]}
+          alt={pack.title}
+          className="w-full h-full"
+          intervalMs={3200}
+        />
         {discount > 0 && (
-          <span className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{discount}% OFF</span>
+          <span className="absolute top-2 right-2 z-40 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{discount}% OFF</span>
         )}
       </div>
       <div className="p-4">

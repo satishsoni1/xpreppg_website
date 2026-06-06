@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
 import { POSTER_PACKAGES, PosterPackage } from "@/data/posterPackages";
+import ImageSlider from "@/components/ImageSlider";
 
 // ── Shared image copy-protection ─────────────────────────────────────────────
 export function ProtectedImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
@@ -54,11 +55,13 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
-        <div className="md:w-5/12 bg-navy shrink-0 flex flex-row md:flex-col">
-          <ProtectedImage src={poster.image_url} alt={poster.title} className={`w-full ${poster.image_url2 ? "h-32 md:h-1/2" : "h-56 md:h-full"}`} />
-          {poster.image_url2 && (
-            <ProtectedImage src={poster.image_url2} alt={`${poster.title} 2`} className="w-full h-32 md:h-1/2" />
-          )}
+        <div className="md:w-5/12 bg-navy shrink-0 min-h-[14rem] md:min-h-0">
+          <ImageSlider
+            images={[poster.image_url, ...(poster.image_url2 ? [poster.image_url2] : [])]}
+            alt={poster.title}
+            className="w-full h-56 md:h-full"
+            intervalMs={2500}
+          />
         </div>
         <div className="flex-1 p-6 flex flex-col overflow-y-auto text-left">
           <div className="flex items-start justify-between mb-3">
@@ -366,15 +369,13 @@ function PackCard({ pack, cart, onSelect, onAdd, onShowCart }: {
   return (
     <div className="bg-white rounded-2xl border border-gray-150 shadow-sm hover:shadow-xl hover:border-secondaryDark transition-all duration-300 overflow-hidden group flex flex-col">
       <div className="relative aspect-[4/3] cursor-pointer overflow-hidden" onClick={() => onSelect(pack)}>
-        {pack.image_url2 ? (
-          <div className="flex w-full h-full">
-            <ProtectedImage src={pack.image_url} alt={pack.title} className="w-1/2 h-full" />
-            <ProtectedImage src={pack.image_url2} alt={pack.title} className="w-1/2 h-full" />
-          </div>
-        ) : (
-          <ProtectedImage src={pack.image_url} alt={pack.title} className="w-full h-full" />
-        )}
-        <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/25 transition-all duration-300 flex items-center justify-center pointer-events-none">
+        <ImageSlider
+          images={[pack.image_url, ...(pack.image_url2 ? [pack.image_url2] : [])]}
+          alt={pack.title}
+          className="w-full h-full"
+          intervalMs={3000}
+        />
+        <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/25 transition-all duration-300 flex items-center justify-center pointer-events-none z-40">
           <div className="bg-white/90 text-navy text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <ZoomIn size={12} /> View Pack Details
           </div>
