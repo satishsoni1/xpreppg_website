@@ -27,6 +27,7 @@ export default function CbtRegisterPage() {
     email: "",
     category: "",
     city: "",
+    exam_mode: "" as "Online" | "On Centre" | "",
   });
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function CbtRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.category) { alert("Please select a category."); return; }
+    if (!formData.exam_mode) { alert("Please select exam mode (Online or On Centre)."); return; }
     if (!formData.city) { alert("Please select your city."); return; }
 
     setLoading(true);
@@ -53,6 +55,7 @@ export default function CbtRegisterPage() {
       body.append("category", formData.category);
       body.append("city", formData.city);
       body.append("registration_type", "CBT");
+      body.append("exam_mode", formData.exam_mode);
 
       const res = await StudentAPI.register(body);
       if (!res.status) {
@@ -80,7 +83,7 @@ export default function CbtRegisterPage() {
           </p>
           <div className="flex flex-col gap-3">
             <a
-              href="https://wa.me/918446036521"
+              href="https://wa.me/919370100887"
               target="_blank"
               className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold transition-colors"
             >
@@ -196,6 +199,25 @@ export default function CbtRegisterPage() {
                         }`}
                       >
                         {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Exam Mode *</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["Online", "On Centre"] as const).map(mode => (
+                      <button
+                        key={mode} type="button"
+                        onClick={() => setFormData(p => ({ ...p, exam_mode: mode }))}
+                        className={`py-3 rounded-xl text-sm font-semibold border transition-all ${
+                          formData.exam_mode === mode
+                            ? "bg-primary text-white border-primary shadow-sm"
+                            : "border-gray-200 text-gray-600 hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {mode === "Online" ? "💻 Online Exam" : "🏫 On Centre Exam"}
                       </button>
                     ))}
                   </div>

@@ -4,7 +4,7 @@ import MainLayout from "@/layouts/MainLayout";
 export default function ContactPage() {
   return (
     <MainLayout>
-      ""
+      <Contact />
     </MainLayout>
   );
 }

@@ -7,9 +7,14 @@ export default function AdminPosters() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview2, setImagePreview2] = useState<string | null>(null);
+  const [imageFile2, setImageFile2] = useState<File | null>(null);
+
   const fileRef = useRef<HTMLInputElement>(null);
+  const fileRef2 = useRef<HTMLInputElement>(null);
 
   const emptyForm = { title: "", description: "", price: "", original_price: "", subject: "", tags: "" };
   const [form, setForm] = useState(emptyForm);
@@ -25,34 +30,43 @@ export default function AdminPosters() {
     finally { setLoading(false); }
   };
 
-  const handleImageSelect = (e: any) => {
+  const handleImageSelect = (e: any, which: 1 | 2) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    if (which === 1) { setImageFile(file); setImagePreview(URL.createObjectURL(file)); }
+    else { setImageFile2(file); setImagePreview2(URL.createObjectURL(file)); }
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!imageFile) { alert("Please select a poster image."); return; }
+    if (!imageFile) { alert("Please select a primary poster image."); return; }
     setCreating(true);
     try {
-      const fd = new FormData();
-      fd.append("image", imageFile);
-      const uploadRes = await AdminAPI.uploadImage(fd);
-      if (!uploadRes.status && !uploadRes.url) throw new Error(uploadRes.message || "Image upload failed");
+      const fd1 = new FormData();
+      fd1.append("image", imageFile);
+      const uploadRes1 = await AdminAPI.uploadImage(fd1);
+      if (!uploadRes1.url) throw new Error(uploadRes1.message || "Primary image upload failed");
+
+      let imageUrl2 = null;
+      if (imageFile2) {
+        const fd2 = new FormData();
+        fd2.append("image", imageFile2);
+        const uploadRes2 = await AdminAPI.uploadImage(fd2);
+        imageUrl2 = uploadRes2.url || null;
+      }
 
       const res = await AdminAPI.createPoster({
         ...form,
         price: Number(form.price),
         original_price: form.original_price ? Number(form.original_price) : null,
-        image_url: uploadRes.url,
+        image_url: uploadRes1.url,
+        image_url2: imageUrl2,
       });
 
       if (res.status) {
         setForm(emptyForm);
-        setImageFile(null);
-        setImagePreview(null);
+        setImageFile(null); setImagePreview(null);
+        setImageFile2(null); setImagePreview2(null);
         setShowForm(false);
         fetchPosters();
       } else {
@@ -88,7 +102,7 @@ export default function AdminPosters() {
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <ImageIcon className="text-primary" /> Medical Posters
+          <ImageIcon className="text-primary" /> XRevise Posters
         </h1>
         <button
           onClick={() => setShowForm(true)}
@@ -104,33 +118,60 @@ export default function AdminPosters() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-gray-800">Add New Poster</h2>
-              <button onClick={() => { setShowForm(false); setImagePreview(null); setImageFile(null); }} className="text-gray-400 hover:text-gray-700 transition">
+              <button onClick={() => { setShowForm(false); setImagePreview(null); setImageFile(null); setImagePreview2(null); setImageFile2(null); }} className="text-gray-400 hover:text-gray-700 transition">
                 <X size={24} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Image upload */}
-              <div
-                className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition ${imagePreview ? "border-primary" : "border-gray-300 hover:border-primary"}`}
-                onClick={() => fileRef.current?.click()}
-              >
-                {imagePreview ? (
-                  <img src={imagePreview} alt="preview" className="max-h-52 mx-auto rounded-lg object-contain" />
-                ) : (
-                  <div className="py-8">
-                    <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-primary font-semibold">Click to upload poster image</p>
-                    <p className="text-xs text-gray-400 mt-1">JPG or PNG — use high resolution for best quality</p>
-                  </div>
+              {/* Primary image */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Primary Image (Thumbnail) *</label>
+                <div
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition ${imagePreview ? "border-primary" : "border-gray-300 hover:border-primary"}`}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="preview" className="max-h-40 mx-auto rounded-lg object-contain" />
+                  ) : (
+                    <div className="py-6">
+                      <ImageIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                      <p className="text-primary font-semibold text-sm">Click to upload primary image</p>
+                      <p className="text-xs text-gray-400 mt-1">Used as thumbnail card image</p>
+                    </div>
+                  )}
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => handleImageSelect(e, 1)} />
+                </div>
+                {imagePreview && (
+                  <button type="button" onClick={() => { setImagePreview(null); setImageFile(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-xs text-red-500 hover:underline mt-1">
+                    Remove primary image
+                  </button>
                 )}
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
               </div>
-              {imagePreview && (
-                <button type="button" onClick={() => { setImagePreview(null); setImageFile(null); if (fileRef.current) fileRef.current.value = ""; }} className="text-xs text-red-500 hover:underline">
-                  Remove image
-                </button>
-              )}
+
+              {/* Secondary image */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Second Image (Optional — for slide/multi-subject view)</label>
+                <div
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition ${imagePreview2 ? "border-primary" : "border-gray-200 hover:border-primary"}`}
+                  onClick={() => fileRef2.current?.click()}
+                >
+                  {imagePreview2 ? (
+                    <img src={imagePreview2} alt="preview2" className="max-h-40 mx-auto rounded-lg object-contain" />
+                  ) : (
+                    <div className="py-4">
+                      <ImageIcon className="w-8 h-8 text-gray-200 mx-auto mb-1" />
+                      <p className="text-sm text-gray-400">Click to upload second image</p>
+                    </div>
+                  )}
+                  <input ref={fileRef2} type="file" accept="image/*" className="hidden" onChange={e => handleImageSelect(e, 2)} />
+                </div>
+                {imagePreview2 && (
+                  <button type="button" onClick={() => { setImagePreview2(null); setImageFile2(null); if (fileRef2.current) fileRef2.current.value = ""; }} className="text-xs text-red-500 hover:underline mt-1">
+                    Remove second image
+                  </button>
+                )}
+              </div>
 
               <input
                 required
@@ -240,10 +281,18 @@ export default function AdminPosters() {
                 poster.is_active ? "bg-white border-gray-200 hover:shadow-md" : "bg-gray-50 border-gray-200 opacity-60"
               }`}
             >
-              {/* Poster Image */}
+              {/* Poster Images */}
               <div className="relative aspect-[3/4] bg-gray-100 overflow-hidden">
                 {poster.image_url ? (
-                  <img src={poster.image_url} alt={poster.title} className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full">
+                    <img src={poster.image_url} alt={poster.title} className="w-full h-full object-cover" />
+                    {poster.image_url2 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1.5">
+                        <img src={poster.image_url2} alt="2nd" className="h-12 w-full object-cover rounded opacity-90" />
+                        <p className="text-white text-[9px] text-center mt-0.5">2nd image</p>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="w-12 h-12 text-gray-300" />

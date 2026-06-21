@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Save, CheckCircle, Image as ImageIcon, BookOpen, FileText, UploadCloud, Loader2, List, PlusCircle, AlertCircle, Clock } from "lucide-react";
+import { Save, CheckCircle, Image as ImageIcon, BookOpen, FileText, UploadCloud, Loader2, List, PlusCircle, AlertCircle, Clock, Trash2 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi"; // Adjust path if needed
 
 export default function AdminQuestions() {
@@ -7,11 +7,15 @@ export default function AdminQuestions() {
   const [examId, setExamId] = useState("");
   
   // Tabs & Existing Questions State
-  const [activeTab, setActiveTab] = useState<'ADD' | 'VIEW'>('ADD');
+  const [activeTab, setActiveTab] = useState<'ADD' | 'VIEW' | 'BULK'>('ADD');
   const [existingQuestions, setExistingQuestions] = useState<any[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   const [isUploading, setIsUploading] = useState({ question: false, explanation: false });
+  const [bulkJson, setBulkJson] = useState("");
+  const [bulkStatus, setBulkStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const bulkFileRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     type: "CB", // Adjusted to your default
@@ -134,9 +138,51 @@ export default function AdminQuestions() {
     }
   };
 
+  const handleBulkFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setBulkJson(ev.target?.result as string || "");
+    reader.readAsText(file);
+    if (e.target) e.target.value = "";
+  };
+
+  const handleBulkUpload = async () => {
+    if (!examId) return alert("Select an exam first.");
+    let questions: any[];
+    try {
+      const parsed = JSON.parse(bulkJson);
+      questions = Array.isArray(parsed) ? parsed : parsed.questions;
+      if (!Array.isArray(questions)) throw new Error("JSON must be an array or { questions: [] }");
+    } catch (err: any) {
+      setBulkStatus({ type: "error", msg: "Invalid JSON: " + err.message });
+      return;
+    }
+    setBulkLoading(true);
+    setBulkStatus(null);
+    try {
+      const res = await AdminAPI.bulkAddQuestions(examId, questions);
+      if (res.status) {
+        setBulkStatus({ type: "success", msg: res.message });
+        setBulkJson("");
+        fetchQuestions(examId);
+      } else {
+        setBulkStatus({ type: "error", msg: res.message });
+      }
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleDeleteQuestion = async (id: number) => {
+    if (!confirm("Delete this question?")) return;
+    await AdminAPI.deleteQuestion(id);
+    fetchQuestions(examId);
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      
+
       {/* HEADER & EXAM SELECTOR */}
       <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
         <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -165,11 +211,17 @@ export default function AdminQuestions() {
         >
           <PlusCircle size={18} /> Add New Question
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('VIEW')}
           className={`flex-1 flex justify-center items-center gap-2 py-2.5 font-bold rounded-lg transition-all ${activeTab === 'VIEW' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
         >
           <List size={18} /> Question Bank ({existingQuestions.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('BULK')}
+          className={`flex-1 flex justify-center items-center gap-2 py-2.5 font-bold rounded-lg transition-all ${activeTab === 'BULK' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
+        >
+          <UploadCloud size={18} /> Bulk Upload
         </button>
       </div>
 
@@ -392,11 +444,14 @@ export default function AdminQuestions() {
                   {/* Meta Bar */}
                   <div className="flex flex-wrap justify-between items-start gap-4 mb-4 border-b border-slate-100 pb-3">
                     <span className="font-black text-slate-400 text-sm">Q {idx + 1}</span>
-                    <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider">
+                    <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider items-center">
                       {q.subject && <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded-md">{q.subject}</span>}
                       {q.difficulty && <span className="bg-slate-100 text-slate-500 px-2 py-1 rounded-md">{q.difficulty}</span>}
                       <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">+{q.marks || 4} Marks</span>
                       <span className="text-red-600 bg-red-50 px-2 py-1 rounded-md">{q.negative_marks || -1} Penalty</span>
+                      <button onClick={() => handleDeleteQuestion(q.id)} className="ml-2 text-red-400 hover:text-red-600 transition-colors" title="Delete question">
+                        <Trash2 size={15} />
+                      </button>
                     </div>
                   </div>
 
@@ -446,6 +501,70 @@ export default function AdminQuestions() {
               )
             })
           )}
+        </div>
+      )}
+
+      {/* TAB CONTENT: BULK UPLOAD */}
+      {activeTab === 'BULK' && (
+        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 space-y-6 animate-fade-in">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-1">
+              <UploadCloud className="text-emerald-600" size={20} /> Bulk Question Upload
+            </h2>
+            <p className="text-sm text-slate-500">
+              Upload a JSON file or paste JSON directly. Format: array of question objects or <code className="bg-slate-100 px-1 rounded">{"{ questions: [] }"}</code>.
+            </p>
+          </div>
+
+          {/* JSON format reference */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-mono text-slate-600 overflow-x-auto">
+            {`[{\n  "question_text": "Which is not a beta blocker?",\n  "options": ["Atenolol", "Metoprolol", "Amlodipine", "Propranolol"],\n  "correct_answer": "2",\n  "subject": "PHARMACOLOGY",\n  "marks": 4,\n  "negative_marks": -1,\n  "difficulty": "MEDIUM"\n}]`}
+          </div>
+
+          <div className="flex gap-3">
+            <input ref={bulkFileRef} type="file" accept=".json" className="hidden" onChange={handleBulkFile} />
+            <button
+              onClick={() => bulkFileRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all"
+            >
+              <FileText size={16} /> Load JSON File
+            </button>
+            {bulkJson && (
+              <span className="flex items-center gap-1 text-sm text-emerald-600 font-semibold">
+                <CheckCircle size={14} /> File loaded ({JSON.stringify(bulkJson).length} chars)
+              </span>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Or paste JSON here</label>
+            <textarea
+              className="w-full border-2 border-slate-200 p-3 rounded-xl bg-slate-50 focus:bg-white focus:border-emerald-500 outline-none transition-all font-mono text-xs h-48 resize-y"
+              placeholder='[{"question_text": "...", "options": [...], "correct_answer": "0", ...}]'
+              value={bulkJson}
+              onChange={(e) => setBulkJson(e.target.value)}
+            />
+          </div>
+
+          {bulkStatus && (
+            <div className={`flex items-center gap-2 p-4 rounded-xl border text-sm font-medium ${
+              bulkStatus.type === "success"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}>
+              {bulkStatus.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+              {bulkStatus.msg}
+            </div>
+          )}
+
+          <button
+            onClick={handleBulkUpload}
+            disabled={bulkLoading || !bulkJson.trim()}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-md flex items-center justify-center gap-2"
+          >
+            {bulkLoading ? <Loader2 className="animate-spin" size={22} /> : <UploadCloud size={22} />}
+            {bulkLoading ? "Uploading…" : "Upload All Questions"}
+          </button>
         </div>
       )}
     </div>

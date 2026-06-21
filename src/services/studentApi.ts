@@ -214,8 +214,44 @@ export const StudentAPI = {
   changePassword: async (data: { currentPassword: string; newPassword: string }) => {
     const res = await fetch(`${API_BASE_URL}/student/change-password`, {
       method: "POST",
-      headers: getAuthHeaders(), // Uses token!
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // XRevise daily test — get exam + questions
+  getExamQuestions: async (examId: string | number) => {
+    const res = await fetch(`${API_BASE_URL}/student/exam/${examId}/questions`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // XRevise daily test — submit answers (JWT auth)
+  submitDailyExam: async (data: { examId: string | number; answers: Record<string, string>; timeSpent: Record<string, number> }) => {
+    const res = await fetch(`${API_BASE_URL}/student/daily-submit`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // XRevise attempt history
+  getXreviseAttempts: async () => {
+    const res = await fetch(`${API_BASE_URL}/student/xrevise/attempts`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // XRevise schedule (public)
+  getXreviseSchedule: async () => {
+    const res = await fetch(`${API_BASE_URL}/public/xrevise-schedule`, {
+      method: "GET",
     });
     return res.json();
   },

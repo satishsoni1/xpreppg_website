@@ -66,4 +66,16 @@ export const PublicAPI = {
       return { status: false, subjects: [] };
     }
   },
+
+  getXreviseSchedule: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/public/xrevise-schedule`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      return await res.json();
+    } catch (error) {
+      return { status: false, schedule: [] };
+    }
+  },
 };

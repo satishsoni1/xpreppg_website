@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
-import { Info, Loader2, Key, X, CheckCircle } from "lucide-react";
+import { Info, Loader2, Key, X, CheckCircle, BookOpen, Monitor } from "lucide-react";
 import { PublicAPI } from "@/services/publicApi";
+
+type PortalMode = "XRevise" | "CBT";
 
 interface City {
   id: number;
@@ -15,6 +17,9 @@ export default function StudentLogin() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ mobile: "", password: "" });
   const [cities, setCities] = useState<City[]>([]);
+  const [portal, setPortal] = useState<PortalMode>(() =>
+    (localStorage.getItem("student_portal") as PortalMode) || "XRevise"
+  );
   
   // Forgot Password States
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
@@ -41,27 +46,39 @@ export default function StudentLogin() {
       const data = await StudentAPI.login(formData);
   
       if (data.token) {
+        const user = data.user;
+        // NULL/missing registration_type means legacy student → treat as CBT
+        const regType: string = user.registration_type || "CBT";
+
+        // Check portal eligibility
+        const eligible =
+          regType === "Both" ||
+          regType === portal ||
+          !user.registration_type; // legacy students with no type can access any portal
+
+        if (!eligible) {
+          alert(`You are registered for the ${regType} portal, not ${portal}.\n\nPlease select the ${regType} portal and try again.`);
+          setLoading(false);
+          return;
+        }
+
         localStorage.setItem("student_token", data.token);
-        localStorage.setItem("student_user", JSON.stringify(data.user));
-        
-        const cityStatus = cities.find((c: any) => c.name === data.user.city);
-        if (cityStatus && !cityStatus.is_active) {
-          alert(`Login Restricted.\n\nThe slots for "${data.user.city}" are currently full. Our team will contact you directly.`);
+        localStorage.setItem("student_user", JSON.stringify(user));
+        localStorage.setItem("student_portal", portal);
+        localStorage.setItem("student_active_portal", portal);
+
+        const cityStatus = cities.find((c: any) => c.name === user.city);
+        if (cityStatus && !cityStatus.is_active && portal === "CBT") {
+          alert(`Login Restricted.\n\nThe slots for "${user.city}" are currently full. Our team will contact you directly.`);
           localStorage.removeItem("student_token");
           localStorage.removeItem("student_user");
           setLoading(false);
-          return; 
+          return;
         }
-        
-        localStorage.setItem("x_user_mobile", data.user.mobile); 
 
-        const pendingPlan = localStorage.getItem("x_selected_plan");
-        if (pendingPlan) {
-            localStorage.removeItem("x_selected_plan");
-            navigate("/student/dashboard");
-        } else {
-            navigate("/student/dashboard");
-        }
+        localStorage.setItem("x_user_mobile", user.mobile);
+        localStorage.removeItem("x_selected_plan");
+        navigate("/student/dashboard");
       } else {
         alert(data.message || "Invalid Credentials");
       }
@@ -131,12 +148,64 @@ export default function StudentLogin() {
     setForgotMessage(null);
   };
 
+  const portalCfg = {
+    XRevise: {
+      color: "text-emerald-600",
+      bg: "bg-emerald-600",
+      border: "border-emerald-500",
+      activeBg: "bg-emerald-50",
+      icon: <BookOpen size={22} className="text-emerald-600" />,
+      label: "XRevise Portal",
+      desc: "Revision schedule, questions & study material",
+      registerPath: "/xrevise-register",
+    },
+    CBT: {
+      color: "text-blue-600",
+      bg: "bg-blue-600",
+      border: "border-blue-500",
+      activeBg: "bg-blue-50",
+      icon: <Monitor size={22} className="text-blue-600" />,
+      label: "CBT Portal",
+      desc: "Computer Based Test exams & admit card",
+      registerPath: "/cbt-register",
+    },
+  };
+  const cfg = portalCfg[portal];
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8 animate-fade-in relative">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Student Login</h1>
-          <p className="text-gray-500 mt-2">Welcome back! Please login to continue.</p>
+      <div className="w-full max-w-md space-y-4 animate-fade-in">
+
+        {/* Portal Selector */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 text-center">
+            Choose your portal
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {(["XRevise", "CBT"] as PortalMode[]).map((p) => {
+              const c = portalCfg[p];
+              const isActive = portal === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => { setPortal(p); localStorage.setItem("student_portal", p); }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    isActive ? `${c.border} ${c.activeBg}` : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  {c.icon}
+                  <span className={`font-bold text-sm ${isActive ? c.color : "text-gray-600"}`}>{c.label}</span>
+                  <span className="text-gray-400 text-[10px] text-center leading-tight">{c.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+      <div className="bg-white w-full rounded-2xl shadow-xl p-8 relative">
+        <div className="text-center mb-7">
+          <h1 className={`text-2xl font-bold ${cfg.color}`}>{cfg.label} Login</h1>
+          <p className="text-gray-500 mt-1.5 text-sm">Welcome back! Please login to continue.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -182,26 +251,27 @@ export default function StudentLogin() {
               </p>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-primary hover:bg-secondary text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2"
+            className={`w-full ${cfg.bg} text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2`}
           >
-            {loading ? <Loader2 className="animate-spin" /> : "Login to Dashboard"}
+            {loading ? <Loader2 className="animate-spin" /> : `Login to ${cfg.label}`}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-500">
             First time here?{" "}
-            <button 
-              onClick={() => navigate("/?register=true")} 
-              className="text-emerald-600 font-bold hover:underline"
+            <button
+              onClick={() => navigate(cfg.registerPath)}
+              className={`font-bold hover:underline ${cfg.color}`}
             >
-              Register Now
+              Register for {portal}
             </button>
           </p>
         </div>
+      </div>
       </div>
 
       {/* 🟢 2-STEP EMAIL OTP FORGOT PASSWORD MODAL 🟢 */}

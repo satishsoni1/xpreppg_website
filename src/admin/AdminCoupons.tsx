@@ -2,40 +2,46 @@ import { useState, useEffect } from "react";
 import { AdminAPI } from "@/services/adminApi";
 import { Ticket, Power, Globe, Package, Loader2, Edit, X } from "lucide-react";
 
+type PortalType = "cbt" | "xrevise";
+
+const TYPE_CFG = {
+  cbt: { label: "CBT", border: "border-blue-500", activeCls: "bg-blue-600 text-white shadow", badge: "bg-blue-50 text-blue-700 border border-blue-100" },
+  xrevise: { label: "XRevise", border: "border-emerald-500", activeCls: "bg-emerald-600 text-white shadow", badge: "bg-emerald-50 text-emerald-700 border border-emerald-100" },
+};
+
 export default function AdminCoupons() {
+  const [activeType, setActiveType] = useState<PortalType>(() =>
+    localStorage.getItem("admin_portal") === "xrevise" ? "xrevise" : "cbt"
+  );
   const [coupons, setCoupons] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
-  // State to track editing mode
+
   const [editingId, setEditingId] = useState<number | null>(null);
-  
+
   const [form, setForm] = useState({
     code: "",
-    discount_type: "flat", 
+    discount_type: "flat",
     discount_value: "",
     min_order_amount: 0,
     valid_until: "",
     usage_limit: 100,
-    specific_plan_id: "" 
+    specific_plan_id: "",
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, [activeType]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      // Fetch Coupons AND Plans for the dropdown
       const [couponRes, planRes] = await Promise.all([
-        AdminAPI.getCoupons(),
-        AdminAPI.getPlans()
+        AdminAPI.getCoupons(activeType),
+        AdminAPI.getPlans(activeType),
       ]);
-
       if (couponRes.status) setCoupons(couponRes.coupons);
       if (planRes.status) setPlans(planRes.plans);
-    } catch(err) { console.error(err); }
+    } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
@@ -64,9 +70,9 @@ export default function AdminCoupons() {
 
   const resetForm = () => {
     setEditingId(null);
-    setForm({ 
-        code: "", discount_type: "flat", discount_value: "", 
-        min_order_amount: 0, valid_until: "", usage_limit: 100, specific_plan_id: "" 
+    setForm({
+      code: "", discount_type: "flat", discount_value: "",
+      min_order_amount: 0, valid_until: "", usage_limit: 100, specific_plan_id: "",
     });
   };
 
@@ -85,11 +91,9 @@ export default function AdminCoupons() {
 
     let res;
     if (editingId) {
-        // Update existing coupon
-        res = await AdminAPI.updateCoupon(editingId, payload);
+      res = await AdminAPI.updateCoupon(editingId, payload);
     } else {
-        // Create new coupon
-        res = await AdminAPI.createCoupon(payload);
+      res = await AdminAPI.createCoupon({ ...payload, portal_type: activeType });
     }
 
     setSubmitting(false);
@@ -113,14 +117,31 @@ export default function AdminCoupons() {
     }
   };
 
+  const cfg = TYPE_CFG[activeType];
+
   return (
     <div className="max-w-7xl mx-auto animate-fade-in pb-10">
-       <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
         <Ticket className="text-purple-600" /> Coupon Management
       </h1>
 
+      {/* Portal Tabs */}
+      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+        {(["cbt", "xrevise"] as PortalType[]).map(t => (
+          <button
+            key={t}
+            onClick={() => { setActiveType(t); resetForm(); }}
+            className={`px-6 py-2 rounded-lg font-bold text-sm transition-all ${
+              activeType === t ? TYPE_CFG[t].activeCls : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {TYPE_CFG[t].label} Coupons
+          </button>
+        ))}
+      </div>
+
       {/* --- FORM SECTION --- */}
-      <div className={`p-6 rounded-xl shadow-sm border mb-8 transition-all duration-300 ${editingId ? 'bg-purple-50 border-purple-200 ring-1 ring-purple-200' : 'bg-white border-gray-200'}`}>
+      <div className={`p-6 rounded-xl shadow-sm border-t-4 ${cfg.border} border mb-8 transition-all duration-300 ${editingId ? 'bg-purple-50 border-purple-200 ring-1 ring-purple-200' : 'bg-white border-gray-200'}`}>
          
          <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200/50">
             <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
@@ -245,6 +266,7 @@ export default function AdminCoupons() {
             <thead className="bg-gray-50 border-b border-gray-100 font-bold text-gray-500 uppercase text-xs tracking-wider">
                <tr>
                   <th className="p-4 pl-6">Code</th>
+                  <th className="p-4">Portal</th>
                   <th className="p-4">Applicability</th>
                   <th className="p-4">Discount</th>
                   <th className="p-4">Min Order</th>
@@ -257,7 +279,7 @@ export default function AdminCoupons() {
             </thead>
             <tbody className="divide-y divide-gray-50">
                {coupons.length === 0 && (
-                   <tr><td colSpan={9} className="p-10 text-center text-gray-400 italic">No coupons found. Create your first one above.</td></tr>
+                   <tr><td colSpan={10} className="p-10 text-center text-gray-400 italic">No {cfg.label} coupons found. Create your first one above.</td></tr>
                )}
                {coupons.map(c => (
                   <tr key={c.id} className={`hover:bg-gray-50 transition duration-150 ${editingId === c.id ? 'bg-purple-50/50' : ''}`}>
@@ -268,8 +290,19 @@ export default function AdminCoupons() {
                            {c.code}
                         </span>
                      </td>
-                     
-                     {/* 2. SCOPE */}
+
+                     {/* 2. PORTAL */}
+                     <td className="p-4">
+                        <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                          (c.portal_type || 'cbt') === 'xrevise'
+                            ? TYPE_CFG.xrevise.badge
+                            : TYPE_CFG.cbt.badge
+                        }`}>
+                          {(c.portal_type || 'cbt') === 'xrevise' ? 'XRevise' : 'CBT'}
+                        </span>
+                     </td>
+
+                     {/* 3. SCOPE */}
                      <td className="p-4">
                         {c.specific_plan_id ? (
                            <div className="flex items-center gap-1.5 text-blue-700 text-xs font-bold bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 w-fit">

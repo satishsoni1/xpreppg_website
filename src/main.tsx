@@ -34,6 +34,12 @@ import AdminCoupons from "./admin/AdminCoupons";
 import AdminReports from "./admin/AdminReports";
 import AdminJsonUpload from "./admin/AdminJsonUpload";
 import AdminPosters from "./admin/AdminPosters";
+import AdminXreviseStudents from "./admin/AdminXreviseStudents";
+import AdminCbtStudents from "./admin/AdminCbtStudents";
+import AdminXreviseSchedule from "./admin/AdminXreviseSchedule";
+import AdminPosterPromos from "./admin/AdminPosterPromos";
+import AdminPosterOrders from "./admin/AdminPosterOrders";
+import AdminWhatsAppScheduler from "./admin/AdminWhatsAppScheduler";
 import ShopPage from "./pages/ShopPage";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
@@ -42,6 +48,9 @@ import PrivacyPolicy from "./pages/PrivacyPage";
 import CbtPage from "./pages/CbtPage";
 import CbtRegisterPage from "./pages/CbtRegisterPage";
 import XreviseRegisterPage from "./pages/XreviseRegisterPage";
+import DailyTests from "./student/DailyTests";
+import XReviseResultPage from "./student/XReviseResultPage";
+import XReviseAttempts from "./student/XReviseAttempts";
 
 
 const router = createBrowserRouter([
@@ -76,6 +85,9 @@ const router = createBrowserRouter([
       { path: "report-card", element: <StudentReportCard /> },
       { path: "profile", element: <StudentProfile /> },
       { path: "report-card/:examId", element: <ReportCardDetail /> },
+      { path: "daily-tests", element: <DailyTests /> },
+      { path: "xrevise-result", element: <XReviseResultPage /> },
+      { path: "xrevise-attempts", element: <XReviseAttempts /> },
     ]
   },
   // ADMIN ROUTES
@@ -96,6 +108,13 @@ const router = createBrowserRouter([
       { path: "report", element: <AdminReports /> },
       { path: "upload-json", element: <AdminJsonUpload /> },
       { path: "posters", element: <AdminPosters /> },
+      { path: "poster-promos", element: <AdminPosterPromos /> },
+      { path: "poster-orders", element: <AdminPosterOrders /> },
+      { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },
+      { path: "xrevise/students", element: <AdminXreviseStudents /> },
+      { path: "xrevise/exams", element: <AdminExams /> },
+      { path: "xrevise/schedule", element: <AdminXreviseSchedule /> },
+      { path: "cbt/students", element: <AdminCbtStudents /> },
     ]
   }
 ]);

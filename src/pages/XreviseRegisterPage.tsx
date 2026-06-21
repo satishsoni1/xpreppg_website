@@ -75,14 +75,8 @@ export default function XreviseRegisterPage() {
         return;
       }
 
-      const selectedCity = cities.find(c => c.name === formData.city);
-      if (selectedCity && !selectedCity.is_active) {
-        alert(`Registration Successful!\n\nNOTE: All slots are currently full in ${formData.city}. Our team will contact you shortly.`);
-        setSuccess(true);
-      } else {
-        setSuccess(true);
-        setTimeout(() => navigate("/student/login"), 2000);
-      }
+      setSuccess(true);
+      setTimeout(() => navigate("/student/login"), 2000);
     } catch {
       alert("Something went wrong. Please check your connection.");
     } finally {
@@ -276,7 +270,7 @@ export default function XreviseRegisterPage() {
                   <button type="button" onClick={() => navigate("/student/login")} className="text-primary font-semibold hover:underline">
                     Already registered? Login
                   </button>
-                  <a href="https://wa.me/918446036521" target="_blank" className="flex items-center gap-1 hover:text-green-600 transition-colors">
+                  <a href="https://wa.me/919370100887" target="_blank" className="flex items-center gap-1 hover:text-green-600 transition-colors">
                     <MessageCircle className="w-3.5 h-3.5" /> Need help?
                   </a>
                 </div>

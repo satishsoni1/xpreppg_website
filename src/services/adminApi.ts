@@ -73,11 +73,9 @@ export const AdminAPI = {
   },
 
   // --- EXAMS ---
-  getExams: async () => {
-    const res = await fetch(`${API_BASE_URL}/admin/exams`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+  getExams: async (type?: 'cbt' | 'xrevise') => {
+    const url = type ? `${API_BASE_URL}/admin/exams?type=${type}` : `${API_BASE_URL}/admin/exams`;
+    const res = await fetch(url, { method: "GET", headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -123,6 +121,23 @@ export const AdminAPI = {
     return res.json();
   },
 
+  bulkAddQuestions: async (examId: string | number, questions: any[]) => {
+    const res = await fetch(`${API_BASE_URL}/admin/questions/bulk`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ exam_id: examId, questions }),
+    });
+    return res.json();
+  },
+
+  deleteQuestion: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/questions/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
   // --- CENTERS ---
   getCenters: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/centers`, {
@@ -158,11 +173,9 @@ export const AdminAPI = {
     return res.json();
   },
   // --- FINANCE (PLANS & COUPONS) ---
-  getPlans: async () => {
-    const res = await fetch(`${API_BASE_URL}/admin/plans`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+  getPlans: async (type?: 'cbt' | 'xrevise') => {
+    const url = type ? `${API_BASE_URL}/admin/plans?type=${type}` : `${API_BASE_URL}/admin/plans`;
+    const res = await fetch(url, { method: "GET", headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -182,11 +195,9 @@ export const AdminAPI = {
     });
     return res.json();
   },
-  getCoupons: async () => {
-    const res = await fetch(`${API_BASE_URL}/admin/coupons`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+  getCoupons: async (type?: 'cbt' | 'xrevise') => {
+    const url = type ? `${API_BASE_URL}/admin/coupons?type=${type}` : `${API_BASE_URL}/admin/coupons`;
+    const res = await fetch(url, { method: "GET", headers: getAuthHeaders() });
     return res.json();
   },
 
@@ -354,6 +365,114 @@ export const AdminAPI = {
     const res = await fetch(`${API_BASE_URL}/admin/posters/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- STUDENTS BY TYPE ---
+  getStudentsByType: async (type: 'CBT' | 'XRevise') => {
+    const res = await fetch(`${API_BASE_URL}/admin/students?type=${type}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- POSTER ORDERS ---
+  getPosterOrders: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-orders`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- POSTER PROMO CODES ---
+  getPosterPromos: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-promos`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  createPosterPromo: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-promos`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updatePosterPromo: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-promos/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deletePosterPromo: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-promos/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- XREVISE SCHEDULE ---
+  getXreviseSchedule: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/xrevise-schedule`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  createScheduleEntry: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/xrevise-schedule`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateScheduleEntry: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/xrevise-schedule/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deleteScheduleEntry: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/xrevise-schedule/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- PUBLISH EXAM RESULT ---
+  publishResult: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/exams/${examId}/publish-result`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- WHATSAPP SCHEDULER ---
+  getWhatsAppMessages: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/whatsapp-messages`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  sendWhatsAppMessage: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/whatsapp-messages/send`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
     });
     return res.json();
   },

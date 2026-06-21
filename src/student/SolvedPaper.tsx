@@ -64,8 +64,19 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
         {filteredQuestions.length > 0 ? (
           filteredQuestions.map((q: any) => {
             const indexStr = q.originalIndex.toString();
+            const qIdStr   = q.id?.toString();
             const studentChoice = attempt.answers[indexStr];
-            const timeTaken = attempt.timeSpent?.[indexStr] || attempt.time_spent?.[indexStr] || 0;
+
+            // Resolve time: backend normalizes to index-based in attempt.timeSpent.
+            // Fallback to question-ID-based (attempt.timeSpentById) for legacy data.
+            const rawTime =
+              attempt.timeSpent?.[indexStr] ??
+              attempt.timeSpentById?.[qIdStr] ??
+              attempt.time_spent?.[indexStr] ??
+              attempt.time_spent?.[qIdStr] ??
+              0;
+            const timeTaken = Number(rawTime) || 0;
+
             const correctAnswer = q.correct_answer?.toString();
 
             // Handle both column naming conventions
@@ -89,7 +100,7 @@ export default function SolvedPaper({ exam, attempt }: { exam: any, attempt: any
                     {q.subject && <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded-md">{q.subject}</span>}
                     {q.difficulty && <span className="bg-slate-100 text-slate-500 px-2 py-1 rounded-md">{q.difficulty}</span>}
                     <span className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-md">
-                      <Clock size={12} /> {timeTaken}s
+                      <Clock size={12} /> {timeTaken > 0 ? `${timeTaken}s` : "—"}
                     </span>
                   </div>
                 </div>
