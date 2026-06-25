@@ -130,6 +130,21 @@ export const AdminAPI = {
     return res.json();
   },
 
+  uploadQuestionsCSV: async (examId: string | number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('exam_id', String(examId));
+
+    const res = await fetch(`${API_BASE_URL}/admin/questions/upload-csv`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('admin_token')}`,
+      },
+      body: formData,
+    });
+    return res.json();
+  },
+
   deleteQuestion: async (id: number) => {
     const res = await fetch(`${API_BASE_URL}/admin/questions/${id}`, {
       method: "DELETE",

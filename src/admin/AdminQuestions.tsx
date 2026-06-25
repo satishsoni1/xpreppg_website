@@ -15,7 +15,10 @@ export default function AdminQuestions() {
   const [bulkJson, setBulkJson] = useState("");
   const [bulkStatus, setBulkStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkCSVFile, setBulkCSVFile] = useState<File | null>(null);
+  const [bulkCSVFileName, setBulkCSVFileName] = useState("");
   const bulkFileRef = useRef<HTMLInputElement>(null);
+  const bulkCSVFileRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     type: "CB", // Adjusted to your default
@@ -147,6 +150,14 @@ export default function AdminQuestions() {
     if (e.target) e.target.value = "";
   };
 
+  const handleBulkCSVFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkCSVFile(file);
+    setBulkCSVFileName(file.name);
+    if (e.target) e.target.value = "";
+  };
+
   const handleBulkUpload = async () => {
     if (!examId) return alert("Select an exam first.");
     let questions: any[];
@@ -169,6 +180,29 @@ export default function AdminQuestions() {
       } else {
         setBulkStatus({ type: "error", msg: res.message });
       }
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  const handleBulkCSVUpload = async () => {
+    if (!examId) return alert("Select an exam first.");
+    if (!bulkCSVFile) return alert("Please choose a CSV file first.");
+    setBulkLoading(true);
+    setBulkStatus(null);
+    try {
+      const res = await AdminAPI.uploadQuestionsCSV(examId, bulkCSVFile);
+      if (res.status) {
+        setBulkStatus({ type: "success", msg: res.message });
+        setBulkCSVFile(null);
+        setBulkCSVFileName("");
+        fetchQuestions(examId);
+      } else {
+        setBulkStatus({ type: "error", msg: res.message || "CSV upload failed" });
+      }
+    } catch (err) {
+      console.error(err);
+      setBulkStatus({ type: "error", msg: "CSV upload failed" });
     } finally {
       setBulkLoading(false);
     }
@@ -544,6 +578,31 @@ export default function AdminQuestions() {
               value={bulkJson}
               onChange={(e) => setBulkJson(e.target.value)}
             />
+          </div>
+
+          <div className="pt-4 border-t border-slate-200">
+            <h3 className="font-semibold text-slate-800 mb-2">CSV Upload</h3>
+            <p className="text-sm text-slate-500 mb-4">Upload a CSV file with columns like <code className="bg-slate-100 px-1 rounded">question_text</code>, <code className="bg-slate-100 px-1 rounded">option1</code>–<code className="bg-slate-100 px-1 rounded">option4</code>, <code className="bg-slate-100 px-1 rounded">correct_answer</code>, <code className="bg-slate-100 px-1 rounded">marks</code>, <code className="bg-slate-100 px-1 rounded">difficulty</code>, <code className="bg-slate-100 px-1 rounded">image</code>, <code className="bg-slate-100 px-1 rounded">explanation</code>.</p>
+            <div className="flex flex-wrap gap-3 items-center">
+              <input ref={bulkCSVFileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleBulkCSVFile} />
+              <button
+                onClick={() => bulkCSVFileRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all"
+              >
+                <FileText size={16} /> Load CSV File
+              </button>
+              {bulkCSVFileName && (
+                <span className="text-sm text-slate-700">Selected: <strong>{bulkCSVFileName}</strong></span>
+              )}
+              <button
+                onClick={handleBulkCSVUpload}
+                disabled={bulkLoading || !bulkCSVFile}
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all"
+              >
+                {bulkLoading ? <Loader2 className="animate-spin" size={16} /> : <UploadCloud size={16} />}
+                Upload CSV
+              </button>
+            </div>
           </div>
 
           {bulkStatus && (
