@@ -55,6 +55,18 @@ export const PublicAPI = {
     }
   },
 
+  getPosterPackages: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/poster-packages`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      return await res.json();
+    } catch (error) {
+      return { status: false, packages: [] };
+    }
+  },
+
   getPosterSubjects: async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/poster-subjects`, {

@@ -71,6 +71,7 @@ export default function AdminLayout() {
     { name: "Plans", path: "/admin/plans", icon: <Package size={18} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Posters", path: "/admin/posters", icon: <ImageIcon size={18} /> },
+    { name: "Poster Packages", path: "/admin/poster-packages", icon: <Package size={18} /> },
     { name: "Poster Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },

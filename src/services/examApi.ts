@@ -14,6 +14,13 @@ const put  = (url: string, data?: any) => fetch(`${API_BASE_URL}${url}`, { metho
 const del  = (url: string, data?: any) => fetch(`${API_BASE_URL}${url}`, { method: "DELETE", headers: authHeaders(), body: data ? JSON.stringify(data) : undefined }).then(r => r.json());
 const patch = (url: string, data?: any) => fetch(`${API_BASE_URL}${url}`, { method: "PATCH", headers: authHeaders(), body: data ? JSON.stringify(data) : undefined }).then(r => r.json());
 
+// ── Exam Simulator ────────────────────────────────────────────────────────
+export const SimulatorAPI = {
+  getAllExams: () => get("/admin/simulator/exams"),
+  getExam: (id: number, source: string) =>
+    get(`/admin/simulator/exams/${id}?source=${source}`),
+};
+
 // ── Question Bank ─────────────────────────────────────────────────────────
 export const QuestionBankAPI = {
   getQuestions:     (params: Record<string, any> = {}) =>

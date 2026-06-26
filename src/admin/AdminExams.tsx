@@ -100,7 +100,7 @@ export default function AdminExams() {
 
   const handlePublishResult = async (exam: any) => {
     if (!window.confirm(`Publish result for "${exam.title}"? Students will see their rank.`)) return;
-    const res = await AdminAPI.publishResult(exam.id);
+    const res = await AdminAPI.publishResult(exam.id, activeType);
     if (res.status) {
       setExams(prev => prev.map(e => e.id === exam.id ? { ...e, result_published: true } : e));
     } else {
@@ -146,7 +146,7 @@ export default function AdminExams() {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Delete this exam?")) return;
-    const res = await AdminAPI.deleteExam(id);
+    const res = await AdminAPI.deleteExam(id, activeType);
     if (res.status) setExams(prev => prev.filter(e => e.id !== id));
   };
 

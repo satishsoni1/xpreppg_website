@@ -96,11 +96,11 @@ export const AdminAPI = {
     return res.json();
   },
 
-  deleteExam: async (id: number) => {
-    const res = await fetch(`${API_BASE_URL}/admin/exams/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-    });
+  deleteExam: async (id: number, type?: string) => {
+    const url = type
+      ? `${API_BASE_URL}/admin/exams/${id}?type=${type}`
+      : `${API_BASE_URL}/admin/exams/${id}`;
+    const res = await fetch(url, { method: "DELETE", headers: getAuthHeaders() });
     return res.json();
   },
   // --- QUESTIONS ---
@@ -393,6 +393,46 @@ export const AdminAPI = {
     return res.json();
   },
 
+  // --- POSTER PACKAGES ---
+  getPosterPackages: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-packages`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  createPosterPackage: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-packages`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updatePosterPackage: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-packages/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  togglePosterPackage: async (id: number, status: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-packages/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
+  deletePosterPackage: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/poster-packages/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
   // --- STUDENTS BY TYPE ---
   getStudentsByType: async (type: 'CBT' | 'XRevise') => {
     const res = await fetch(`${API_BASE_URL}/admin/students?type=${type}`, {
@@ -476,11 +516,11 @@ export const AdminAPI = {
   },
 
   // --- PUBLISH EXAM RESULT ---
-  publishResult: async (examId: number) => {
-    const res = await fetch(`${API_BASE_URL}/admin/exams/${examId}/publish-result`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-    });
+  publishResult: async (examId: number, type?: string) => {
+    const url = type
+      ? `${API_BASE_URL}/admin/exams/${examId}/publish-result?type=${type}`
+      : `${API_BASE_URL}/admin/exams/${examId}/publish-result`;
+    const res = await fetch(url, { method: "POST", headers: getAuthHeaders() });
     return res.json();
   },
 

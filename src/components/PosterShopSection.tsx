@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   ShoppingBag, ChevronRight,
   Zap, CalendarDays, Target, ImageIcon,
   LayoutGrid, BookOpen, Layers, Timer,
   ShoppingCart,
 } from "lucide-react";
-import { POSTER_PACKAGES } from "@/data/posterPackages";
+import { POSTER_PACKAGES, type PosterPackage } from "@/data/posterPackages";
+import { PublicAPI } from "@/services/publicApi";
 import ImageSlider from "@/components/ImageSlider";
 
 const FEATURES = [
@@ -90,9 +92,19 @@ export default function PosterShopSection() {
   const navigate = useNavigate();
   const goToShop = () => navigate("/shop");
 
-  const shortCombo = POSTER_PACKAGES.filter(p => p.subject === "Short Subject Combo");
-  const mediumCombos = POSTER_PACKAGES.filter(p => p.subject === "Medium Subject Combo");
-  const longPacks = POSTER_PACKAGES.filter(p => p.subject === "Long Subject Pack");
+  const [allPackages, setAllPackages] = useState<PosterPackage[]>(POSTER_PACKAGES);
+
+  useEffect(() => {
+    PublicAPI.getPosterPackages().then(res => {
+      if (res.status && res.packages?.length) {
+        setAllPackages(res.packages);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const shortCombo   = allPackages.filter(p => p.subject === "Short Subject Combo");
+  const mediumCombos = allPackages.filter(p => p.subject === "Medium Subject Combo");
+  const longPacks    = allPackages.filter(p => p.subject === "Long Subject Pack");
 
   return (
     <section className="py-20 bg-gradient-to-b from-white via-secondary to-white">
@@ -205,7 +217,7 @@ export default function PosterShopSection() {
 }
 
 // ── Product card (home page preview) ─────────────────────────────────────────
-function ProductCard({ pack, onClick }: { pack: typeof POSTER_PACKAGES[0]; onClick: () => void }) {
+function ProductCard({ pack, onClick }: { pack: PosterPackage; onClick: () => void }) {
   const discount = pack.original_price
     ? Math.round((1 - pack.price / pack.original_price) * 100) : 0;
 
@@ -230,7 +242,7 @@ function ProductCard({ pack, onClick }: { pack: typeof POSTER_PACKAGES[0]; onCli
         <p className="font-semibold text-gray-900 text-sm leading-snug mt-2 mb-1 line-clamp-2 group-hover:text-primary transition-colors">
           {pack.title}
         </p>
-        <p className="text-gray-400 text-[10px] mb-2">{pack.posterCount}</p>
+        <p className="text-gray-400 text-[10px] mb-2">{pack.poster_count}</p>
         <div className="flex items-center gap-2">
           <span className="font-extrabold text-navy text-base">₹{pack.price}</span>
           {pack.original_price && <span className="text-xs text-gray-400 line-through">₹{pack.original_price}</span>}

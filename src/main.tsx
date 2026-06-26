@@ -34,6 +34,7 @@ import AdminCoupons from "./admin/AdminCoupons";
 import AdminReports from "./admin/AdminReports";
 import AdminJsonUpload from "./admin/AdminJsonUpload";
 import AdminPosters from "./admin/AdminPosters";
+import AdminPosterPackages from "./admin/AdminPosterPackages";
 import AdminXreviseStudents from "./admin/AdminXreviseStudents";
 import AdminCbtStudents from "./admin/AdminCbtStudents";
 import AdminXreviseSchedule from "./admin/AdminXreviseSchedule";
@@ -121,6 +122,7 @@ const router = createBrowserRouter([
       { path: "report", element: <AdminReports /> },
       { path: "upload-json", element: <AdminJsonUpload /> },
       { path: "posters", element: <AdminPosters /> },
+      { path: "poster-packages", element: <AdminPosterPackages /> },
       { path: "poster-promos", element: <AdminPosterPromos /> },
       { path: "poster-orders", element: <AdminPosterOrders /> },
       { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },

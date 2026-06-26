@@ -4,7 +4,7 @@ import {
   CheckCircle, Loader2, RotateCcw, AlertTriangle, Settings2,
   BookOpen, BarChart3, Trophy,
 } from "lucide-react";
-import { ExamAPI, QuestionBankAPI } from "@/services/examApi";
+import { SimulatorAPI } from "@/services/examApi";
 
 // Question status types for palette
 type QStatus = "not_visited" | "skipped" | "answered" | "marked" | "answered_marked";
@@ -53,12 +53,12 @@ export default function AdminExamSimulator() {
   const [activeResultTab, setActiveResultTab] = useState<"overview"|"questions">("overview");
 
   useEffect(() => {
-    ExamAPI.getAll({ limit: 200, status: "all" }).then(r => { if (r.status) setExams(r.exams || []); });
+    SimulatorAPI.getAllExams().then(r => { if (r.status) setExams(r.exams || []); });
   }, []);
 
-  const loadExamQuestions = async (examId: number) => {
+  const loadExamQuestions = async (examId: number, source: string) => {
     setLoadingExam(true);
-    const r = await ExamAPI.getOne(examId);
+    const r = await SimulatorAPI.getExam(examId, source);
     setLoadingExam(false);
     if (!r.status) { alert("Could not load exam"); return; }
     setSelectedExam(r.exam);
@@ -267,15 +267,18 @@ export default function AdminExamSimulator() {
         <select
           value={config.exam_id || ""}
           onChange={async e => {
-            const id = parseInt(e.target.value);
-            setConfig(c => ({ ...c, exam_id: id }));
-            await loadExamQuestions(id);
+            const simId = e.target.value;
+            if (!simId) return;
+            const [source, rawId] = simId.split("-");
+            const id = parseInt(rawId, 10);
+            setConfig(c => ({ ...c, exam_id: simId as any }));
+            await loadExamQuestions(id, source);
           }}
           className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white"
         >
           <option value="">— choose an exam —</option>
           {exams.map(e => (
-            <option key={e.id} value={e.id}>[{e.platform?.toUpperCase()}] {e.title} ({e.question_count || 0}Q)</option>
+            <option key={e.sim_id} value={e.sim_id}>[{e.platform}] {e.title} ({e.question_count || 0}Q)</option>
           ))}
         </select>
 
