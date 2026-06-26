@@ -246,6 +246,59 @@ export const StudentAPI = {
     return res.json();
   },
 
+  // ── XRevise Student Portal (new student login) ────────────────────────────
+  xrevise: {
+    getMyExams: async () => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/exams`, {
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    startExam: async (examId: number) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/exams/${examId}/start`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    saveAnswer: async (data: { attempt_id: number; question_id: number; selected_answer: string | null; is_marked_review?: boolean; time_spent_seconds?: number; current_question_index?: number; time_remaining_seconds?: number }) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/save-answer`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    warn: async (data: { attempt_id: number; warning_type: string; message?: string }) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/warn`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    submit: async (data: { attempt_id: number; time_remaining_seconds?: number }) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/submit`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    getResult: async (attemptId: number | string) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/result/${attemptId}`, {
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    getAnalysis: async (attemptId: number | string) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/analysis/${attemptId}`, {
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+  },
+
   // XRevise daily test — get exam + questions
   getExamQuestions: async (examId: string | number) => {
     const res = await fetch(`${API_BASE_URL}/student/exam/${examId}/questions`, {

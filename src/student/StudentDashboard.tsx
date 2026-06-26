@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
 import {
   CreditCard, Calendar, Download, Clock, FileText, BarChart2,
-  CheckCircle, AlertCircle, ChevronRight, BookOpen, Award
+  CheckCircle, AlertCircle, ChevronRight, BookOpen, Award,
+  Play, RotateCcw, Trophy, Lock, BarChart3,
 } from "lucide-react";
+import XReviseStudentDashboard from "./XReviseStudentDashboard";
 
 function ExamStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
@@ -34,8 +36,13 @@ export default function StudentDashboard() {
     const storedUser = localStorage.getItem("student_user");
     if (!storedUser) { navigate("/student/login"); return; }
     setUser(JSON.parse(storedUser));
-    fetchData();
+    if (portal !== "XRevise") fetchData();
   }, []);
+
+  // XRevise portal — delegate to dedicated component
+  if (portal === "XRevise") {
+    return <XReviseStudentDashboard />;
+  }
 
   const fetchData = async () => {
     try {

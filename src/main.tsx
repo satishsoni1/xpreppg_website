@@ -62,6 +62,8 @@ import AdminExamSimulator from "./admin/AdminExamSimulator";
 import XRevisePortal from "./student/XRevisePortal";
 import XReviseExamInterface from "./student/XReviseExamInterface";
 import XReviseResultAnalysis from "./student/XReviseResultAnalysis";
+import StudentXReviseExam from "./student/StudentXReviseExam";
+import StudentXReviseResult from "./student/StudentXReviseResult";
 
 
 const router = createBrowserRouter([
@@ -85,6 +87,9 @@ const router = createBrowserRouter([
   { path: "/xrevise", element: <XRevisePortal /> },
   { path: "/xrevise/exam/:examId", element: <XReviseExamInterface /> },
   { path: "/xrevise/result/:attemptId", element: <XReviseResultAnalysis /> },
+  // Student portal XRevise exam flow (uses student_token)
+  { path: "/student/xrevise/exam/:examId", element: <StudentXReviseExam /> },
+  { path: "/student/xrevise/result/:attemptId", element: <StudentXReviseResult /> },
   {
     path: "/student",
     element: <StudentLayout />, // Wraps all student pages with Sidebar
