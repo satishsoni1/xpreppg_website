@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShoppingCart, X, MessageCircle, Tag, ZoomIn,
   ShieldCheck, Lock, Package, ChevronRight, CreditCard, Loader2, CheckCircle2, Percent,
@@ -8,6 +8,7 @@ import { POSTER_PACKAGES, PosterPackage } from "@/data/posterPackages";
 import ImageSlider from "@/components/ImageSlider";
 import { API_BASE_URL } from "@/config";
 import { loadRazorpay } from "@/lib/razorpay";
+import { PublicAPI } from "@/services/publicApi";
 
 const SHIPPING = 150;
 
@@ -443,12 +444,19 @@ export default function ShopPage() {
   const [cart, setCart] = useState<PosterPackage[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [packages, setPackages] = useState<PosterPackage[]>(POSTER_PACKAGES);
+
+  useEffect(() => {
+    PublicAPI.getPosterPackages().then(res => {
+      if (res.status && res.packages?.length) setPackages(res.packages);
+    }).catch(() => {});
+  }, []);
 
   const addToCart = (p: PosterPackage) => setCart(prev => prev.some(c => c.id === p.id) ? prev : [...prev, p]);
   const removeFromCart = (id: number) => setCart(prev => prev.filter(p => p.id !== id));
 
   const handleWhatsApp = () => {
-    const lines = cart.map(p => `• ${p.title} (${p.posterCount}) — ₹${p.price}`).join("\n");
+    const lines = cart.map(p => `• ${p.title} (${p.poster_count}) — ₹${p.price}`).join("\n");
     const subtotal = cart.reduce((s, p) => s + p.price, 0);
     const total = subtotal + SHIPPING;
     const msg = encodeURIComponent(
@@ -457,9 +465,9 @@ export default function ShopPage() {
     window.open(`https://wa.me/919370100887?text=${msg}`, "_blank");
   };
 
-  const shortCombo = POSTER_PACKAGES.filter(p => p.subject === "Short Subject Combo");
-  const mediumCombos = POSTER_PACKAGES.filter(p => p.subject === "Medium Subject Combo");
-  const longPacks = POSTER_PACKAGES.filter(p => p.subject === "Long Subject Pack");
+  const shortCombo = packages.filter(p => p.subject === "Short Subject Combo");
+  const mediumCombos = packages.filter(p => p.subject === "Medium Subject Combo");
+  const longPacks = packages.filter(p => p.subject === "Long Subject Pack");
 
   return (
     <MainLayout>
