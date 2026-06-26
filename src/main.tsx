@@ -40,6 +40,8 @@ import AdminXreviseSchedule from "./admin/AdminXreviseSchedule";
 import AdminPosterPromos from "./admin/AdminPosterPromos";
 import AdminPosterOrders from "./admin/AdminPosterOrders";
 import AdminWhatsAppScheduler from "./admin/AdminWhatsAppScheduler";
+import AdminXreviseQuestions from "./admin/AdminXreviseQuestions";
+import AdminMediaUpload from "./admin/AdminMediaUpload";
 import ShopPage from "./pages/ShopPage";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
@@ -51,6 +53,14 @@ import XreviseRegisterPage from "./pages/XreviseRegisterPage";
 import DailyTests from "./student/DailyTests";
 import XReviseResultPage from "./student/XReviseResultPage";
 import XReviseAttempts from "./student/XReviseAttempts";
+import AdminQuestionBank from "./admin/AdminQuestionBank";
+import AdminExamManager from "./admin/AdminExamManager";
+import AdminExamEnrollments from "./admin/AdminExamEnrollments";
+import AdminExamAnalytics from "./admin/AdminExamAnalytics";
+import AdminExamSimulator from "./admin/AdminExamSimulator";
+import XRevisePortal from "./student/XRevisePortal";
+import XReviseExamInterface from "./student/XReviseExamInterface";
+import XReviseResultAnalysis from "./student/XReviseResultAnalysis";
 
 
 const router = createBrowserRouter([
@@ -71,6 +81,9 @@ const router = createBrowserRouter([
   { path: "/cbt", element: <CbtPage /> },
   { path: "/cbt-register", element: <CbtRegisterPage /> },
   { path: "/xrevise-register", element: <XreviseRegisterPage /> },
+  { path: "/xrevise", element: <XRevisePortal /> },
+  { path: "/xrevise/exam/:examId", element: <XReviseExamInterface /> },
+  { path: "/xrevise/result/:attemptId", element: <XReviseResultAnalysis /> },
   {
     path: "/student",
     element: <StudentLayout />, // Wraps all student pages with Sidebar
@@ -114,7 +127,16 @@ const router = createBrowserRouter([
       { path: "xrevise/students", element: <AdminXreviseStudents /> },
       { path: "xrevise/exams", element: <AdminExams /> },
       { path: "xrevise/schedule", element: <AdminXreviseSchedule /> },
+      { path: "xrevise/questions", element: <AdminXreviseQuestions /> },
       { path: "cbt/students", element: <AdminCbtStudents /> },
+      { path: "media", element: <AdminMediaUpload /> },
+      // Exam Management Module
+      { path: "em/question-bank", element: <AdminQuestionBank /> },
+      { path: "em/exams", element: <AdminExamManager platform="cbt" /> },
+      { path: "em/xrevise-exams", element: <AdminExamManager platform="xrevise" /> },
+      { path: "em/enrollments", element: <AdminExamEnrollments /> },
+      { path: "em/analytics", element: <AdminExamAnalytics /> },
+      { path: "em/simulator", element: <AdminExamSimulator /> },
     ]
   }
 ]);

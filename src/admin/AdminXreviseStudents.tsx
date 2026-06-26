@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Download, Loader2, BookOpen, Key, X, CheckCircle } from "lucide-react";
-import { AdminAPI } from "@/services/adminApi";
+import { XReviseAPI } from "@/services/adminApi";
 import * as XLSX from "xlsx";
 
 export default function AdminXreviseStudents() {
@@ -17,7 +17,7 @@ export default function AdminXreviseStudents() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const data = await AdminAPI.getStudentsByType("XRevise");
+      const data = await XReviseAPI.getAllStudents();
       if (data.status) setStudents(data.students || []);
     } finally { setLoading(false); }
   };
@@ -43,7 +43,7 @@ export default function AdminXreviseStudents() {
     if (!newPassword || !resetModal.student) return;
     setSubmitting(true);
     try {
-      const res = await AdminAPI.resetStudentPassword(resetModal.student.id, newPassword);
+      const res = await XReviseAPI.resetStudentPassword(resetModal.student.id);
       if (res.status) {
         setNotification({ msg: "Password reset successfully!", type: "success" });
         setResetModal({ open: false, student: null });

@@ -145,6 +145,15 @@ export const AdminAPI = {
     return res.json();
   },
 
+  editQuestion: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/questions/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
   deleteQuestion: async (id: number) => {
     const res = await fetch(`${API_BASE_URL}/admin/questions/${id}`, {
       method: "DELETE",
@@ -488,6 +497,363 @@ export const AdminAPI = {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- MEDIA UPLOADS ---
+  uploadMultipleImages: async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach(f => formData.append("images", f));
+    const res = await fetch(`${API_BASE_URL}/admin/media/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
+      body: formData,
+    });
+    return res.json();
+  },
+
+  getMediaUploads: async (limit = 100) => {
+    const res = await fetch(`${API_BASE_URL}/admin/media?limit=${limit}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  deleteMediaUpload: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/media/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// XRevise API — Completely separate namespace (/api/xrevise/...)
+// ─────────────────────────────────────────────────────────────────────────────
+export const XReviseAPI = {
+
+  // --- AUTH ---
+  register: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  login: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- EXAMS ---
+  getExams: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createExam: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updateExam: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  deleteExam: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  publishResult: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams/${id}/publish-result`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- QUESTIONS ---
+  getQuestions: async (examId: string | number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions/${examId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  addQuestion: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  editQuestion: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  deleteQuestion: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  bulkAddQuestions: async (examId: string | number, questions: any[]) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions/bulk`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ exam_id: examId, questions }),
+    });
+    return res.json();
+  },
+
+  uploadQuestionsCSV: async (examId: string | number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("exam_id", String(examId));
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/questions/upload-csv`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
+      body: formData,
+    });
+    return res.json();
+  },
+
+  uploadImage: async (formData: FormData) => {
+    const res = await fetch(`${API_BASE_URL}/admin/upload-image`, {
+      method: "POST",
+      headers: getUploadHeaders(),
+      body: formData,
+    });
+    return res.json();
+  },
+
+  // --- STUDENTS ---
+  getAllStudents: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/students`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createStudent: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/students`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  resetStudentPassword: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/students/${id}/reset-password`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // --- ENROLLMENTS ---
+  getEnrollments: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  manualEnroll: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments/manual`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- ATTEMPTS & RANKS ---
+  getAttempts: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/attempts/${examId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  generateRanks: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/generate-ranks`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ examId }),
+    });
+    return res.json();
+  },
+
+  // --- PLANS ---
+  getPlans: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createPlan: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  togglePlan: async (id: number, status: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
+
+  // --- COUPONS ---
+  getCoupons: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/coupons`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createCoupon: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/coupons`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updateCoupon: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/coupons/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- CENTERS ---
+  getCenters: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/centers`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  addCenter: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/centers`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // --- CITIES ---
+  getCities: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/cities`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  addCity: async (name: string) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/cities`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ name }),
+    });
+    return res.json();
+  },
+
+  toggleCity: async (id: number, status: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/cities/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
+
+  // --- SCHEDULE ---
+  getSchedule: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/schedule`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createScheduleEntry: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/schedule`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updateScheduleEntry: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/schedule/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  deleteScheduleEntry: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/schedule/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
     });
     return res.json();
   },

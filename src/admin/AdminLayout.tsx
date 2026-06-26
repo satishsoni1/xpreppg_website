@@ -5,7 +5,8 @@ import {
   MapPin, LogOut, FileText, Menu, ChevronLeft,
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
-  BookOpen, ChevronRight, Upload,
+  BookOpen, ChevronRight, Upload, Database, GraduationCap,
+  ListChecks, Play, PieChart,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
@@ -57,11 +58,19 @@ export default function AdminLayout() {
     { name: "XRevise Students", path: "/admin/xrevise/students", icon: <Users size={18} />, badge: badges.xrevise_new },
     { name: "XRevise Exams", path: "/admin/xrevise/exams", icon: <FileText size={18} /> },
     { name: "XRevise Schedule", path: "/admin/xrevise/schedule", icon: <CalendarDays size={18} /> },
-    { name: "XRevise Questions", path: "/admin/questions", icon: <FileQuestion size={18} /> },
+    { name: "XRevise Questions", path: "/admin/xrevise/questions", icon: <FileQuestion size={18} /> },
+    { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
+    { name: "─── Exam Manager ───", path: "", icon: null },
+    { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },
+    { name: "XRevise Exams (EM)", path: "/admin/em/xrevise-exams", icon: <GraduationCap size={18} /> },
+    { name: "Enrollments (EM)", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
+    { name: "Analytics (EM)", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
+    { name: "Exam Simulator", path: "/admin/em/simulator", icon: <Play size={18} /> },
+    { name: "─── Platform ───", path: "", icon: null },
     { name: "Enrollments", path: "/admin/enrollments", icon: <CreditCard size={18} /> },
     { name: "Plans", path: "/admin/plans", icon: <Package size={18} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
-    { name: "XRevise Posters", path: "/admin/posters", icon: <ImageIcon size={18} /> },
+    { name: "Posters", path: "/admin/posters", icon: <ImageIcon size={18} /> },
     { name: "Poster Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
@@ -72,6 +81,15 @@ export default function AdminLayout() {
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "CBT Students", path: "/admin/cbt/students", icon: <Users size={18} />, badge: badges.cbt_new },
     { name: "CBT Exams", path: "/admin/exams", icon: <Monitor size={18} /> },
+    { name: "CBT Questions", path: "/admin/questions", icon: <FileQuestion size={18} /> },
+    { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
+    { name: "─── Exam Manager ───", path: "", icon: null },
+    { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },
+    { name: "CBT Exams (EM)", path: "/admin/em/exams", icon: <GraduationCap size={18} /> },
+    { name: "Enrollments (EM)", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
+    { name: "Analytics (EM)", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
+    { name: "Exam Simulator", path: "/admin/em/simulator", icon: <Play size={18} /> },
+    { name: "─── Platform ───", path: "", icon: null },
     { name: "Attempted Result", path: "/admin/attempt", icon: <Award size={18} /> },
     { name: "Generate Result", path: "/admin/result-generate", icon: <Upload size={18} /> },
     { name: "Enrollments", path: "/admin/enrollments", icon: <CreditCard size={18} /> },
@@ -97,7 +115,15 @@ export default function AdminLayout() {
     if (window.innerWidth < 768) setIsOpen(false);
   };
 
-  const NavLink = ({ item }: { item: { name: string; path: string; icon: React.ReactNode; badge?: number } }) => {
+  const NavLink = ({ item }: { item: { name: string; path: string; icon: React.ReactNode | null; badge?: number } }) => {
+    if (!item.path) {
+      if (!isOpen) return null;
+      return (
+        <div className="px-3 pt-3 pb-1">
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest truncate">{item.name.replace(/─/g,"").trim()}</p>
+        </div>
+      );
+    }
     const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
     return (
       <Link

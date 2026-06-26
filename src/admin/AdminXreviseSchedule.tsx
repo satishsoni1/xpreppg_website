@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CalendarDays, Plus, Trash2, X, Save, Loader2, Edit2, AlertTriangle } from "lucide-react";
-import { AdminAPI } from "@/services/adminApi";
+import { XReviseAPI } from "@/services/adminApi";
 
 const SUBJECTS = [
   "Anatomy", "Physiology", "Biochemistry", "Pathology", "Pharmacology",
@@ -34,13 +34,13 @@ export default function AdminXreviseSchedule() {
 
   useEffect(() => {
     fetchSchedule();
-    AdminAPI.getExams().then(res => { if (res.status) setExams(res.exams || []); }).catch(() => {});
+    XReviseAPI.getExams().then(res => { if (res.status) setExams(res.exams || []); }).catch(() => {});
   }, []);
 
   const fetchSchedule = async () => {
     setLoading(true);
     try {
-      const res = await AdminAPI.getXreviseSchedule();
+      const res = await XReviseAPI.getSchedule();
       if (res.status) setEntries(res.schedule || []);
     } finally { setLoading(false); }
   };
@@ -77,9 +77,9 @@ export default function AdminXreviseSchedule() {
       };
       let res;
       if (editEntry) {
-        res = await AdminAPI.updateScheduleEntry(editEntry.id, payload);
+        res = await XReviseAPI.updateScheduleEntry(editEntry.id, payload);
       } else {
-        res = await AdminAPI.createScheduleEntry(payload);
+        res = await XReviseAPI.createScheduleEntry(payload);
       }
       if (res.status) { setShowForm(false); fetchSchedule(); }
       else alert(res.message || "Save failed");
@@ -88,7 +88,7 @@ export default function AdminXreviseSchedule() {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Delete this schedule entry?")) return;
-    const res = await AdminAPI.deleteScheduleEntry(id);
+    const res = await XReviseAPI.deleteScheduleEntry(id);
     if (res.status) fetchSchedule();
   };
 
