@@ -241,9 +241,9 @@ function CheckoutModal({ cart, onClose }: { cart: PosterPackage[]; onClose: () =
             <button type="submit" disabled={checkingOut}
               className="w-full bg-gradient-to-r from-primary to-primaryDark text-white py-4 rounded-xl font-bold text-base hover:shadow-lg transition-all disabled:opacity-60 flex items-center justify-center gap-2">
               {checkingOut ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
-              {checkingOut ? "Initiating Payment…" : `Pay ₹${grandTotal} via Razorpay`}
+              {checkingOut ? "Initiating Payment…" : `Pay ₹${grandTotal} Online`}
             </button>
-            <p className="text-center text-xs text-gray-400">Secured by Razorpay · 256-bit SSL</p>
+            <p className="text-center text-xs text-gray-400">Secure Online Payment · 256-bit SSL</p>
           </form>
         )}
       </div>
@@ -259,14 +259,6 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
   const discount = poster.original_price
     ? Math.round((1 - poster.price / poster.original_price) * 100) : 0;
   const tags = poster.tags ? poster.tags.split(",").map(t => t.trim()).filter(Boolean) : [];
-
-  const handleWhatsApp = () => {
-    const total = poster.price + SHIPPING;
-    const msg = encodeURIComponent(
-      `Hello XREVISE! I'd like to purchase:\n\n📌 *${poster.title}*\nSubject: ${poster.subject}\nPrice: ₹${poster.price}\n🚚 Flat Delivery: ₹${SHIPPING}\n💰 Total Payable: ₹${total}\n\nPlease confirm my order and share delivery/payment details.`
-    );
-    window.open(`https://wa.me/919370100887?text=${msg}`, "_blank");
-  };
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -316,17 +308,14 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
 
           <button
             onClick={() => { onAdd(poster); onClose(); }}
-            className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition mb-2 ${
+            className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition ${
               inCart ? "bg-secondaryMiddle text-primary border border-secondaryDark" : "bg-primary hover:bg-primaryDark text-white shadow-md"
             }`}
           >
             <ShoppingCart size={18} />
             {inCart ? "Added to Cart" : "Add to Cart"}
           </button>
-          <button onClick={handleWhatsApp} className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
-            <MessageCircle size={18} /> Order via WhatsApp
-          </button>
-          <p className="text-center text-xs text-gray-400 mt-2">Delivery confirmed within 24 hrs</p>
+          <p className="text-center text-xs text-gray-400 mt-3">Poster shipped to your address after payment</p>
         </div>
       </div>
     </div>
@@ -334,9 +323,9 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
 }
 
 // ── Cart sidebar ──────────────────────────────────────────────────────────────
-function CartSidebar({ cart, onRemove, onClose, onCheckout, onWhatsApp }: {
+function CartSidebar({ cart, onRemove, onClose, onCheckout }: {
   cart: PosterPackage[]; onRemove: (id: number) => void;
-  onClose: () => void; onCheckout: () => void; onWhatsApp: () => void;
+  onClose: () => void; onCheckout: () => void;
 }) {
   const subtotal = cart.reduce((s, p) => s + p.price, 0);
   const grandTotal = subtotal + SHIPPING;
@@ -416,10 +405,7 @@ function CartSidebar({ cart, onRemove, onClose, onCheckout, onWhatsApp }: {
             >
               <CreditCard className="w-5 h-5" /> Proceed to Checkout
             </button>
-            <button onClick={onWhatsApp} className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors text-sm">
-              <MessageCircle className="w-4 h-4" /> Order via WhatsApp instead
-            </button>
-            <p className="text-center text-[10px] text-gray-400">Secured Razorpay checkout · Fast delivery</p>
+            <p className="text-center text-[10px] text-gray-400">Secure online payment · Fast delivery to your address</p>
           </div>
         )}
       </div>
@@ -455,16 +441,6 @@ export default function ShopPage() {
   const addToCart = (p: PosterPackage) => setCart(prev => prev.some(c => c.id === p.id) ? prev : [...prev, p]);
   const removeFromCart = (id: number) => setCart(prev => prev.filter(p => p.id !== id));
 
-  const handleWhatsApp = () => {
-    const lines = cart.map(p => `• ${p.title} (${p.poster_count}) — ₹${p.price}`).join("\n");
-    const subtotal = cart.reduce((s, p) => s + p.price, 0);
-    const total = subtotal + SHIPPING;
-    const msg = encodeURIComponent(
-      `Hello XREVISE! I'd like to order this poster bundle:\n\n${lines}\n\n-------------------------\n📊 Subtotal: ₹${subtotal}\n🚚 Flat Delivery: ₹${SHIPPING}\n💰 Total Payable: ₹${total}\n-------------------------\n\nPlease confirm my order and share delivery/payment details.`
-    );
-    window.open(`https://wa.me/919370100887?text=${msg}`, "_blank");
-  };
-
   const shortCombo = packages.filter(p => p.subject === "Short Subject Combo");
   const mediumCombos = packages.filter(p => p.subject === "Medium Subject Combo");
   const longPacks = packages.filter(p => p.subject === "Long Subject Pack");
@@ -482,7 +458,6 @@ export default function ShopPage() {
           cart={cart} onRemove={removeFromCart}
           onClose={() => setShowCart(false)}
           onCheckout={() => setShowCheckout(true)}
-          onWhatsApp={handleWhatsApp}
         />
       )}
       {showCheckout && (
@@ -518,7 +493,7 @@ export default function ShopPage() {
       <div className="bg-yellow-50 border-b border-yellow-200 py-4 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           <p className="text-sm text-gray-700 font-medium">
-            <span className="text-yellow-600 font-bold">✨ Flat ₹150 delivery charge</span> — pay online via Razorpay or order via WhatsApp!
+            <span className="text-yellow-600 font-bold">✨ Flat ₹150 delivery charge</span> — pay online and your posters will be shipped to your address!
           </p>
           <button
             onClick={() => setShowCart(true)}
@@ -647,7 +622,7 @@ function PackCard({ pack, cart, onSelect, onAdd, onShowCart }: {
               <span className="text-2xl font-extrabold text-navy">₹{pack.price}</span>
               {pack.original_price && <span className="text-xs text-gray-400 line-through mb-0.5">₹{pack.original_price}</span>}
             </div>
-            <p className="text-[10px] text-gray-400 mt-0.5">+ ₹150 Delivery · {pack.posterCount}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">+ ₹150 Delivery · {pack.poster_count}</p>
           </div>
           <button
             onClick={() => inCart ? onShowCart() : onAdd(pack)}

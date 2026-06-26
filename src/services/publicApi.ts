@@ -61,7 +61,15 @@ export const PublicAPI = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-      return await res.json();
+      const data = await res.json();
+      if (data.packages) {
+        data.packages = data.packages.map((p: any) => ({
+          ...p,
+          price: Number(p.price),
+          original_price: p.original_price != null ? Number(p.original_price) : undefined,
+        }));
+      }
+      return data;
     } catch (error) {
       return { status: false, packages: [] };
     }
