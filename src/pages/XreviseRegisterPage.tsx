@@ -69,7 +69,7 @@ export default function XreviseRegisterPage() {
       body.append("city", formData.city);
       if (formData.photo) body.append("photo", formData.photo);
 
-      const res = await StudentAPI.register(body);
+      const res = await StudentAPI.registerXrevise(body);
       if (!res.status) {
         alert(res.message || "Registration failed. Please try again.");
         return;

@@ -10,15 +10,31 @@ const getAuthHeaders = () => {
 };
 
 export const StudentAPI = {
-  // 1. REGISTER
+  // 1. REGISTER (CBT)
   register: async (data: any) => {
     const isFormData = data instanceof FormData;
     const headers: any = {};
     if (!isFormData) {
       headers["Content-Type"] = "application/json";
     }
-  
+
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: headers,
+      body: isFormData ? data : JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  // 1b. REGISTER (XRevise)
+  registerXrevise: async (data: any) => {
+    const isFormData = data instanceof FormData;
+    const headers: any = {};
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const res = await fetch(`${API_BASE_URL}/xrevise/auth/register`, {
       method: "POST",
       headers: headers,
       body: isFormData ? data : JSON.stringify(data),
