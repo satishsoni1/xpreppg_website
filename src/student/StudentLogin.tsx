@@ -41,26 +41,15 @@ export default function StudentLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
-      const data = await StudentAPI.login(formData);
-  
+      // Call the correct endpoint based on selected portal
+      const data = portal === "XRevise"
+        ? await StudentAPI.loginXrevise(formData)
+        : await StudentAPI.login(formData);
+
       if (data.token) {
         const user = data.user;
-        // NULL/missing registration_type means legacy student → treat as CBT
-        const regType: string = user.registration_type || "CBT";
-
-        // Check portal eligibility
-        const eligible =
-          regType === "Both" ||
-          regType === portal ||
-          !user.registration_type; // legacy students with no type can access any portal
-
-        if (!eligible) {
-          alert(`You are registered for the ${regType} portal, not ${portal}.\n\nPlease select the ${regType} portal and try again.`);
-          setLoading(false);
-          return;
-        }
 
         localStorage.setItem("student_token", data.token);
         localStorage.setItem("student_user", JSON.stringify(user));
