@@ -8,9 +8,14 @@ import {
 
 const STATUS_CFG: Record<string, { label: string; dot: string; badge: string }> = {
   running:   { label: "LIVE",      dot: "bg-emerald-500 animate-pulse", badge: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  live:      { label: "LIVE",      dot: "bg-emerald-500 animate-pulse", badge: "bg-emerald-100 text-emerald-700 border-emerald-200" },
   upcoming:  { label: "Upcoming",  dot: "bg-blue-400",                  badge: "bg-blue-100 text-blue-700 border-blue-200" },
   completed: { label: "Completed", dot: "bg-slate-400",                 badge: "bg-slate-100 text-slate-600 border-slate-200" },
 };
+
+const isLive      = (s: string) => s === "running" || s === "live";
+const isUpcoming  = (s: string) => s === "upcoming";
+const isCompleted = (s: string) => s === "completed";
 
 export default function XReviseStudentDashboard() {
   const navigate  = useNavigate();
@@ -29,9 +34,9 @@ export default function XReviseStudentDashboard() {
   useEffect(() => { load(); }, [load]);
 
   const groups = {
-    running:   exams.filter(e => e.status === "running"),
-    upcoming:  exams.filter(e => e.status === "upcoming"),
-    completed: exams.filter(e => e.status === "completed"),
+    running:   exams.filter(e => isLive(e.status)),
+    upcoming:  exams.filter(e => isUpcoming(e.status)),
+    completed: exams.filter(e => isCompleted(e.status)),
   };
   const displayed = groups[tab];
 
@@ -165,7 +170,7 @@ export default function XReviseStudentDashboard() {
 
                     {/* Action area */}
                     <div className="flex flex-col items-end gap-3 shrink-0">
-                      {exam.status === "running" && !attempted && (
+                      {isLive(exam.status) && !attempted && (
                         <button
                           onClick={() => startOrResume(exam)}
                           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-sm"
@@ -174,7 +179,7 @@ export default function XReviseStudentDashboard() {
                         </button>
                       )}
 
-                      {exam.status === "running" && attempted && (
+                      {isLive(exam.status) && attempted && (
                         <div className="flex flex-col items-end gap-2">
                           <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
                             <CheckCircle size={13} /> Submitted
@@ -190,7 +195,7 @@ export default function XReviseStudentDashboard() {
                         </div>
                       )}
 
-                      {exam.status === "completed" && (
+                      {isCompleted(exam.status) && (
                         <div className="text-right">
                           {attempted ? (
                             <>
@@ -223,7 +228,7 @@ export default function XReviseStudentDashboard() {
                         </div>
                       )}
 
-                      {exam.status === "upcoming" && (
+                      {isUpcoming(exam.status) && (
                         <span className="text-xs text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-xl font-semibold">
                           Opens soon
                         </span>
