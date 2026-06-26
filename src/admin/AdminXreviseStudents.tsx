@@ -43,7 +43,7 @@ export default function AdminXreviseStudents() {
     if (!newPassword || !resetModal.student) return;
     setSubmitting(true);
     try {
-      const res = await XReviseAPI.resetStudentPassword(resetModal.student.id);
+      const res = await XReviseAPI.resetStudentPassword(resetModal.student.id, newPassword);
       if (res.status) {
         setNotification({ msg: "Password reset successfully!", type: "success" });
         setResetModal({ open: false, student: null });

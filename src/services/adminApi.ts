@@ -720,10 +720,11 @@ export const XReviseAPI = {
     return res.json();
   },
 
-  resetStudentPassword: async (id: number) => {
+  resetStudentPassword: async (id: number, newPassword?: string) => {
     const res = await fetch(`${API_BASE_URL}/xrevise/admin/students/${id}/reset-password`, {
       method: "PUT",
       headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword }),
     });
     return res.json();
   },
