@@ -24,6 +24,7 @@ const EMPTY_EXAM = {
   shuffle_questions:false, shuffle_options:false, calculator_allowed:false,
   start_time:"", end_time:"", resume_allowed:true, max_warnings:3,
   auto_submit_on_warnings:true, show_result_immediately:true,
+  phase:1, day_number:"",
 };
 
 interface Props { platform: Platform; }
@@ -104,6 +105,8 @@ export default function AdminExamManager({ platform }: Props) {
       max_warnings: ex.max_warnings||3,
       auto_submit_on_warnings: ex.auto_submit_on_warnings !== false,
       show_result_immediately: ex.show_result_immediately !== false,
+      phase: ex.phase || 1,
+      day_number: ex.day_number || "",
     });
     setShowForm(true);
   };
@@ -530,6 +533,22 @@ export default function AdminExamManager({ platform }: Props) {
                     className={`w-full border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 ${pRing}`}/>
                 </div>
               </div>
+              {platform === "xrevise" && (
+                <div className="grid grid-cols-2 gap-3 bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+                  <div>
+                    <label className="block text-xs font-bold text-emerald-700 uppercase mb-1">Phase *</label>
+                    <select value={form.phase} onChange={e=>setForm(f=>({...f,phase:parseInt(e.target.value)||1}))}
+                      className="w-full border border-emerald-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400">
+                      {[1,2,3,4].map(p=><option key={p} value={p}>Phase {p}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-emerald-700 uppercase mb-1">Day Number</label>
+                    <input type="number" min={1} value={form.day_number} onChange={e=>setForm(f=>({...f,day_number:e.target.value}))}
+                      className="w-full border border-emerald-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400" placeholder="1"/>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Start Time</label>

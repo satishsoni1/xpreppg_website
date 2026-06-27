@@ -6,7 +6,7 @@ import {
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
   BookOpen, ChevronRight, Upload, Database, GraduationCap,
-  ListChecks, Play, PieChart,
+  ListChecks, Play, PieChart, Layers,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
@@ -59,6 +59,10 @@ export default function AdminLayout() {
     { name: "XRevise Exams", path: "/admin/xrevise/exams", icon: <FileText size={18} /> },
     { name: "XRevise Schedule", path: "/admin/xrevise/schedule", icon: <CalendarDays size={18} /> },
     { name: "XRevise Questions", path: "/admin/xrevise/questions", icon: <FileQuestion size={18} /> },
+    { name: "XRevise Phases", path: "/admin/xrevise/phases", icon: <Layers size={18} /> },
+    { name: "XRevise Plans", path: "/admin/xrevise/plans", icon: <Package size={18} /> },
+    { name: "XRevise Coupons", path: "/admin/xrevise/coupons", icon: <Ticket size={18} /> },
+    { name: "XRevise Orders", path: "/admin/xrevise/orders", icon: <CreditCard size={18} /> },
     { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
     { name: "─── Exam Manager ───", path: "", icon: null },
     { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },

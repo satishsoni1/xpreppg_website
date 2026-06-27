@@ -783,11 +783,28 @@ export const XReviseAPI = {
     return res.json();
   },
 
+  updatePlan: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
   togglePlan: async (id: number, status: boolean) => {
-    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans/${id}/status`, {
-      method: "PATCH",
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans/${id}`, {
+      method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify({ is_active: status }),
+    });
+    return res.json();
+  },
+
+  deletePlan: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
     });
     return res.json();
   },
@@ -815,6 +832,22 @@ export const XReviseAPI = {
       method: "PUT",
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  deleteCoupon: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/coupons/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  getOrders: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/orders`, {
+      method: "GET",
+      headers: getAuthHeaders(),
     });
     return res.json();
   },

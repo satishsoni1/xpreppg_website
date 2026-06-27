@@ -64,6 +64,11 @@ import XReviseExamInterface from "./student/XReviseExamInterface";
 import XReviseResultAnalysis from "./student/XReviseResultAnalysis";
 import StudentXReviseExam from "./student/StudentXReviseExam";
 import StudentXReviseResult from "./student/StudentXReviseResult";
+import XReviseEnroll from "./student/XReviseEnroll";
+import AdminXrevisePlans from "./admin/AdminXrevisePlans";
+import AdminXreviseCoupons from "./admin/AdminXreviseCoupons";
+import AdminXreviseOrders from "./admin/AdminXreviseOrders";
+import AdminXrevisePhases from "./admin/AdminXrevisePhases";
 
 
 const router = createBrowserRouter([
@@ -107,6 +112,7 @@ const router = createBrowserRouter([
       { path: "daily-tests", element: <DailyTests /> },
       { path: "xrevise-result", element: <XReviseResultPage /> },
       { path: "xrevise-attempts", element: <XReviseAttempts /> },
+      { path: "xrevise-enroll", element: <XReviseEnroll /> },
     ]
   },
   // ADMIN ROUTES
@@ -135,6 +141,10 @@ const router = createBrowserRouter([
       { path: "xrevise/exams", element: <AdminExams /> },
       { path: "xrevise/schedule", element: <AdminXreviseSchedule /> },
       { path: "xrevise/questions", element: <AdminXreviseQuestions /> },
+      { path: "xrevise/plans", element: <AdminXrevisePlans /> },
+      { path: "xrevise/coupons", element: <AdminXreviseCoupons /> },
+      { path: "xrevise/orders", element: <AdminXreviseOrders /> },
+      { path: "xrevise/phases", element: <AdminXrevisePhases /> },
       { path: "cbt/students", element: <AdminCbtStudents /> },
       { path: "media", element: <AdminMediaUpload /> },
       // Exam Management Module

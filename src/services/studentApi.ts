@@ -334,4 +334,49 @@ export const StudentAPI = {
     });
     return res.json();
   },
+
+  // ── XRevise Plans & Payment ─────────────────────────────────────────────────
+  xrevisePublic: {
+    getPlans: async () => {
+      const res = await fetch(`${API_BASE_URL}/xrevise/plans`);
+      return res.json();
+    },
+    getPhases: async () => {
+      const res = await fetch(`${API_BASE_URL}/xrevise/phases`);
+      return res.json();
+    },
+    validateCoupon: async (data: { code: string; amount: number; plan_id: number }) => {
+      const res = await fetch(`${API_BASE_URL}/xrevise/coupon/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+  },
+
+  xrevisePurchase: {
+    createOrder: async (data: { plan_id: number; amount: number; original_amount: number; coupon_code?: string; discount_amount?: number }) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/purchase`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    verifyPayment: async (data: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/verify-payment`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    getHistory: async () => {
+      const res = await fetch(`${API_BASE_URL}/student/xrevise/purchases`, {
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+  },
 };

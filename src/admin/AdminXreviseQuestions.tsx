@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Save, CheckCircle, Image as ImageIcon, BookOpen, FileText,
   UploadCloud, Loader2, List, PlusCircle, AlertCircle, Trash2,
@@ -34,6 +35,7 @@ Drug of choice for malaria prophylaxis?,Chloroquine,Primaquine,Doxycycline,Meflo
 `;
 
 export default function AdminXreviseQuestions() {
+  const [searchParams] = useSearchParams();
   const [exams, setExams] = useState<any[]>([]);
   const [examId, setExamId] = useState("");
   const [activeTab, setActiveTab] = useState<"ADD" | "VIEW" | "BULK">("ADD");
@@ -62,7 +64,12 @@ export default function AdminXreviseQuestions() {
     XReviseAPI.getExams().then((d: any) => {
       if (d.status) {
         setExams(d.exams);
-        if (d.exams.length > 0) setExamId(d.exams[0].id.toString());
+        const paramExam = searchParams.get("exam");
+        if (paramExam) {
+          setExamId(paramExam);
+        } else if (d.exams.length > 0) {
+          setExamId(d.exams[0].id.toString());
+        }
       }
     });
   }, []);
