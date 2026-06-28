@@ -22,7 +22,6 @@ const NAV_XREVISE = [
   { name: "Enroll", path: "/student/xrevise-enroll", icon: <CreditCard size={20} /> },
   { name: "Daily Tests", path: "/student/daily-tests", icon: <Calendar size={20} /> },
   { name: "My Results", path: "/student/xrevise-attempts", icon: <BarChart2 size={20} /> },
-  { name: "Discussions", path: "/student/videos", icon: <PlayCircle size={20} /> },
   { name: "Profile", path: "/student/profile", icon: <User size={20} /> },
 ];
 

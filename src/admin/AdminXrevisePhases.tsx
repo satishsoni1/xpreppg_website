@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExamAPI } from "@/services/examApi";
+import { XReviseAPI } from "@/services/adminApi";
 import {
   BookOpen, Plus, Edit2, FileQuestion, ChevronRight,
   CheckCircle, Clock, Calendar, Layers, RotateCcw,
@@ -22,7 +22,7 @@ export default function AdminXrevisePhases() {
 
   const load = async () => {
     setLoading(true);
-    const r = await ExamAPI.getAll({ platform: "xrevise", limit: 500 });
+    const r = await XReviseAPI.getExams();
     if (r.status) setExams(r.exams || []);
     setLoading(false);
   };
@@ -41,12 +41,12 @@ export default function AdminXrevisePhases() {
   const sorted = (list: any[]) =>
     [...list].sort((a, b) => (a.day_number || 999) - (b.day_number || 999));
 
-  const goCreate = (phase: number) => {
-    navigate(`/admin/em/xrevise-exams?newPhase=${phase}`);
+  const goCreate = (_phase: number) => {
+    navigate(`/admin/xrevise/exams`);
   };
 
-  const goManage = (examId: number) => {
-    navigate(`/admin/em/xrevise-exams?exam=${examId}`);
+  const goManage = (_examId: number) => {
+    navigate(`/admin/xrevise/exams`);
   };
 
   return (
@@ -63,7 +63,7 @@ export default function AdminXrevisePhases() {
             <RotateCcw size={15} /> Refresh
           </button>
           <button
-            onClick={() => navigate("/admin/em/xrevise-exams")}
+            onClick={() => navigate("/admin/xrevise/exams")}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm"
           >
             <Plus size={16} /> Create Exam
@@ -149,7 +149,7 @@ export default function AdminXrevisePhases() {
                       <h3 className="font-bold text-gray-900 truncate">{exam.title}</h3>
                       <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
                         {exam.subject && <span className="text-emerald-600">{exam.subject}</span>}
-                        <span className="flex items-center gap-1"><Clock size={11} /> {exam.duration_minutes} min</span>
+                        <span className="flex items-center gap-1"><Clock size={11} /> {exam.duration} min</span>
                         <span className="flex items-center gap-1"><FileQuestion size={11} /> {exam.question_count || 0} Q</span>
                         {exam.scheduled_date && (
                           <span className="flex items-center gap-1">
@@ -194,7 +194,7 @@ export default function AdminXrevisePhases() {
             <div className="grid grid-cols-3 gap-3 pt-2">
               {[
                 { label: "Total Exams", value: phaseMap[activePhase].length },
-                { label: "Total Questions", value: phaseMap[activePhase].reduce((s: number, e: any) => s + (e.question_count || 0), 0) },
+                { label: "Total Questions", value: phaseMap[activePhase].reduce((s: number, e: any) => s + (Number(e.question_count) || 0), 0) },
                 { label: "Live / Running", value: phaseMap[activePhase].filter((e: any) => e.status === "live" || e.status === "running").length },
               ].map(stat => (
                 <div key={stat.label} className="bg-emerald-50 rounded-xl p-3 text-center border border-emerald-100">
@@ -226,7 +226,7 @@ export default function AdminXrevisePhases() {
               <p className="text-xs text-gray-400">exams</p>
               {phaseMap[ph]?.length > 0 && (
                 <p className="text-xs text-gray-500 mt-1">
-                  {phaseMap[ph].reduce((s: number, e: any) => s + (e.question_count || 0), 0)} questions
+                  {phaseMap[ph].reduce((s: number, e: any) => s + (Number(e.question_count) || 0), 0)} questions
                 </p>
               )}
               <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600 font-semibold">

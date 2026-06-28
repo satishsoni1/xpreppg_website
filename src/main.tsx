@@ -69,6 +69,8 @@ import AdminXrevisePlans from "./admin/AdminXrevisePlans";
 import AdminXreviseCoupons from "./admin/AdminXreviseCoupons";
 import AdminXreviseOrders from "./admin/AdminXreviseOrders";
 import AdminXrevisePhases from "./admin/AdminXrevisePhases";
+import AdminXreviseExams from "./admin/AdminXreviseExams";
+import AdminXreviseEnrollments from "./admin/AdminXreviseEnrollments";
 
 
 const router = createBrowserRouter([
@@ -138,7 +140,8 @@ const router = createBrowserRouter([
       { path: "poster-orders", element: <AdminPosterOrders /> },
       { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },
       { path: "xrevise/students", element: <AdminXreviseStudents /> },
-      { path: "xrevise/exams", element: <AdminExams /> },
+      { path: "xrevise/enrollments", element: <AdminXreviseEnrollments /> },
+      { path: "xrevise/exams", element: <AdminXreviseExams /> },
       { path: "xrevise/schedule", element: <AdminXreviseSchedule /> },
       { path: "xrevise/questions", element: <AdminXreviseQuestions /> },
       { path: "xrevise/plans", element: <AdminXrevisePlans /> },

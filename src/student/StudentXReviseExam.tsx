@@ -135,26 +135,18 @@ export default function StudentXReviseExam() {
       }
     };
 
-    // 1. Tab / window visibility change
-    const onVisibility = () => {
-      if (document.hidden) logViolation("tab_switch", "Tab switch detected");
-    };
-
-    // 2. Window blur (switched to another app)
-    const onBlur = () => logViolation("window_blur", "Window lost focus");
-
-    // 3. Right-click disabled
+    // Right-click disabled
     const onContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       logViolation("right_click", "Right-click attempt");
     };
 
-    // 4. Copy/paste/cut disabled
+    // Copy/paste/cut disabled
     const onCopy  = (e: ClipboardEvent) => { e.preventDefault(); logViolation("copy",  "Copy attempt blocked"); };
     const onPaste = (e: ClipboardEvent) => { e.preventDefault(); logViolation("paste", "Paste attempt blocked"); };
     const onCut   = (e: ClipboardEvent) => { e.preventDefault(); logViolation("cut",   "Cut attempt blocked"); };
 
-    // 5. Screenshot / PrintScreen key
+    // Screenshot / PrintScreen key
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "PrintScreen") { e.preventDefault(); logViolation("screenshot", "Screenshot key pressed"); }
       if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) { e.preventDefault(); logViolation("print", "Print attempt blocked"); }
@@ -163,29 +155,18 @@ export default function StudentXReviseExam() {
       }
     };
 
-    // 6. Fullscreen exit detection (if exam requested fullscreen)
-    const onFullscreenChange = () => {
-      if (!document.fullscreenElement) logViolation("fullscreen_exit", "Exited fullscreen");
-    };
-
-    document.addEventListener("visibilitychange",  onVisibility);
-    window.addEventListener("blur",               onBlur);
     document.addEventListener("contextmenu",       onContextMenu);
     document.addEventListener("copy",              onCopy);
     document.addEventListener("paste",             onPaste);
     document.addEventListener("cut",               onCut);
     document.addEventListener("keydown",           onKeyDown);
-    document.addEventListener("fullscreenchange",  onFullscreenChange);
 
     return () => {
-      document.removeEventListener("visibilitychange",  onVisibility);
-      window.removeEventListener("blur",               onBlur);
       document.removeEventListener("contextmenu",       onContextMenu);
       document.removeEventListener("copy",              onCopy);
       document.removeEventListener("paste",             onPaste);
       document.removeEventListener("cut",               onCut);
       document.removeEventListener("keydown",           onKeyDown);
-      document.removeEventListener("fullscreenchange",  onFullscreenChange);
     };
   }, [loading, submitted]);
 

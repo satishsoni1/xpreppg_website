@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Download, Loader2, BookOpen, Key, X, CheckCircle } from "lucide-react";
+import { Search, Download, Loader2, BookOpen, Key, X, CheckCircle, UserPlus } from "lucide-react";
 import { XReviseAPI } from "@/services/adminApi";
 import * as XLSX from "xlsx";
 
@@ -11,6 +11,9 @@ export default function AdminXreviseStudents() {
   const [resetModal, setResetModal] = useState<{ open: boolean; student: any | null }>({ open: false, student: null });
   const [newPassword, setNewPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [phaseModal, setPhaseModal] = useState<{ open: boolean; student: any | null }>({ open: false, student: null });
+  const [selectedPhase, setSelectedPhase] = useState<number>(1);
+  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => { fetchStudents(); }, []);
 
@@ -108,10 +111,16 @@ export default function AdminXreviseStudents() {
                     <td className="px-4 py-3"><span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-medium">{s.category || "—"}</span></td>
                     <td className="px-4 py-3 text-gray-400 text-xs">{new Date(s.created_at).toLocaleDateString("en-IN")}</td>
                     <td className="px-4 py-3">
-                      <button onClick={() => { setResetModal({ open: true, student: s }); setNewPassword(""); }}
-                        className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                        <Key size={12} /> Reset
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => { setResetModal({ open: true, student: s }); setNewPassword(""); }}
+                          className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                          <Key size={12} /> Reset
+                        </button>
+                        <button onClick={() => { setPhaseModal({ open: true, student: s }); setSelectedPhase(1); }}
+                          className="text-xs text-emerald-600 hover:underline flex items-center gap-1">
+                          <UserPlus size={12} /> Enroll
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -139,6 +148,55 @@ export default function AdminXreviseStudents() {
             <button onClick={handleResetPassword} disabled={!newPassword || submitting}
               className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-primaryDark transition disabled:opacity-60">
               {submitting ? "Resetting…" : "Reset Password"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {phaseModal.open && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <UserPlus size={18} className="text-emerald-600" /> Phase Enrollment
+              </h3>
+              <button onClick={() => setPhaseModal({ open: false, student: null })}><X size={20} className="text-gray-400" /></button>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Enroll <strong>{phaseModal.student?.name}</strong> for a phase.
+              They will get access to <strong>all current and future exams</strong> in that phase.
+            </p>
+            <label className="text-xs font-semibold text-gray-500 uppercase mb-1.5 block">Select Phase</label>
+            <div className="grid grid-cols-4 gap-2 mb-5">
+              {[1, 2, 3, 4].map(p => (
+                <button
+                  key={p}
+                  onClick={() => setSelectedPhase(p)}
+                  className={`py-2.5 rounded-xl text-sm font-bold border-2 transition ${
+                    selectedPhase === p
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-gray-200 text-gray-500 hover:border-emerald-300"
+                  }`}
+                >
+                  P{p}
+                </button>
+              ))}
+            </div>
+            <button
+              disabled={enrolling}
+              onClick={async () => {
+                if (!phaseModal.student) return;
+                setEnrolling(true);
+                const r = await XReviseAPI.phaseEnroll(phaseModal.student.id, selectedPhase);
+                setEnrolling(false);
+                setPhaseModal({ open: false, student: null });
+                setNotification({ msg: r.message || (r.status ? "Enrolled!" : "Failed"), type: r.status ? "success" : "error" });
+                setTimeout(() => setNotification(null), 3000);
+              }}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-sm transition disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {enrolling ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
+              Enroll for Phase {selectedPhase}
             </button>
           </div>
         </div>

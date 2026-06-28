@@ -56,6 +56,7 @@ export default function AdminLayout() {
   const xreviseMenu = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "XRevise Students", path: "/admin/xrevise/students", icon: <Users size={18} />, badge: badges.xrevise_new },
+    { name: "XRevise Enrollments", path: "/admin/xrevise/enrollments", icon: <ListChecks size={18} /> },
     { name: "XRevise Exams", path: "/admin/xrevise/exams", icon: <FileText size={18} /> },
     { name: "XRevise Schedule", path: "/admin/xrevise/schedule", icon: <CalendarDays size={18} /> },
     { name: "XRevise Questions", path: "/admin/xrevise/questions", icon: <FileQuestion size={18} /> },
@@ -66,7 +67,6 @@ export default function AdminLayout() {
     { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
     { name: "─── Exam Manager ───", path: "", icon: null },
     { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },
-    { name: "XRevise Exams (EM)", path: "/admin/em/xrevise-exams", icon: <GraduationCap size={18} /> },
     { name: "Enrollments (EM)", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
     { name: "Analytics (EM)", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
     { name: "Exam Simulator", path: "/admin/em/simulator", icon: <Play size={18} /> },

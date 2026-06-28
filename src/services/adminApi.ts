@@ -629,6 +629,15 @@ export const XReviseAPI = {
     return res.json();
   },
 
+  activateExam: async (id: number, is_active: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams/${id}/activate`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active }),
+    });
+    return res.json();
+  },
+
   publishResult: async (id: number) => {
     const res = await fetch(`${API_BASE_URL}/xrevise/admin/exams/${id}/publish-result`, {
       method: "POST",
@@ -733,6 +742,39 @@ export const XReviseAPI = {
   getEnrollments: async () => {
     const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments`, {
       method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  getPhaseEnrollments: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments/phase`, {
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  phaseEnroll: async (student_id: number, phase: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments/phase`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ student_id, phase }),
+    });
+    return res.json();
+  },
+
+  bulkPhaseEnroll: async (student_ids: number[], phase: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments/phase/bulk`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ student_ids, phase }),
+    });
+    return res.json();
+  },
+
+  unenrollPhase: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/enrollments/phase/${id}`, {
+      method: "DELETE",
       headers: getAuthHeaders(),
     });
     return res.json();
