@@ -379,4 +379,55 @@ export const StudentAPI = {
       return res.json();
     },
   },
+
+  cbt: {
+    getExams: async () => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/exams`, { headers: getAuthHeaders() });
+      return res.json();
+    },
+    startExam: async (examId: number) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/exams/${examId}/start`, {
+        method: "POST", headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    getSectionQuestions: async (attemptId: number, sectionIndex: number) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/attempts/${attemptId}/section/${sectionIndex}`, {
+        headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    saveAnswer: async (attemptId: number, data: any) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/attempts/${attemptId}/answer`, {
+        method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    submitSection: async (attemptId: number, data: { section_index: number; reason?: string }) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/attempts/${attemptId}/submit-section`, {
+        method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+      });
+      return res.json();
+    },
+    submitExam: async (attemptId: number, reason?: string) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/attempts/${attemptId}/submit`, {
+        method: "POST", headers: getAuthHeaders(), body: JSON.stringify({ reason }),
+      });
+      return res.json();
+    },
+    recordViolation: async (attemptId: number) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/attempts/${attemptId}/violation`, {
+        method: "POST", headers: getAuthHeaders(),
+      });
+      return res.json();
+    },
+    getMyResults: async () => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/results`, { headers: getAuthHeaders() });
+      return res.json();
+    },
+    getResultDetail: async (examId: number) => {
+      const res = await fetch(`${API_BASE_URL}/cbt-module/student/results/${examId}`, { headers: getAuthHeaders() });
+      return res.json();
+    },
+  },
 };

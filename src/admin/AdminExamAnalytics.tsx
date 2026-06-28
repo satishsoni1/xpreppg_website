@@ -22,7 +22,9 @@ export default function AdminExamAnalytics() {
   const [tab, setTab] = useState<"overview"|"questions"|"students">("overview");
 
   useEffect(() => {
-    ExamAPI.getAll({ limit:100 }).then(r => { if(r.status) setExams(r.exams||[]); });
+    const portal = localStorage.getItem("admin_portal") || "CBT";
+    const platform = portal === "XRevise" ? "xrevise" : "cbt";
+    ExamAPI.getAll({ limit: 100, platform }).then(r => { if (r.status) setExams(r.exams || []); });
   }, []);
 
   const loadAnalytics = async () => {

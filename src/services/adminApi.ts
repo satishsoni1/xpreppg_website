@@ -974,3 +974,82 @@ export const XReviseAPI = {
     return res.json();
   },
 };
+
+// ── CBT Exam Module API ───────────────────────────────────────────────────────
+export const CbtModuleAPI = {
+  // Exams
+  getExams: async () => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  createExam: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams`, {
+      method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateExam: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${id}`, {
+      method: "PUT", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deleteExam: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${id}`, {
+      method: "DELETE", headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  activateExam: async (id: number, is_active: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${id}/activate`, {
+      method: "PATCH", headers: getAuthHeaders(), body: JSON.stringify({ is_active }),
+    });
+    return res.json();
+  },
+
+  // Questions
+  getQuestions: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/questions`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  addQuestion: async (examId: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/questions`, {
+      method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateQuestion: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/questions/${id}`, {
+      method: "PUT", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deleteQuestion: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/questions/${id}`, {
+      method: "DELETE", headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  // Results
+  getAttempts: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/attempts`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  generateResults: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/generate-results`, {
+      method: "POST", headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  publishResults: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/publish-results`, {
+      method: "POST", headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  getResults: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/results`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+};

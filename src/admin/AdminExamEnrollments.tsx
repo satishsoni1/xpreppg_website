@@ -19,16 +19,18 @@ export default function AdminExamEnrollments() {
   const [copyLoading, setCopyLoading] = useState(false);
 
   // Student picker for manual enroll
+  const portalPlatform = (localStorage.getItem("admin_portal") || "CBT") === "XRevise" ? "xrevise" : "cbt";
+
   const [showPicker, setShowPicker] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
-  const [pickerType, setPickerType] = useState<"cbt"|"xrevise">("xrevise");
+  const [pickerType, setPickerType] = useState<"cbt"|"xrevise">(portalPlatform);
   const [pickerStudents, setPickerStudents] = useState<any[]>([]);
   const [pickerLoading, setPickerLoading] = useState(false);
   const [pickerSelected, setPickerSelected] = useState<Set<number>>(new Set());
 
   // Bulk by platform
   const [showBulkModal, setShowBulkModal] = useState(false);
-  const [bulkType, setBulkType] = useState<"cbt"|"xrevise">("xrevise");
+  const [bulkType, setBulkType] = useState<"cbt"|"xrevise">(portalPlatform);
   const [bulkLoading, setBulkLoading] = useState(false);
 
   const notify = (msg:string, type:"success"|"error"="success") => {
@@ -36,7 +38,9 @@ export default function AdminExamEnrollments() {
   };
 
   useEffect(() => {
-    ExamAPI.getAll({ limit:100 }).then(r => { if (r.status) setExams(r.exams||[]); });
+    const portal = localStorage.getItem("admin_portal") || "CBT";
+    const platform = portal === "XRevise" ? "xrevise" : "cbt";
+    ExamAPI.getAll({ limit: 100, platform }).then(r => { if (r.status) setExams(r.exams || []); });
   }, []);
 
   useEffect(() => {

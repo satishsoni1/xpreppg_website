@@ -10,10 +10,10 @@ type PortalMode = "XRevise" | "CBT";
 
 const NAV_CBT = [
   { name: "Dashboard", path: "/student/dashboard", icon: <LayoutDashboard size={20} /> },
+  { name: "CBT Exams", path: "/student/cbt-exams", icon: <Monitor size={20} /> },
   { name: "My Exams", path: "/student/enroll", icon: <CreditCard size={20} /> },
   { name: "Admit Card", path: "/student/admit-card", icon: <FileText size={20} /> },
   { name: "Performance Report", path: "/student/report-card", icon: <BarChart2 size={20} /> },
-  { name: "Discussions", path: "/student/videos", icon: <PlayCircle size={20} /> },
   { name: "Profile", path: "/student/profile", icon: <User size={20} /> },
 ];
 

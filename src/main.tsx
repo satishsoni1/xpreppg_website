@@ -71,6 +71,12 @@ import AdminXreviseOrders from "./admin/AdminXreviseOrders";
 import AdminXrevisePhases from "./admin/AdminXrevisePhases";
 import AdminXreviseExams from "./admin/AdminXreviseExams";
 import AdminXreviseEnrollments from "./admin/AdminXreviseEnrollments";
+import AdminCBTExams from "./admin/AdminCBTExams";
+import AdminCBTQuestions from "./admin/AdminCBTQuestions";
+import AdminCBTResults from "./admin/AdminCBTResults";
+import StudentCBTExams from "./student/StudentCBTExams";
+import StudentCBTExam from "./student/StudentCBTExam";
+import StudentCBTResult from "./student/StudentCBTResult";
 
 
 const router = createBrowserRouter([
@@ -97,6 +103,7 @@ const router = createBrowserRouter([
   // Student portal XRevise exam flow (uses student_token)
   { path: "/student/xrevise/exam/:examId", element: <StudentXReviseExam /> },
   { path: "/student/xrevise/result/:attemptId", element: <StudentXReviseResult /> },
+  { path: "/student/cbt-exam/:examId/:attemptId", element: <StudentCBTExam /> },
   {
     path: "/student",
     element: <StudentLayout />, // Wraps all student pages with Sidebar
@@ -115,6 +122,8 @@ const router = createBrowserRouter([
       { path: "xrevise-result", element: <XReviseResultPage /> },
       { path: "xrevise-attempts", element: <XReviseAttempts /> },
       { path: "xrevise-enroll", element: <XReviseEnroll /> },
+      { path: "cbt-exams", element: <StudentCBTExams /> },
+      { path: "cbt-result/:examId", element: <StudentCBTResult /> },
     ]
   },
   // ADMIN ROUTES
@@ -149,6 +158,9 @@ const router = createBrowserRouter([
       { path: "xrevise/orders", element: <AdminXreviseOrders /> },
       { path: "xrevise/phases", element: <AdminXrevisePhases /> },
       { path: "cbt/students", element: <AdminCbtStudents /> },
+      { path: "cbt/exams", element: <AdminCBTExams /> },
+      { path: "cbt/questions/:examId", element: <AdminCBTQuestions /> },
+      { path: "cbt/results/:examId", element: <AdminCBTResults /> },
       { path: "media", element: <AdminMediaUpload /> },
       // Exam Management Module
       { path: "em/question-bank", element: <AdminQuestionBank /> },
