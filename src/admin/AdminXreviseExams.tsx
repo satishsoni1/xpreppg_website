@@ -21,6 +21,48 @@ const EMPTY_FORM = {
   duration: 45, total_marks: 200, scheduled_date: "", description: "",
 };
 
+const IST_TIME_ZONE = "Asia/Kolkata";
+
+const getZonedParts = (value: string, timeZone = IST_TIME_ZONE) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const map = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return {
+    year: map.year,
+    month: map.month,
+    day: map.day,
+    hour: map.hour,
+    minute: map.minute,
+  };
+};
+
+const toIstTimeInput = (value?: string | null) => {
+  if (!value) return "";
+  const plainTimeMatch = value.match(/^(\d{2}:\d{2})(:\d{2})?$/);
+  if (plainTimeMatch) return plainTimeMatch[1];
+  const parts = getZonedParts(value);
+  if (!parts) return "";
+  return `${parts.hour}:${parts.minute}`;
+};
+
+const toIstDateInput = (value?: string | null) => {
+  if (!value) return "";
+  const plainDateMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (plainDateMatch) return plainDateMatch[0];
+  const parts = getZonedParts(value);
+  if (!parts) return "";
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+
 export default function AdminXreviseExams() {
   const navigate = useNavigate();
   const [exams, setExams] = useState<any[]>([]);
@@ -71,11 +113,11 @@ export default function AdminXreviseExams() {
       phase: exam.phase || 1,
       day_number: exam.day_number ?? "",
       subject: exam.subject || "",
-      start_time: exam.start_time ? new Date(exam.start_time).toISOString().slice(0, 16) : "",
-      end_time: exam.end_time ? new Date(exam.end_time).toISOString().slice(0, 16) : "",
+      start_time: toIstTimeInput(exam.start_time),
+      end_time: toIstTimeInput(exam.end_time),
       duration: exam.duration || 45,
       total_marks: exam.total_marks || 200,
-      scheduled_date: exam.scheduled_date ? new Date(exam.scheduled_date).toISOString().slice(0, 10) : "",
+      scheduled_date: toIstDateInput(exam.scheduled_date),
       description: exam.description || "",
     });
     setModal({ open: true, mode: "edit", exam });
@@ -96,14 +138,16 @@ export default function AdminXreviseExams() {
         start_time: form.start_time || null,
         end_time: form.end_time || null,
         scheduled_date: form.scheduled_date || null,
+        schedule_date: form.scheduled_date || null,
       };
+      console.log("Saving exam:", payload);
       const r = modal.mode === "create"
         ? await XReviseAPI.createExam(payload)
         : await XReviseAPI.updateExam(modal.exam.id, payload);
       if (r.status) {
         showToast(modal.mode === "create" ? "Exam created!" : "Exam updated!", true);
         closeModal();
-        await load();
+       await load();
       } else {
         showToast(r.message || "Failed", false);
       }
@@ -126,9 +170,8 @@ export default function AdminXreviseExams() {
   };
 
   const fmtDate = (d: string) =>
-    d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
-  const fmtTime = (d: string) =>
-    d ? new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "";
+    d ? new Date(d).toLocaleDateString("en-IN", { timeZone: IST_TIME_ZONE, day: "numeric", month: "short", year: "numeric" }) : "—";
+  const fmtTime = (d: string) => toIstTimeInput(d) || "—";
 
   const filtered = activePhase === "all" ? exams : exams.filter(e => e.phase === activePhase);
   const phaseCounts = [1, 2, 3, 4].map(p => ({ phase: p, count: exams.filter(e => e.phase === p).length }));
@@ -249,14 +292,19 @@ export default function AdminXreviseExams() {
 
                   <div className="flex flex-wrap gap-4 mt-1.5 text-xs text-gray-500">
                     <span className="flex items-center gap-1"><Clock size={12} /> {exam.duration || 45} min</span>
+                    {exam.scheduled_date && (
+                      <span className="flex items-center gap-1 text-blue-600 font-medium">
+                        <Calendar size={12} /> {fmtDate(exam.scheduled_date)}
+                      </span>
+                    )}
                     {exam.start_time && (
                       <span className="flex items-center gap-1 text-blue-600 font-medium">
-                        <Calendar size={12} /> {fmtDate(exam.start_time)} {fmtTime(exam.start_time)}
+                        <Clock size={12} /> starts {fmtTime(exam.start_time)}
                       </span>
                     )}
                     {exam.end_time && (
                       <span className="flex items-center gap-1 text-orange-500 font-medium">
-                        ends {fmtDate(exam.end_time)} {fmtTime(exam.end_time)}
+                        ends {fmtTime(exam.end_time)}
                       </span>
                     )}
                     <span className="flex items-center gap-1"><FileQuestion size={12} /> {exam.question_count ?? "—"} Qs</span>
@@ -363,7 +411,7 @@ export default function AdminXreviseExams() {
                 <div>
                   <label className={labelCls}>Start Time</label>
                   <input
-                    type="datetime-local"
+                    type="time"
                     value={form.start_time}
                     onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))}
                     className={inputCls}
@@ -372,7 +420,7 @@ export default function AdminXreviseExams() {
                 <div>
                   <label className={labelCls}>End Time</label>
                   <input
-                    type="datetime-local"
+                    type="time"
                     value={form.end_time}
                     onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))}
                     className={inputCls}
@@ -381,6 +429,15 @@ export default function AdminXreviseExams() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Schedule Date</label>
+                  <input
+                    type="date"
+                    value={form.scheduled_date}
+                    onChange={e => setForm(f => ({ ...f, scheduled_date: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
                 <div>
                   <label className={labelCls}>Duration (min)</label>
                   <input
