@@ -807,6 +807,50 @@ export const XReviseAPI = {
     return res.json();
   },
 
+  // --- PHASES ---
+  getPhases: async () => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/phases`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
+  createPhase: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/phases`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  updatePhase: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/phases/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
+  togglePhase: async (id: number, is_active: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/phases/${id}/toggle`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_active }),
+    });
+    return res.json();
+  },
+
+  deletePhase: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/xrevise/admin/phases/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
   // --- PLANS ---
   getPlans: async () => {
     const res = await fetch(`${API_BASE_URL}/xrevise/admin/plans`, {

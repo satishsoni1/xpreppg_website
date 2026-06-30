@@ -19,7 +19,6 @@ function loadRazorpay(): Promise<boolean> {
   });
 }
 
-const ALL_PHASES = [1, 2, 3, 4];
 
 export default function XReviseEnroll() {
   const navigate = useNavigate();
@@ -56,7 +55,7 @@ export default function XReviseEnroll() {
 
   useEffect(() => { load(); }, [load]);
 
-  const phasesMap = phases.reduce((acc: Record<number, any>, p) => { acc[p.phase] = p; return acc; }, {});
+  const phasesMap = phases.reduce((acc: Record<number, any>, p) => { acc[p.id] = p; return acc; }, {});
 
   const selectPlan = (plan: any) => {
     setSelected(plan);
@@ -155,11 +154,11 @@ export default function XReviseEnroll() {
     rzp.open();
   };
 
-  // Group plans by plan_type
-  const typeGroups = plans.reduce((acc: Record<string, any[]>, p) => {
-    const t = p.plan_type || "basic";
-    if (!acc[t]) acc[t] = [];
-    acc[t].push(p);
+  // Group plans by phases_allowed count
+  const typeGroups = plans.reduce((acc: Record<number, any[]>, p) => {
+    const k = p.phases_allowed || 1;
+    if (!acc[k]) acc[k] = [];
+    acc[k].push(p);
     return acc;
   }, {});
 
@@ -221,19 +220,14 @@ export default function XReviseEnroll() {
               <p className="text-sm mt-1">Check back later for XRevise subscription plans</p>
             </div>
           ) : (
-            (["basic", "advance"] as const).filter(t => typeGroups[t]?.length > 0).map(planType => {
-              const ps = typeGroups[planType];
-              const allowedCount = planType === "advance" ? 3 : 1;
+            Object.keys(typeGroups).map(Number).sort((a, b) => a - b).map(allowedCount => {
+              const ps = typeGroups[allowedCount];
               return (
-                <div key={planType} className="space-y-4">
-                  {/* Plan type header */}
+                <div key={allowedCount} className="space-y-4">
+                  {/* Plan group header */}
                   <div className="flex items-center gap-3">
-                    <div className={`px-3 py-1.5 rounded-xl font-bold text-sm ${
-                      planType === "advance"
-                        ? "bg-violet-100 text-violet-800"
-                        : "bg-emerald-100 text-emerald-800"
-                    }`}>
-                      {planType === "advance" ? "Advance Plan" : "Basic Plan"}
+                    <div className="px-3 py-1.5 rounded-xl font-bold text-sm bg-emerald-100 text-emerald-800">
+                      {allowedCount} Phase{allowedCount > 1 ? "s" : ""} Plan
                     </div>
                     <p className="text-gray-500 text-sm">
                       Select any <strong>{allowedCount}</strong> phase{allowedCount > 1 ? "s" : ""} of your choice
@@ -311,15 +305,14 @@ export default function XReviseEnroll() {
                   ? "Choose 1 phase — you'll get access to all tests in that phase."
                   : `Choose any ${phasesAllowed} phases — you'll get access to all tests in those phases.`}
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {ALL_PHASES.map(ph => {
-                  const info = phasesMap[ph];
-                  const isChosen = selectedPhases.includes(ph);
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {phases.map(ph => {
+                  const isChosen = selectedPhases.includes(ph.id);
                   const atMax = selectedPhases.length >= phasesAllowed && !isChosen;
                   return (
                     <button
-                      key={ph}
-                      onClick={() => togglePhase(ph)}
+                      key={ph.id}
+                      onClick={() => togglePhase(ph.id)}
                       disabled={atMax}
                       className={`rounded-2xl border-2 p-4 text-left transition ${
                         isChosen
@@ -329,20 +322,19 @@ export default function XReviseEnroll() {
                           : "border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40"
                       }`}
                     >
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold mb-2 ${
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-2 ${
                         isChosen ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600"
                       }`}>
-                        {ph}
+                        {ph.id}
                       </div>
-                      <p className="font-semibold text-gray-800 text-sm">Phase {ph}</p>
-                      {info ? (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {info.exam_count} test{info.exam_count !== 1 ? "s" : ""}
-                          {info.start_date && ` · from ${new Date(info.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-0.5">Coming soon</p>
+                      <p className="font-semibold text-gray-800 text-sm leading-snug">{ph.name}</p>
+                      {ph.description && (
+                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{ph.description}</p>
                       )}
+                      <p className="text-xs text-gray-400 mt-1">
+                        {ph.exam_count ?? 0} test{ph.exam_count !== 1 ? "s" : ""}
+                        {ph.start_date && ` · from ${new Date(ph.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`}
+                      </p>
                       {isChosen && (
                         <div className="mt-1.5 flex items-center gap-1 text-emerald-600 text-xs font-bold">
                           <CheckCircle size={11} /> Selected
@@ -367,7 +359,10 @@ export default function XReviseEnroll() {
                 <div>
                   <p className="font-semibold text-emerald-900">{selected.name}</p>
                   <p className="text-emerald-600 text-sm">
-                    Phase{selectedPhases.length > 1 ? "s" : ""} {selectedPhases.sort((a, b) => a - b).join(", ")} · {selected.exams_count} tests
+                    {selectedPhases
+                      .slice().sort((a, b) => a - b)
+                      .map(id => phasesMap[id]?.name || `Phase ${id}`)
+                      .join(", ")} · {selected.exams_count} tests
                   </p>
                 </div>
                 <div className="text-right">
@@ -475,7 +470,9 @@ export default function XReviseEnroll() {
                     <div>
                       <p className="font-bold text-gray-900">{order.plan_name}</p>
                       <p className="text-sm text-gray-500 mt-0.5">
-                        Phase{phases.length > 1 ? "s" : ""} {phases.sort((a: number, b: number) => a - b).join(", ")} · {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                        {phases.slice().sort((a: number, b: number) => a - b)
+                          .map((id: number) => phasesMap[id]?.name || `Phase ${id}`)
+                          .join(", ")} · {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                       </p>
                       {order.coupon_code && (
                         <span className="inline-flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full mt-1.5">

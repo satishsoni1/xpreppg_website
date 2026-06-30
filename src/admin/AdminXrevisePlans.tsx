@@ -3,7 +3,7 @@ import { XReviseAPI } from "@/services/adminApi";
 import { Plus, Edit2, Trash2, CheckCircle, XCircle, BookOpen, Tag } from "lucide-react";
 
 const EMPTY = {
-  name: "", plan_type: "basic", description: "", exams_count: 0, duration_days: 15,
+  name: "", phases_allowed: 1, description: "", exams_count: 0, duration_days: 15,
   selling_price: "", original_price: "", features: "", is_active: true,
 };
 
@@ -39,7 +39,7 @@ export default function AdminXrevisePlans() {
     setSaving(true);
     const payload = {
       ...p,
-      plan_type: p.plan_type || "basic",
+      phases_allowed: parseInt(p.phases_allowed) || 1,
       features: p.features ? p.features.split("\n").map((s: string) => s.trim()).filter(Boolean) : [],
     };
     const r = p.id
@@ -61,10 +61,11 @@ export default function AdminXrevisePlans() {
     load();
   };
 
-  const typeGroups = plans.reduce((acc: Record<string, any[]>, p) => {
-    const t = p.plan_type || "basic";
-    if (!acc[t]) acc[t] = [];
-    acc[t].push(p);
+  // Group plans by how many phases they allow
+  const typeGroups = plans.reduce((acc: Record<number, any[]>, p) => {
+    const k = p.phases_allowed || 1;
+    if (!acc[k]) acc[k] = [];
+    acc[k].push(p);
     return acc;
   }, {});
 
@@ -92,16 +93,15 @@ export default function AdminXrevisePlans() {
           <p className="text-sm mt-1">Create the first XRevise subscription plan</p>
         </div>
       ) : (
-        (["basic", "advance"] as const).filter(t => typeGroups[t]?.length > 0).map(planType => {
-          const ps = typeGroups[planType];
-          const phasesAllowed = planType === "advance" ? 3 : 1;
+        Object.keys(typeGroups).map(Number).sort((a, b) => a - b).map(phasesAllowed => {
+          const ps = typeGroups[phasesAllowed];
           return (
-          <div key={planType} className="space-y-3">
+          <div key={phasesAllowed} className="space-y-3">
             <h2 className="text-base font-bold text-gray-700 flex items-center gap-2">
-              <span className={`px-2.5 py-0.5 rounded-full text-sm ${planType === "advance" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}`}>
-                {planType === "advance" ? "Advance" : "Basic"} Plan
+              <span className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-sm">
+                {phasesAllowed} Phase{phasesAllowed > 1 ? "s" : ""} Plan
               </span>
-              <span className="text-gray-400 text-sm font-normal">{phasesAllowed} phase{phasesAllowed > 1 ? "s" : ""} access · {ps.length} plan{ps.length !== 1 ? "s" : ""}</span>
+              <span className="text-gray-400 text-sm font-normal">{ps.length} plan{ps.length !== 1 ? "s" : ""}</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {ps.map((plan: any) => (
@@ -181,15 +181,14 @@ export default function AdminXrevisePlans() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Plan Type</label>
-                  <select
+                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Phases Allowed</label>
+                  <input
+                    type="number" min="1" max="10"
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
-                    value={modal.plan.plan_type || "basic"}
-                    onChange={e => handleChange("plan_type", e.target.value)}
-                  >
-                    <option value="basic">Basic — 1 Phase</option>
-                    <option value="advance">Advance — 3 Phases</option>
-                  </select>
+                    value={modal.plan.phases_allowed ?? 1}
+                    onChange={e => handleChange("phases_allowed", parseInt(e.target.value) || 1)}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">No. of phases student can select</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-1 block">Duration (days)</label>

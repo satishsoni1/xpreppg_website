@@ -345,6 +345,10 @@ export const StudentAPI = {
       const res = await fetch(`${API_BASE_URL}/xrevise/phases`);
       return res.json();
     },
+    getAllPhases: async () => {
+      const res = await fetch(`${API_BASE_URL}/xrevise/all-phases`);
+      return res.json();
+    },
     validateCoupon: async (data: { code: string; amount: number; plan_id: number }) => {
       const res = await fetch(`${API_BASE_URL}/xrevise/coupon/validate`, {
         method: "POST",

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle, PlayCircle, Calendar, Clock, BookOpen,
-  Trophy, Flame, BarChart2, Loader2, RotateCcw, Info,
-  Lock, AlertCircle, ChevronRight,
+  Trophy, Flame, BarChart2, Loader2, RotateCcw,
+  Lock, AlertCircle, ChevronRight, Layers,
 } from "lucide-react";
 import { StudentAPI } from "@/services/studentApi";
 
@@ -36,37 +36,52 @@ const fmtDatetime = (d: string) =>
 
 export default function DailyTests() {
   const navigate = useNavigate();
-  const [exams, setExams] = useState<any[]>([]);
+  const [exams,   setExams]   = useState<any[]>([]);
+  const [phases,  setPhases]  = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activePhase, setActivePhase] = useState(1);
+  const [activePhaseId, setActivePhaseId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const r = await StudentAPI.xrevise.getMyExams();
-    if (r.status) setExams(r.exams || []);
+    const [examRes, phaseRes] = await Promise.all([
+      StudentAPI.xrevise.getMyExams(),
+      StudentAPI.xrevisePublic.getAllPhases(),
+    ]);
+    const fetchedExams  = examRes.status  ? (examRes.exams   || []) : [];
+    const fetchedPhases = phaseRes.status ? (phaseRes.phases || []) : [];
+    setExams(fetchedExams);
+    setPhases(fetchedPhases);
+
+    // Auto-select: first prefer a live phase, then first active phase with exams
+    const liveEx = fetchedExams.find((e: any) => e.status === "running" || e.status === "live");
+    if (liveEx?.phase) {
+      setActivePhaseId(liveEx.phase);
+    } else {
+      const firstActive = fetchedPhases.find((p: any) => p.is_active);
+      if (firstActive) setActivePhaseId(firstActive.id);
+    }
+
     setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  // Auto-select phase that has a live exam
-  useEffect(() => {
-    if (!exams.length) return;
-    const liveEx = exams.find(e => e.status === "running" || e.status === "live");
-    if (liveEx?.phase) setActivePhase(liveEx.phase);
-  }, [exams]);
-
-  // Group by phase, sort each phase by day_number
-  const byPhase: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [] };
-  for (const ex of exams) byPhase[ex.phase || 1].push(ex);
-  for (const p of [1, 2, 3, 4]) {
-    byPhase[p].sort((a, b) => (a.day_number ?? 999) - (b.day_number ?? 999));
+  // Group exams by phase id, sorted by day_number
+  const byPhase: Record<number, any[]> = {};
+  for (const ex of exams) {
+    const ph = ex.phase || 0;
+    if (!byPhase[ph]) byPhase[ph] = [];
+    byPhase[ph].push(ex);
+  }
+  for (const key of Object.keys(byPhase)) {
+    byPhase[Number(key)].sort((a, b) => (a.day_number ?? 999) - (b.day_number ?? 999));
   }
 
   const liveExams      = exams.filter(e => e.status === "running" || e.status === "live");
   const completedCount = exams.filter(e => e.status === "completed").length;
   const upcomingCount  = exams.filter(e => e.status === "upcoming").length;
-  const phasesWithExams = ([1, 2, 3, 4] as const).filter(p => byPhase[p].length > 0);
+
+  const activePhase = phases.find(p => p.id === activePhaseId);
 
   if (loading) {
     return (
@@ -86,7 +101,7 @@ export default function DailyTests() {
             XREVISE Daily Tests
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Your enrolled exams — grouped by phase
+            Your enrolled tests — grouped by phase
           </p>
         </div>
         <button
@@ -103,7 +118,7 @@ export default function DailyTests() {
           <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <div className="flex-1">
             <p className="font-bold text-emerald-800 text-sm">
-              {liveExams.length} exam{liveExams.length !== 1 ? "s are" : " is"} LIVE now!
+              {liveExams.length} test{liveExams.length !== 1 ? "s are" : " is"} LIVE now!
             </p>
             <p className="text-emerald-700 text-xs mt-0.5">
               {liveExams.map(e => e.title).join(" · ")}
@@ -140,70 +155,103 @@ export default function DailyTests() {
 
       {/* No exams at all */}
       {exams.length === 0 && (
-        <div className="bg-sky-50 border border-sky-200 rounded-xl p-6 flex items-start gap-3">
-          <Info className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
+        <div className="bg-sky-50 border border-sky-200 rounded-xl p-6 flex items-start gap-3 mb-4">
+          <AlertCircle className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-sky-800">No exams available yet</p>
+            <p className="text-sm font-semibold text-sky-800">No tests available yet</p>
             <p className="text-xs text-sky-700 mt-1">
-              Exams will appear here once you are enrolled in a phase and the admin activates them.
+              Tests will appear here once you are enrolled in a phase and the admin activates them.
             </p>
           </div>
         </div>
       )}
 
-      {/* Phase tabs */}
-      {exams.length > 0 && (
+      {/* Phase tabs — all phases from DB, disabled ones shown as locked */}
+      {phases.length > 0 && (
         <>
           <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-            {([1, 2, 3, 4] as const).map(p => {
-              const hasLive = byPhase[p].some(e => e.status === "running" || e.status === "live");
-              const count   = byPhase[p].length;
+            {phases.map(ph => {
+              const hasLive    = (byPhase[ph.id] || []).some((e: any) => e.status === "running" || e.status === "live");
+              const examCount  = (byPhase[ph.id] || []).length;
+              const isSelected = activePhaseId === ph.id;
+              const isDisabled = !ph.is_active;
+
               return (
                 <button
-                  key={p}
-                  onClick={() => setActivePhase(p)}
+                  key={ph.id}
+                  onClick={() => !isDisabled && setActivePhaseId(ph.id)}
+                  disabled={isDisabled}
+                  title={isDisabled ? "This phase is currently disabled" : ph.name}
                   className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-                    activePhase === p
+                    isDisabled
+                      ? "bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                      : isSelected
                       ? "bg-emerald-600 text-white shadow"
                       : "bg-white border border-gray-200 text-gray-600 hover:border-emerald-300"
                   }`}
                 >
-                  Phase {p}
-                  {count > 0 && (
+                  {isDisabled ? <Lock size={13} className="shrink-0" /> : null}
+                  <span className="truncate max-w-[120px]">{ph.name}</span>
+                  {!isDisabled && examCount > 0 && (
                     <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
-                      activePhase === p ? "bg-emerald-500 text-white" : "bg-gray-100 text-gray-500"
+                      isSelected ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
                     }`}>
-                      {count}
+                      {examCount}
                     </span>
                   )}
-                  {hasLive && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
+                  {hasLive && !isDisabled && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  )}
                 </button>
               );
             })}
           </div>
 
-          {/* Exam cards for active phase */}
-          {byPhase[activePhase].length === 0 ? (
-            <div className="bg-white border border-dashed border-gray-200 rounded-2xl py-16 text-center text-gray-400">
-              <BookOpen size={40} className="mx-auto mb-3 opacity-20" />
-              <p className="font-semibold">No exams in Phase {activePhase} yet</p>
-              <p className="text-sm mt-1">
-                {phasesWithExams.length > 0
-                  ? `Check Phase ${phasesWithExams[0]} for available exams`
-                  : "Admin will activate exams for this phase soon"}
-              </p>
+          {/* Disabled phase notice */}
+          {activePhase && !activePhase.is_active && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 mb-4">
+              <Lock className="text-amber-500 shrink-0" size={18} />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">{activePhase.name} is currently disabled</p>
+                <p className="text-xs text-amber-700 mt-0.5">This phase will be enabled by the admin soon.</p>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {byPhase[activePhase].map(exam => (
-                <ExamCard key={exam.id} exam={exam} navigate={navigate} />
-              ))}
+          )}
+
+          {/* Tests for selected active phase */}
+          {activePhase?.is_active && (
+            (byPhase[activePhaseId!] || []).length === 0 ? (
+              <div className="bg-white border border-dashed border-gray-200 rounded-2xl py-16 text-center text-gray-400">
+                <BookOpen size={40} className="mx-auto mb-3 opacity-20" />
+                <p className="font-semibold">No tests in {activePhase?.name ?? "this phase"} yet</p>
+                <p className="text-sm mt-1">Admin will activate tests for this phase soon</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {(byPhase[activePhaseId!] || []).map((exam: any) => (
+                  <ExamCard key={exam.id} exam={exam} navigate={navigate} />
+                ))}
+              </div>
+            )
+          )}
+
+          {/* Phase info footer */}
+          {activePhase && (
+            <div className="mt-4 flex items-center gap-2 text-xs text-gray-400 px-1">
+              <Layers size={12} />
+              <span>{activePhase.name}</span>
+              {activePhase.description && <span>· {activePhase.description}</span>}
+              {activePhase.start_date && (
+                <span>
+                  · from {new Date(activePhase.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              )}
             </div>
           )}
         </>
       )}
 
-      {/* Programme Info */}
+      {/* Programme info */}
       {exams.length > 0 && (
         <div className="mt-8 bg-gradient-to-br from-emerald-50 to-sky-50 border border-emerald-200 rounded-2xl p-6">
           <div className="flex items-start gap-4">
@@ -211,7 +259,7 @@ export default function DailyTests() {
             <div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">About XREVISE</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                A structured NEET PG revision programme. <strong>4 phases</strong>, each with day-wise{" "}
+                A structured NEET PG revision programme with day-wise{" "}
                 <strong>PYT-based MCQs</strong> from high-yield topics across all 19 subjects.
                 Tests are scored instantly with rank and accuracy analysis.
               </p>
@@ -219,7 +267,7 @@ export default function DailyTests() {
                 onClick={() => navigate("/student/xrevise-attempts")}
                 className="mt-3 text-emerald-700 font-bold text-sm flex items-center gap-1 hover:text-emerald-800"
               >
-                <BarChart2 className="w-4 h-4" /> View All My Attempts
+                <BarChart2 className="w-4 h-4" /> <span>View All My Attempts</span> <ChevronRight size={14} />
               </button>
             </div>
           </div>
