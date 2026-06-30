@@ -113,7 +113,7 @@ export default function XRevisePortal() {
             <p className="text-emerald-100 text-sm font-medium">Welcome back,</p>
             <p className="text-2xl font-bold">{student.name} 👋</p>
             <div className="flex flex-wrap gap-4 mt-3 text-sm text-emerald-100">
-              <span>{running.length} Live Exam{running.length!==1?"s":""}</span>
+              <span>{running.length} Live Test{running.length!==1?"s":""}</span>
               <span>·</span>
               <span>{upcoming.length} Upcoming</span>
               <span>·</span>
@@ -126,7 +126,7 @@ export default function XRevisePortal() {
         {running.length > 0 && activeTab !== "running" && (
           <div className="flex items-center gap-3 bg-emerald-900/50 border border-emerald-600/40 rounded-xl px-4 py-3">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"/>
-            <span className="text-emerald-300 text-sm font-semibold">{running.length} exam{running.length!==1?"s are":" is"} live right now!</span>
+            <span className="text-emerald-300 text-sm font-semibold">{running.length} test{running.length!==1?"s are":" is"} live right now!</span>
             <button onClick={() => setActiveTab("running")}
               className="ml-auto text-xs bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold">View Live</button>
           </div>
@@ -155,11 +155,11 @@ export default function XRevisePortal() {
         ) : displayed.length === 0 ? (
           <div className="py-20 text-center text-slate-500">
             <BookOpen size={48} className="mx-auto mb-3 opacity-20"/>
-            <p className="font-semibold text-slate-400">No {activeTab} exams</p>
+            <p className="font-semibold text-slate-400">No {activeTab} tests</p>
             <p className="text-sm text-slate-600 mt-1">
-              {activeTab==="upcoming"?"Your upcoming exams will appear here once scheduled."
-                :activeTab==="running"?"No exams are live right now."
-                :"You haven't completed any exams yet."}
+              {activeTab==="upcoming"?"Your upcoming tests will appear here once scheduled."
+                :activeTab==="running"?"No tests are live right now."
+                :"You haven't completed any tests yet."}
             </p>
           </div>
         ) : (
@@ -209,7 +209,7 @@ export default function XRevisePortal() {
                         {exam.status === "running" && !attempted && (
                           <button onClick={() => startExam(exam)}
                             className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-900/40">
-                            {inProgress ? <><RotateCcw size={16}/>Resume</> : <><Play size={16}/>Start Exam</>}
+                            {inProgress ? <><RotateCcw size={16}/>Resume</> : <><Play size={16}/>Start Test</>}
                           </button>
                         )}
 

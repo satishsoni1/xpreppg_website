@@ -3,7 +3,7 @@ import { XReviseAPI } from "@/services/adminApi";
 import { Plus, Edit2, Trash2, CheckCircle, XCircle, BookOpen, Tag } from "lucide-react";
 
 const EMPTY = {
-  name: "", phase: 1, description: "", exams_count: 0, duration_days: 15,
+  name: "", plan_type: "basic", description: "", exams_count: 0, duration_days: 15,
   selling_price: "", original_price: "", features: "", is_active: true,
 };
 
@@ -39,6 +39,7 @@ export default function AdminXrevisePlans() {
     setSaving(true);
     const payload = {
       ...p,
+      plan_type: p.plan_type || "basic",
       features: p.features ? p.features.split("\n").map((s: string) => s.trim()).filter(Boolean) : [],
     };
     const r = p.id
@@ -60,10 +61,10 @@ export default function AdminXrevisePlans() {
     load();
   };
 
-  const phaseGroups = plans.reduce((acc: Record<number, any[]>, p) => {
-    const ph = p.phase || 1;
-    if (!acc[ph]) acc[ph] = [];
-    acc[ph].push(p);
+  const typeGroups = plans.reduce((acc: Record<string, any[]>, p) => {
+    const t = p.plan_type || "basic";
+    if (!acc[t]) acc[t] = [];
+    acc[t].push(p);
     return acc;
   }, {});
 
@@ -84,18 +85,23 @@ export default function AdminXrevisePlans() {
 
       {loading ? (
         <div className="text-center py-20 text-gray-400">Loading…</div>
-      ) : Object.keys(phaseGroups).length === 0 ? (
+      ) : Object.keys(typeGroups).length === 0 ? (
         <div className="text-center py-20 border border-dashed rounded-2xl text-gray-400">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-semibold">No plans yet</p>
           <p className="text-sm mt-1">Create the first XRevise subscription plan</p>
         </div>
       ) : (
-        Object.entries(phaseGroups).sort(([a], [b]) => Number(a) - Number(b)).map(([phase, ps]) => (
-          <div key={phase} className="space-y-3">
+        (["basic", "advance"] as const).filter(t => typeGroups[t]?.length > 0).map(planType => {
+          const ps = typeGroups[planType];
+          const phasesAllowed = planType === "advance" ? 3 : 1;
+          return (
+          <div key={planType} className="space-y-3">
             <h2 className="text-base font-bold text-gray-700 flex items-center gap-2">
-              <span className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-sm">Phase {phase}</span>
-              <span className="text-gray-400 text-sm font-normal">{ps.length} plan{ps.length !== 1 ? "s" : ""}</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-sm ${planType === "advance" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}`}>
+                {planType === "advance" ? "Advance" : "Basic"} Plan
+              </span>
+              <span className="text-gray-400 text-sm font-normal">{phasesAllowed} phase{phasesAllowed > 1 ? "s" : ""} access · {ps.length} plan{ps.length !== 1 ? "s" : ""}</span>
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {ps.map((plan: any) => (
@@ -108,7 +114,7 @@ export default function AdminXrevisePlans() {
                       </div>
                       {plan.description && <p className="text-gray-500 text-sm mb-2">{plan.description}</p>}
                       <div className="flex flex-wrap gap-3 text-sm text-gray-500 mb-3">
-                        <span><BookOpen size={13} className="inline mr-1" />{plan.exams_count} exams</span>
+                        <span><BookOpen size={13} className="inline mr-1" />{plan.exams_count} tests</span>
                         <span>{plan.duration_days} days</span>
                         {plan.enrolled_count > 0 && (
                           <span className="text-emerald-600 font-semibold">{plan.enrolled_count} enrolled</span>
@@ -149,7 +155,8 @@ export default function AdminXrevisePlans() {
               ))}
             </div>
           </div>
-        ))
+          );
+        })
       )}
 
       {/* Modal */}
@@ -170,17 +177,19 @@ export default function AdminXrevisePlans() {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
                     value={modal.plan.name}
                     onChange={e => handleChange("name", e.target.value)}
-                    placeholder="e.g. Phase 1 Complete Pack"
+                    placeholder="e.g. Basic Plan / Advance Plan"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Phase</label>
-                  <input
-                    type="number" min="1" max="4"
+                  <label className="text-sm font-semibold text-gray-700 mb-1 block">Plan Type</label>
+                  <select
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
-                    value={modal.plan.phase}
-                    onChange={e => handleChange("phase", parseInt(e.target.value) || 1)}
-                  />
+                    value={modal.plan.plan_type || "basic"}
+                    onChange={e => handleChange("plan_type", e.target.value)}
+                  >
+                    <option value="basic">Basic — 1 Phase</option>
+                    <option value="advance">Advance — 3 Phases</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-1 block">Duration (days)</label>

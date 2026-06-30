@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { StudentAPI } from "@/services/studentApi";
 import {
-  BookOpen, CheckCircle, Tag, Loader2, ChevronRight, ShoppingCart,
-  AlertCircle, IndianRupee, Percent, Trophy, RotateCcw, Clock,
+  BookOpen, CheckCircle, Tag, Loader2, ShoppingCart,
+  AlertCircle, IndianRupee, Percent, Trophy, RotateCcw, Clock, Layers,
 } from "lucide-react";
 
 declare global { interface Window { Razorpay: any } }
@@ -19,6 +19,8 @@ function loadRazorpay(): Promise<boolean> {
   });
 }
 
+const ALL_PHASES = [1, 2, 3, 4];
+
 export default function XReviseEnroll() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("student_user") || "{}");
@@ -30,13 +32,14 @@ export default function XReviseEnroll() {
   const [tab, setTab]         = useState<"plans" | "history">("plans");
 
   // Purchase state
-  const [selected, setSelected] = useState<any | null>(null);
-  const [coupon, setCoupon]     = useState("");
-  const [couponResult, setCouponResult] = useState<{ valid?: boolean; discountValue?: number; message?: string } | null>(null);
-  const [validating, setValidating] = useState(false);
-  const [paying, setPaying]   = useState(false);
-  const [payError, setPayError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [selected, setSelected]           = useState<any | null>(null);
+  const [selectedPhases, setSelectedPhases] = useState<number[]>([]);
+  const [coupon, setCoupon]               = useState("");
+  const [couponResult, setCouponResult]   = useState<{ valid?: boolean; discountValue?: number; message?: string } | null>(null);
+  const [validating, setValidating]       = useState(false);
+  const [paying, setPaying]               = useState(false);
+  const [payError, setPayError]           = useState("");
+  const [success, setSuccess]             = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -57,11 +60,28 @@ export default function XReviseEnroll() {
 
   const selectPlan = (plan: any) => {
     setSelected(plan);
+    setSelectedPhases([]);
     setCoupon("");
     setCouponResult(null);
     setPayError("");
     setSuccess(false);
   };
+
+  const phasesAllowed = selected?.phases_allowed ?? 1;
+
+  const togglePhase = (ph: number) => {
+    setSelectedPhases(prev => {
+      if (prev.includes(ph)) return prev.filter(p => p !== ph);
+      if (prev.length >= phasesAllowed) {
+        // replace last if single-select (basic), otherwise ignore if at max
+        if (phasesAllowed === 1) return [ph];
+        return prev;
+      }
+      return [...prev, ph];
+    });
+  };
+
+  const phaseSelectionComplete = selected && selectedPhases.length === phasesAllowed;
 
   const handleValidateCoupon = async () => {
     if (!coupon.trim() || !selected) return;
@@ -84,7 +104,7 @@ export default function XReviseEnroll() {
   };
 
   const handlePay = async () => {
-    if (!selected) return;
+    if (!selected || !phaseSelectionComplete) return;
     setPayError("");
     setPaying(true);
 
@@ -98,7 +118,8 @@ export default function XReviseEnroll() {
       original_amount: parseFloat(selected.selling_price),
       coupon_code: couponResult?.valid ? coupon.trim() : undefined,
       discount_amount: couponResult?.valid ? couponResult.discountValue : 0,
-    });
+      selected_phases: selectedPhases,
+    } as any);
 
     if (!r.status) { setPayError(r.message || "Order creation failed"); setPaying(false); return; }
 
@@ -121,24 +142,24 @@ export default function XReviseEnroll() {
         if (vr.status) {
           setSuccess(true);
           setSelected(null);
+          setSelectedPhases([]);
           setCoupon("");
           setCouponResult(null);
-          load(); // refresh history
+          load();
         } else {
           setPayError(vr.message || "Payment verification failed");
         }
       },
-      modal: {
-        ondismiss: () => setPaying(false),
-      },
+      modal: { ondismiss: () => setPaying(false) },
     });
     rzp.open();
   };
 
-  const phaseGroups = plans.reduce((acc: Record<number, any[]>, p) => {
-    const ph = p.phase || 1;
-    if (!acc[ph]) acc[ph] = [];
-    acc[ph].push(p);
+  // Group plans by plan_type
+  const typeGroups = plans.reduce((acc: Record<string, any[]>, p) => {
+    const t = p.plan_type || "basic";
+    if (!acc[t]) acc[t] = [];
+    acc[t].push(p);
     return acc;
   }, {});
 
@@ -155,7 +176,7 @@ export default function XReviseEnroll() {
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-5 text-white">
         <p className="text-emerald-100 text-sm">Enroll for XRevise</p>
         <p className="text-2xl font-bold mt-0.5">Choose Your Plan</p>
-        <p className="text-emerald-100 text-sm mt-1">Access day-wise exams, full analysis, and rank tracking</p>
+        <p className="text-emerald-100 text-sm mt-1">Access day-wise tests, full analysis, and rank tracking</p>
       </div>
 
       {/* Success banner */}
@@ -164,7 +185,7 @@ export default function XReviseEnroll() {
           <CheckCircle className="text-emerald-600 shrink-0" size={22} />
           <div>
             <p className="text-emerald-800 font-bold">Payment successful! You're enrolled.</p>
-            <p className="text-emerald-600 text-sm">All exams in your phase are now accessible from your dashboard.</p>
+            <p className="text-emerald-600 text-sm">All tests in your selected phases are now accessible from your dashboard.</p>
           </div>
           <button
             onClick={() => navigate("/student/dashboard")}
@@ -193,47 +214,35 @@ export default function XReviseEnroll() {
       {/* Plans tab */}
       {tab === "plans" && (
         <div className="space-y-8">
-          {Object.keys(phaseGroups).length === 0 ? (
+          {plans.length === 0 ? (
             <div className="text-center py-16 border border-dashed rounded-2xl text-gray-400">
               <BookOpen size={40} className="mx-auto mb-3 opacity-20" />
               <p className="font-semibold">No plans available yet</p>
               <p className="text-sm mt-1">Check back later for XRevise subscription plans</p>
             </div>
           ) : (
-            Object.entries(phaseGroups).sort(([a], [b]) => Number(a) - Number(b)).map(([phase, ps]) => {
-              const phaseInfo = phasesMap[parseInt(phase)];
+            (["basic", "advance"] as const).filter(t => typeGroups[t]?.length > 0).map(planType => {
+              const ps = typeGroups[planType];
+              const allowedCount = planType === "advance" ? 3 : 1;
               return (
-                <div key={phase} className="space-y-4">
-                  {/* Phase header */}
+                <div key={planType} className="space-y-4">
+                  {/* Plan type header */}
                   <div className="flex items-center gap-3">
-                    <div className="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-xl font-bold text-sm">
-                      Phase {phase}
+                    <div className={`px-3 py-1.5 rounded-xl font-bold text-sm ${
+                      planType === "advance"
+                        ? "bg-violet-100 text-violet-800"
+                        : "bg-emerald-100 text-emerald-800"
+                    }`}>
+                      {planType === "advance" ? "Advance Plan" : "Basic Plan"}
                     </div>
-                    {phaseInfo && (
-                      <p className="text-gray-500 text-sm">
-                        {phaseInfo.exam_count} exams
-                        {phaseInfo.start_date && ` · Starts ${new Date(phaseInfo.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`}
-                      </p>
-                    )}
+                    <p className="text-gray-500 text-sm">
+                      Select any <strong>{allowedCount}</strong> phase{allowedCount > 1 ? "s" : ""} of your choice
+                    </p>
                   </div>
-
-                  {/* Phase exams preview */}
-                  {phaseInfo?.exams?.length > 0 && (
-                    <div className="bg-gray-50 rounded-xl px-4 py-3 flex flex-wrap gap-2">
-                      {phaseInfo.exams.slice(0, 8).map((e: any) => (
-                        <span key={e.id} className="text-xs bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded-lg">
-                          {e.day_number ? `Day ${e.day_number}` : e.title}
-                        </span>
-                      ))}
-                      {phaseInfo.exams.length > 8 && (
-                        <span className="text-xs text-gray-400">+{phaseInfo.exams.length - 8} more</span>
-                      )}
-                    </div>
-                  )}
 
                   {/* Plan cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {(ps as any[]).map((plan: any) => (
+                    {ps.map((plan: any) => (
                       <button
                         key={plan.id}
                         onClick={() => selectPlan(plan)}
@@ -255,8 +264,11 @@ export default function XReviseEnroll() {
                         </div>
 
                         <div className="flex flex-wrap gap-3 text-sm text-gray-500 mb-3">
-                          <span className="flex items-center gap-1"><BookOpen size={13} /> {plan.exams_count} exams</span>
+                          <span className="flex items-center gap-1"><BookOpen size={13} /> {plan.exams_count} tests</span>
                           <span className="flex items-center gap-1"><Clock size={13} /> {plan.duration_days} days</span>
+                          <span className="flex items-center gap-1">
+                            <Layers size={13} /> {plan.phases_allowed} phase{plan.phases_allowed > 1 ? "s" : ""}
+                          </span>
                         </div>
 
                         {Array.isArray(plan.features) && plan.features.length > 0 && (
@@ -282,8 +294,69 @@ export default function XReviseEnroll() {
             })
           )}
 
-          {/* Checkout panel */}
+          {/* Phase Picker — shown after plan selection */}
           {selected && (
+            <div className="bg-white rounded-2xl border-2 border-emerald-100 p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <Layers size={18} className="text-emerald-600" />
+                <h3 className="font-bold text-gray-900">
+                  Select Phase{phasesAllowed > 1 ? "s" : ""}
+                  <span className="ml-2 text-sm font-normal text-gray-400">
+                    ({selectedPhases.length}/{phasesAllowed} selected)
+                  </span>
+                </h3>
+              </div>
+              <p className="text-sm text-gray-500">
+                {phasesAllowed === 1
+                  ? "Choose 1 phase — you'll get access to all tests in that phase."
+                  : `Choose any ${phasesAllowed} phases — you'll get access to all tests in those phases.`}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {ALL_PHASES.map(ph => {
+                  const info = phasesMap[ph];
+                  const isChosen = selectedPhases.includes(ph);
+                  const atMax = selectedPhases.length >= phasesAllowed && !isChosen;
+                  return (
+                    <button
+                      key={ph}
+                      onClick={() => togglePhase(ph)}
+                      disabled={atMax}
+                      className={`rounded-2xl border-2 p-4 text-left transition ${
+                        isChosen
+                          ? "border-emerald-500 bg-emerald-50"
+                          : atMax
+                          ? "border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed"
+                          : "border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/40"
+                      }`}
+                    >
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold mb-2 ${
+                        isChosen ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600"
+                      }`}>
+                        {ph}
+                      </div>
+                      <p className="font-semibold text-gray-800 text-sm">Phase {ph}</p>
+                      {info ? (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {info.exam_count} test{info.exam_count !== 1 ? "s" : ""}
+                          {info.start_date && ` · from ${new Date(info.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 mt-0.5">Coming soon</p>
+                      )}
+                      {isChosen && (
+                        <div className="mt-1.5 flex items-center gap-1 text-emerald-600 text-xs font-bold">
+                          <CheckCircle size={11} /> Selected
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Checkout panel */}
+          {phaseSelectionComplete && (
             <div className="bg-white rounded-2xl border-2 border-emerald-200 shadow-lg p-6 space-y-5 sticky bottom-4">
               <div className="flex items-center gap-3">
                 <ShoppingCart size={20} className="text-emerald-600" />
@@ -293,7 +366,9 @@ export default function XReviseEnroll() {
               <div className="bg-emerald-50 rounded-xl px-4 py-3 flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-emerald-900">{selected.name}</p>
-                  <p className="text-emerald-600 text-sm">Phase {selected.phase} · {selected.exams_count} exams</p>
+                  <p className="text-emerald-600 text-sm">
+                    Phase{selectedPhases.length > 1 ? "s" : ""} {selectedPhases.sort((a, b) => a - b).join(", ")} · {selected.exams_count} tests
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-emerald-800">₹{Number(selected.selling_price).toLocaleString()}</p>
@@ -358,7 +433,7 @@ export default function XReviseEnroll() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setSelected(null); setCouponResult(null); setCoupon(""); }}
+                  onClick={() => { setSelected(null); setSelectedPhases([]); setCouponResult(null); setCoupon(""); }}
                   className="px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50"
                 >
                   Cancel
@@ -390,30 +465,37 @@ export default function XReviseEnroll() {
               <p className="text-sm mt-1">Your payment history will appear here</p>
             </div>
           ) : (
-            history.map(order => (
-              <div key={order.id} className="bg-white rounded-2xl border border-gray-200 p-5">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div>
-                    <p className="font-bold text-gray-900">{order.plan_name}</p>
-                    <p className="text-sm text-gray-500 mt-0.5">Phase {order.phase} · {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
-                    {order.coupon_code && (
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full mt-1.5">
-                        <Tag size={10} /> {order.coupon_code} applied
+            history.map(order => {
+              const phases = Array.isArray(order.phases_selected) && order.phases_selected.length > 0
+                ? order.phases_selected
+                : order.phase ? [order.phase] : [];
+              return (
+                <div key={order.id} className="bg-white rounded-2xl border border-gray-200 p-5">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                      <p className="font-bold text-gray-900">{order.plan_name}</p>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        Phase{phases.length > 1 ? "s" : ""} {phases.sort((a: number, b: number) => a - b).join(", ")} · {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                      {order.coupon_code && (
+                        <span className="inline-flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full mt-1.5">
+                          <Tag size={10} /> {order.coupon_code} applied
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900 text-lg">₹{Number(order.amount).toLocaleString()}</p>
+                      {order.discount_amount > 0 && (
+                        <p className="text-xs text-emerald-600">Saved ₹{Number(order.discount_amount).toLocaleString()}</p>
+                      )}
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mt-1">
+                        <Trophy size={10} /> Paid
                       </span>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-900 text-lg">₹{Number(order.amount).toLocaleString()}</p>
-                    {order.discount_amount > 0 && (
-                      <p className="text-xs text-emerald-600">Saved ₹{Number(order.discount_amount).toLocaleString()}</p>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mt-1">
-                      <Trophy size={10} /> Paid
-                    </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
           <div className="text-center">
             <button onClick={load} className="flex items-center gap-2 mx-auto text-sm text-gray-400 hover:text-emerald-600 font-medium">

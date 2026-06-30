@@ -56,7 +56,7 @@ export default function XReviseStudentDashboard() {
         <p className="text-emerald-100 text-sm font-medium">Welcome back,</p>
         <p className="text-2xl font-bold">{user.name} 👋</p>
         <div className="flex flex-wrap gap-4 mt-3 text-sm text-emerald-100">
-          <span>{groups.running.length} Live Exam{groups.running.length !== 1 ? "s" : ""}</span>
+          <span>{groups.running.length} Live Test{groups.running.length !== 1 ? "s" : ""}</span>
           <span>·</span>
           <span>{groups.upcoming.length} Upcoming</span>
           <span>·</span>
@@ -69,7 +69,7 @@ export default function XReviseStudentDashboard() {
         <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-emerald-700 text-sm font-semibold">
-            {groups.running.length} exam{groups.running.length !== 1 ? "s are" : " is"} live right now!
+            {groups.running.length} test{groups.running.length !== 1 ? "s are" : " is"} live right now!
           </span>
           <button
             onClick={() => setTab("running")}
@@ -105,16 +105,16 @@ export default function XReviseStudentDashboard() {
       {loading ? (
         <div className="py-20 text-center text-gray-400">
           <RotateCcw className="animate-spin mx-auto mb-3" size={28} />
-          <p>Loading your exams…</p>
+          <p>Loading your tests…</p>
         </div>
       ) : displayed.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-20 text-center text-gray-400">
           <BookOpen size={48} className="mx-auto mb-3 opacity-20" />
-          <p className="font-semibold">No {tab} exams</p>
+          <p className="font-semibold">No {tab} tests</p>
           <p className="text-sm mt-1 text-gray-400">
-            {tab === "upcoming" ? "Your upcoming exams will appear here." :
-             tab === "running"  ? "No exams are live right now." :
-             "You haven't completed any exams yet."}
+            {tab === "upcoming" ? "Your upcoming tests will appear here." :
+             tab === "running"  ? "No tests are live right now." :
+             "You haven't completed any tests yet."}
           </p>
         </div>
       ) : (
@@ -175,7 +175,7 @@ export default function XReviseStudentDashboard() {
                           onClick={() => startOrResume(exam)}
                           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-sm"
                         >
-                          {inProgress ? <><RotateCcw size={16} /> Resume</> : <><Play size={16} /> Start Exam</>}
+                          {inProgress ? <><RotateCcw size={16} /> Resume</> : <><Play size={16} /> Start Test</>}
                         </button>
                       )}
 
@@ -266,7 +266,7 @@ export default function XReviseStudentDashboard() {
           onClick={load}
           className="flex items-center gap-2 mx-auto text-sm text-gray-400 hover:text-emerald-600 transition font-medium"
         >
-          <RotateCcw size={14} /> Refresh exams
+          <RotateCcw size={14} /> Refresh tests
         </button>
       </div>
     </div>

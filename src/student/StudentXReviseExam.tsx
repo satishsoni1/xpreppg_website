@@ -130,7 +130,7 @@ export default function StudentXReviseExam() {
 
       if (autoSubmit && count >= maxWarnings) {
         setBlocked(true);
-        setShowWarning("Max violations reached. Exam auto-submitted.");
+        setShowWarning("Max violations reached. Test auto-submitted.");
         setTimeout(() => handleAutoSubmit(), 2000);
       }
     };
@@ -271,7 +271,7 @@ export default function StudentXReviseExam() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center">
         <Loader2 className="animate-spin mx-auto mb-3 text-emerald-600" size={36} />
-        <p className="text-gray-500 font-medium">Loading exam…</p>
+        <p className="text-gray-500 font-medium">Loading test…</p>
       </div>
     </div>
   );
@@ -280,7 +280,7 @@ export default function StudentXReviseExam() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white rounded-2xl shadow p-8 text-center max-w-md">
         <AlertTriangle className="mx-auto mb-3 text-red-500" size={40} />
-        <p className="font-bold text-gray-800 mb-2">Unable to load exam</p>
+        <p className="font-bold text-gray-800 mb-2">Unable to load test</p>
         <p className="text-gray-500 text-sm mb-5">{error}</p>
         <button onClick={() => navigate("/student/dashboard")}
           className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold">
@@ -331,8 +331,8 @@ export default function StudentXReviseExam() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-8 max-w-sm text-center shadow-2xl">
             <AlertTriangle className="mx-auto mb-3 text-red-500" size={44} />
-            <h2 className="text-xl font-bold text-gray-900 mb-1">Exam Auto-Submitted</h2>
-            <p className="text-gray-500 text-sm">Maximum violations reached. Your exam has been automatically submitted.</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Test Auto-Submitted</h2>
+            <p className="text-gray-500 text-sm">Maximum violations reached. Your test has been automatically submitted.</p>
             <p className="text-xs text-gray-400 mt-3">Redirecting to results…</p>
           </div>
         </div>
@@ -485,7 +485,7 @@ export default function StudentXReviseExam() {
                 onClick={() => setShowSubmitModal(true)}
                 className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition"
               >
-                <Send size={14} /> Submit Exam
+                <Send size={14} /> Submit Test
               </button>
             </div>
           </div>
@@ -509,7 +509,7 @@ export default function StudentXReviseExam() {
               <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <AlertTriangle className="text-amber-600" size={28} />
               </div>
-              <h3 className="font-bold text-gray-900 text-lg">Submit Exam?</h3>
+              <h3 className="font-bold text-gray-900 text-lg">Submit Test?</h3>
               <p className="text-gray-500 text-sm mt-1">This action cannot be undone.</p>
             </div>
 
