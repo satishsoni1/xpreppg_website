@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Clock, ChevronLeft, ChevronRight, Flag, X, Send,
-  AlertTriangle, CheckCircle, BookmarkCheck, SkipForward,
+  CheckCircle, BookmarkCheck, SkipForward,
   Loader2, RotateCcw, Maximize2,
 } from "lucide-react";
 import { StudentPortalAPI } from "@/services/examApi";
@@ -41,9 +41,6 @@ export default function XReviseExamInterface() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Anti-cheat
-  const [violations, setViolations] = useState(0);
-  const [showWarning, setShowWarning] = useState<string | null>(null);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval>>();
@@ -116,39 +113,8 @@ export default function XReviseExamInterface() {
 
   const getTimeSpentOnCurrent = () => Math.floor((Date.now() - questionStartRef.current) / 1000);
 
-  // Anti-cheat: visibility change
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden && !submitted && !autoSubmitted) triggerWarning("tab_change", "Tab switch detected");
-    };
-    const handleBlur = () => {
-      if (!submitted && !autoSubmitted) triggerWarning("window_blur", "Window switch detected");
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("blur", handleBlur);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, [submitted, autoSubmitted, violations]);
-
-  const triggerWarning = async (type: string, message: string) => {
-    if (!attemptId || submitted || autoSubmitted) return;
-    const r = await StudentPortalAPI.warn({ attempt_id: attemptId, warning_type: type, message });
-    if (!r.status) return;
-    const newViolations = r.violation_number;
-    setViolations(newViolations);
-    if (r.auto_submitted) {
-      setAutoSubmitted(true);
-      clearInterval(timerRef.current);
-      alert("Exam auto-submitted due to violations.");
-      navigate(`/xrevise/result/${attemptId}`);
-      return;
-    }
-    const remaining = r.warnings_remaining || 0;
-    setShowWarning(`⚠️ Warning ${newViolations}/${r.max_warnings}: ${message}. ${remaining > 0 ? `${remaining} warning(s) remaining.` : "Next violation will auto-submit your exam."}`);
-    setTimeout(() => setShowWarning(null), 5000);
-  };
+  // Anti-cheat: visibility change — disabled for now so students can freely
+  // switch screens/tabs without the exam flagging a violation or auto-submitting.
 
   const handleAutoSubmitTimeout = async () => {
     if (submitted || autoSubmitted) return;
@@ -288,13 +254,6 @@ export default function XReviseExamInterface() {
 
   return (
     <div className="fixed inset-0 bg-slate-100 flex flex-col overflow-hidden select-none">
-      {/* Warning Banner */}
-      {showWarning && (
-        <div className="absolute top-0 left-0 right-0 z-50 bg-red-600 text-white text-center py-3 px-4 text-sm font-semibold flex items-center justify-center gap-2 shadow-lg">
-          <AlertTriangle size={16}/> {showWarning}
-        </div>
-      )}
-
       {/* Top Bar */}
       <div className="bg-white border-b border-slate-200 shadow-sm px-4 h-14 flex items-center gap-4 shrink-0">
         <div className="flex-1 min-w-0">
@@ -305,11 +264,6 @@ export default function XReviseExamInterface() {
           <Clock size={15}/>
           {formatTime(timeRemaining)}
         </div>
-        {violations > 0 && (
-          <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-lg font-bold">
-            <AlertTriangle size={12}/> {violations} warning{violations!==1?"s":""}
-          </div>
-        )}
         <button onClick={() => setShowSubmitModal(true)} disabled={submitting}
           className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm disabled:opacity-60">
           {submitting ? <Loader2 size={15} className="animate-spin"/> : <Send size={15}/>}

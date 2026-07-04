@@ -21,31 +21,6 @@ export const SimulatorAPI = {
     get(`/admin/simulator/exams/${id}?source=${source}`),
 };
 
-// ── Question Bank ─────────────────────────────────────────────────────────
-export const QuestionBankAPI = {
-  getQuestions:     (params: Record<string, any> = {}) =>
-    get(`/em/question-bank?${new URLSearchParams(params as any).toString()}`),
-  getQuestion:      (id: number) => get(`/em/question-bank/${id}`),
-  getFilterOptions: () => get("/em/question-bank/filter-options"),
-  getStats:         () => get("/em/question-bank/stats"),
-  addQuestion:      (data: any) => post("/em/question-bank", data),
-  editQuestion:     (id: number, data: any) => put(`/em/question-bank/${id}`, data),
-  deleteQuestion:   (id: number) => del(`/em/question-bank/${id}`),
-  downloadTemplate: () => {
-    const a = document.createElement("a");
-    a.href = `${API_BASE_URL}/em/question-bank/template`;
-    a.click();
-  },
-  bulkUploadExcel: (file: File, meta: Record<string, any> = {}) => {
-    const fd = new FormData();
-    fd.append("file", file);
-    Object.entries(meta).forEach(([k, v]) => fd.append(k, String(v)));
-    return fetch(`${API_BASE_URL}/em/question-bank/bulk-upload`, {
-      method: "POST", headers: uploadHeaders(), body: fd,
-    }).then(r => r.json());
-  },
-};
-
 // ── Exam Management ───────────────────────────────────────────────────────
 export const ExamAPI = {
   getAll:   (params: Record<string, any> = {}) =>
@@ -58,19 +33,29 @@ export const ExamAPI = {
   publishResult: (id: number) => post(`/em/exams/${id}/publish-result`),
 
   // Questions in exam
-  addQuestions:       (examId: number, question_ids: number[], marks?: number, negative?: number) =>
-    post(`/em/exams/${examId}/questions`, { question_ids, marks_override: marks, negative_marks_override: negative }),
-  removeQuestion:     (examId: number, questionId: number) =>
-    del(`/em/exams/${examId}/questions/${questionId}`),
+  removeQuestion:     (examId: number, questionId: number, platform: string) =>
+    del(`/em/exams/${examId}/questions/${questionId}?platform=${platform}`),
   reorderQuestions:   (examId: number, ordered_ids: number[]) =>
     put(`/em/exams/${examId}/reorder`, { ordered_ids }),
-  importQuestionsXlsx: (examId: number, file: File) => {
+  importQuestionsXlsx: (examId: number, file: File, platform: string) => {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("exam_id", String(examId));
+    fd.append("platform", platform);
     return fetch(`${API_BASE_URL}/em/exams/${examId}/import-questions`, {
       method: "POST", headers: uploadHeaders(), body: fd,
     }).then(r => r.json());
+  },
+  downloadQuestionsTemplate: async () => {
+    const res = await fetch(`${API_BASE_URL}/em/exams/questions-template`, { headers: uploadHeaders() });
+    if (!res.ok) throw new Error("Failed to download template");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "exam_questions_template.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
   },
 
   // Operations

@@ -5,7 +5,7 @@ import {
   MapPin, LogOut, FileText, Menu, ChevronLeft,
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
-  BookOpen, ChevronRight, Upload, Database, GraduationCap,
+  BookOpen, ChevronRight, Upload, GraduationCap,
   ListChecks, Play, PieChart, Layers,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
@@ -66,7 +66,7 @@ export default function AdminLayout() {
     { name: "XRevise Orders", path: "/admin/xrevise/orders", icon: <CreditCard size={18} /> },
     { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
     { name: "─── Exam Manager ───", path: "", icon: null },
-    { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },
+    { name: "Exam Manager", path: "/admin/em/xrevise-exams", icon: <FileQuestion size={18} /> },
     { name: "Enrollments (EM)", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
     { name: "Analytics (EM)", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
     { name: "Exam Simulator", path: "/admin/em/simulator", icon: <Play size={18} /> },
@@ -86,8 +86,8 @@ export default function AdminLayout() {
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "CBT Students", path: "/admin/cbt/students", icon: <Users size={18} />, badge: badges.cbt_new },
     { name: "CBT Exams", path: "/admin/cbt/exams", icon: <Monitor size={18} /> },
+    { name: "Exam Manager", path: "/admin/em/exams", icon: <FileQuestion size={18} /> },
     { name: "CBT Enrollments", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
-    { name: "Question Bank", path: "/admin/em/question-bank", icon: <Database size={18} /> },
     { name: "Analytics", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
     { name: "Exam Simulator", path: "/admin/em/simulator", icon: <Play size={18} /> },
     { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },

@@ -3,9 +3,9 @@ import {
   Monitor, BookOpen, Plus, Edit2, Trash2, Copy, ArrowRightLeft,
   MoveRight, Search, ChevronLeft, ChevronRight, X, Loader2,
   CheckCircle, AlertCircle, Upload, Users, BarChart3, RotateCcw,
-  Clock, FileQuestion, RefreshCw, Eye, Filter, ChevronDown,
+  Clock, FileQuestion, RefreshCw, Eye, Filter, ChevronDown, Download,
 } from "lucide-react";
-import { ExamAPI, QuestionBankAPI, EnrollmentAPI } from "@/services/examApi";
+import { ExamAPI, EnrollmentAPI } from "@/services/examApi";
 
 type Platform = "cbt" | "xrevise";
 
@@ -47,15 +47,7 @@ export default function AdminExamManager({ platform }: Props) {
   // Selected exam detail view
   const [selectedExam, setSelectedExam] = useState<any|null>(null);
   const [examDetail, setExamDetail] = useState<{exam:any,questions:any[]}|null>(null);
-  const [detailTab, setDetailTab] = useState<"questions"|"add-from-bank">("questions");
   const [loadingDetail, setLoadingDetail] = useState(false);
-
-  // Question bank picker
-  const [bankQuestions, setBankQuestions] = useState<any[]>([]);
-  const [bankSearch, setBankSearch] = useState("");
-  const [bankSubject, setBankSubject] = useState("");
-  const [selectedBankQIds, setSelectedBankQIds] = useState<Set<number>>(new Set());
-  const [loadingBank, setLoadingBank] = useState(false);
 
   // Operations
   const [opModal, setOpModal] = useState<{type:"copy"|"transfer"|"move"|"delete"|"restore";exam:any}|null>(null);
@@ -128,34 +120,14 @@ export default function AdminExamManager({ platform }: Props) {
 
   const openDetail = async (ex: any) => {
     setSelectedExam(ex);
-    setDetailTab("questions");
     setLoadingDetail(true);
     const r = await ExamAPI.getOne(ex.id);
     if (r.status) setExamDetail({ exam: r.exam, questions: r.questions });
     setLoadingDetail(false);
   };
 
-  const loadBankQuestions = async () => {
-    setLoadingBank(true);
-    const r = await QuestionBankAPI.getQuestions({ search: bankSearch, subject: bankSubject, limit: 50 });
-    if (r.status) setBankQuestions(r.questions);
-    setLoadingBank(false);
-  };
-  useEffect(() => { if (detailTab === "add-from-bank") loadBankQuestions(); }, [detailTab, bankSearch, bankSubject]);
-
-  const addFromBank = async () => {
-    if (!selectedBankQIds.size || !examDetail) return;
-    const r = await ExamAPI.addQuestions(examDetail.exam.id, [...selectedBankQIds]);
-    if (r.status) {
-      notify(`${r.added?.length} question(s) added`);
-      setSelectedBankQIds(new Set());
-      const dr = await ExamAPI.getOne(examDetail.exam.id);
-      if (dr.status) setExamDetail({ exam: dr.exam, questions: dr.questions });
-    } else notify(r.message||"Failed","error");
-  };
-
   const removeQuestion = async (examId: number, questionId: number) => {
-    const r = await ExamAPI.removeQuestion(examId, questionId);
+    const r = await ExamAPI.removeQuestion(examId, questionId, platform);
     if (r.status) {
       const dr = await ExamAPI.getOne(examId);
       if (dr.status) setExamDetail({ exam: dr.exam, questions: dr.questions });
@@ -184,10 +156,16 @@ export default function AdminExamManager({ platform }: Props) {
 
   const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0] || !importingExam) return;
-    const r = await ExamAPI.importQuestionsXlsx(importingExam, e.target.files[0]);
+    const r = await ExamAPI.importQuestionsXlsx(importingExam, e.target.files[0], platform);
     e.target.value = "";
     if (r.status) {
-      notify(`${r.inserted} questions imported`);
+      const skipped = r.errors?.length || 0;
+      if (r.inserted > 0) {
+        notify(`${r.inserted} question(s) imported${skipped ? `, ${skipped} skipped` : ""}`);
+      } else {
+        const firstReason = r.errors?.[0] ? ` — row ${r.errors[0].row}: ${r.errors[0].reason}` : "";
+        notify(`0 questions imported, ${skipped} skipped${firstReason}`, "error");
+      }
       if (selectedExam?.id === importingExam) {
         const dr = await ExamAPI.getOne(importingExam);
         if (dr.status) setExamDetail({ exam: dr.exam, questions: dr.questions });
@@ -196,7 +174,6 @@ export default function AdminExamManager({ platform }: Props) {
     setImportingExam(null);
   };
 
-  const pColor = platform === "cbt" ? "blue" : "emerald";
   const pBg = platform === "cbt" ? "bg-blue-600" : "bg-emerald-600";
   const pBgHover = platform === "cbt" ? "hover:bg-blue-700" : "hover:bg-emerald-700";
   const pText = platform === "cbt" ? "text-blue-600" : "text-emerald-600";
@@ -351,15 +328,14 @@ export default function AdminExamManager({ platform }: Props) {
                   ))}
                 </div>
 
-                {/* Tabs */}
-                <div className="flex border-b border-slate-100 px-4">
-                  {(["questions","add-from-bank"] as const).map(t => (
-                    <button key={t} onClick={() => setDetailTab(t)}
-                      className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${detailTab===t?`border-${pColor}-500 ${pText}`:"border-transparent text-slate-500 hover:text-slate-700"}`}>
-                      {t==="questions"?"Exam Questions":"Add from Bank"}
+                {/* Header row */}
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+                  <span className="text-sm font-semibold text-slate-700">Exam Questions</span>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => ExamAPI.downloadQuestionsTemplate()}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold">
+                      <Download size={12}/> Template
                     </button>
-                  ))}
-                  <div className="ml-auto flex items-center gap-2 py-2">
                     <button onClick={() => { setImportingExam(examDetail.exam.id); importRef.current?.click(); }}
                       className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold">
                       <Upload size={12}/> Import Excel
@@ -367,78 +343,28 @@ export default function AdminExamManager({ platform }: Props) {
                   </div>
                 </div>
 
-                {detailTab === "questions" && (
-                  <div className="divide-y divide-slate-50">
-                    {examDetail.questions.length === 0 ? (
-                      <div className="py-12 text-center text-slate-400">
-                        <FileQuestion size={32} className="mx-auto mb-2 text-slate-200"/>
-                        <p>No questions yet — add from Question Bank</p>
-                      </div>
-                    ) : examDetail.questions.map((q, i) => (
-                      <div key={q.question_id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50">
-                        <span className="text-xs font-bold text-slate-400 min-w-[24px] mt-0.5">Q{i+1}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-700 line-clamp-2">{q.question_text}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {q.subject && <span className="text-[10px] bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded-full">{q.subject}</span>}
-                            <span className="text-[10px] text-slate-400">{q.marks}M / -{q.negative_marks}M</span>
-                            <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">Ans:{q.correct_answer}</span>
-                          </div>
-                        </div>
-                        <button onClick={() => removeQuestion(examDetail.exam.id, q.question_id)}
-                          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"><X size={13}/></button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {detailTab === "add-from-bank" && (
-                  <div className="p-4 space-y-3">
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"/>
-                        <input value={bankSearch} onChange={e=>{setBankSearch(e.target.value);}} placeholder="Search questions…"
-                          className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-violet-300"/>
-                      </div>
-                      <input value={bankSubject} onChange={e=>setBankSubject(e.target.value)} placeholder="Subject filter"
-                        className="border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none w-36"/>
+                <div className="divide-y divide-slate-50">
+                  {examDetail.questions.length === 0 ? (
+                    <div className="py-12 text-center text-slate-400">
+                      <FileQuestion size={32} className="mx-auto mb-2 text-slate-200"/>
+                      <p>No questions yet — click Import Excel to add questions</p>
                     </div>
-                    {selectedBankQIds.size > 0 && (
-                      <div className="flex items-center gap-3 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2">
-                        <span className="text-xs font-bold text-violet-700">{selectedBankQIds.size} selected</span>
-                        <button onClick={addFromBank}
-                          className="ml-auto px-3 py-1 bg-violet-600 text-white rounded-lg text-xs font-bold">Add to Exam</button>
-                        <button onClick={() => setSelectedBankQIds(new Set())} className="text-xs text-slate-500 hover:text-red-500">Clear</button>
+                  ) : examDetail.questions.map((q, i) => (
+                    <div key={q.question_id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50">
+                      <span className="text-xs font-bold text-slate-400 min-w-[24px] mt-0.5">Q{i+1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-slate-700 line-clamp-2">{q.question_text}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {q.subject && <span className="text-[10px] bg-violet-50 text-violet-700 px-1.5 py-0.5 rounded-full">{q.subject}</span>}
+                          <span className="text-[10px] text-slate-400">{q.marks}M / -{q.negative_marks}M</span>
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">Ans:{q.correct_answer}</span>
+                        </div>
                       </div>
-                    )}
-                    {loadingBank ? <div className="text-center py-8"><Loader2 className="animate-spin mx-auto text-slate-400" size={24}/></div> : (
-                      <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto border border-slate-100 rounded-xl">
-                        {bankQuestions.map(q => {
-                          const alreadyAdded = examDetail.questions.some(eq => eq.question_id === q.id);
-                          const selected = selectedBankQIds.has(q.id);
-                          return (
-                            <div key={q.id} onClick={() => {
-                              if (alreadyAdded) return;
-                              setSelectedBankQIds(prev => { const n=new Set(prev); if(n.has(q.id))n.delete(q.id);else n.add(q.id); return n; });
-                            }} className={`flex items-start gap-3 px-3 py-3 cursor-pointer transition ${alreadyAdded?"opacity-40 cursor-not-allowed":selected?"bg-violet-50":""}`}>
-                              <div className={`w-4 h-4 rounded border-2 mt-0.5 shrink-0 flex items-center justify-center ${selected?"border-violet-600 bg-violet-600":alreadyAdded?"border-gray-300 bg-gray-100":"border-slate-300"}`}>
-                                {selected && <CheckCircle size={10} className="text-white"/>}
-                                {alreadyAdded && <span className="text-[8px] text-gray-400">✓</span>}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm text-slate-700 line-clamp-1">{q.question_text}</p>
-                                <div className="flex gap-1.5 mt-0.5">
-                                  {q.subject && <span className="text-[10px] text-violet-600">{q.subject}</span>}
-                                  <span className="text-[10px] text-slate-400">{q.difficulty} · {q.default_marks}M</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
+                      <button onClick={() => removeQuestion(examDetail.exam.id, q.question_id)}
+                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg shrink-0"><X size={13}/></button>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
@@ -463,7 +389,7 @@ export default function AdminExamManager({ platform }: Props) {
             {opModal.type==="copy" && <p className="text-xs text-slate-500 mb-3">Creates a duplicate in <strong>{platform.toUpperCase()}</strong>. Original is unchanged.</p>}
             {opModal.type==="transfer" && <p className="text-xs text-slate-500 mb-3">Creates a copy in <strong>{platform==="cbt"?"XRevise":"CBT"}</strong> with all questions. Original stays.</p>}
             {opModal.type==="move" && <p className="text-xs text-slate-500 mb-3">Moves this exam to <strong>{platform==="cbt"?"XRevise":"CBT"}</strong>. It will be removed from {platform.toUpperCase()}.</p>}
-            {opModal.type==="delete" && <p className="text-xs text-red-500 mb-3">This exam will be soft-deleted. Questions in the bank are NOT affected.</p>}
+            {opModal.type==="delete" && <p className="text-xs text-red-500 mb-3">This exam will be soft-deleted. Its questions are preserved and will return if restored.</p>}
             {opModal.type==="restore" && <p className="text-xs text-slate-500 mb-3">Restore this exam to active status.</p>}
 
             {(opModal.type==="copy"||opModal.type==="transfer") && (

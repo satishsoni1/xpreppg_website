@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AlertTriangle, Clock, ChevronLeft, ChevronRight, BookmarkPlus, BookmarkCheck, Send } from "lucide-react";
 import { StudentAPI } from "@/services/studentApi";
 
-const SECTION_SIZE = 20;
 const SECTION_DURATION = 42 * 60; // 2520 seconds
 
 interface Question {
@@ -87,10 +86,9 @@ export default function StudentCBTExam() {
   }, [attemptIdNum, examDone, navigate]);
 
   useEffect(() => {
-    const onVisibility = () => {
-      if (document.hidden && !examDone) recordViolation();
-    };
-    const onBlur = () => { if (!examDone) recordViolation(); };
+    // Tab/window switch detection (visibilitychange/blur → recordViolation) is
+    // disabled for now so students can freely switch screens without the exam
+    // flagging a violation or auto-submitting.
     const preventCtxMenu = (e: MouseEvent) => e.preventDefault();
     const preventCopy = (e: ClipboardEvent) => e.preventDefault();
     const preventKeys = (e: KeyboardEvent) => {
@@ -100,15 +98,11 @@ export default function StudentCBTExam() {
       if (e.key === "PrintScreen") { e.preventDefault(); recordViolation(); }
     };
 
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("blur", onBlur);
     document.addEventListener("contextmenu", preventCtxMenu);
     document.addEventListener("copy", preventCopy);
     document.addEventListener("paste", preventCopy);
     document.addEventListener("keydown", preventKeys);
     return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("blur", onBlur);
       document.removeEventListener("contextmenu", preventCtxMenu);
       document.removeEventListener("copy", preventCopy);
       document.removeEventListener("paste", preventCopy);
@@ -141,7 +135,7 @@ export default function StudentCBTExam() {
     setCurrentSection(secIdx);
     currentSectionRef.current = secIdx;
     setSectionsSubmitted(r.sections_submitted || []);
-    setTotalSections(Math.ceil(r.questions.length / SECTION_SIZE) || 1);
+    setTotalSections(r.total_sections || 1);
     setSectionTimer(r.time_remaining);
     setCurrentQIdx(0);
     setLoading(false);

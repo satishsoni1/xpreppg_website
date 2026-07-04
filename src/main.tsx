@@ -54,7 +54,6 @@ import XreviseRegisterPage from "./pages/XreviseRegisterPage";
 import DailyTests from "./student/DailyTests";
 import XReviseResultPage from "./student/XReviseResultPage";
 import XReviseAttempts from "./student/XReviseAttempts";
-import AdminQuestionBank from "./admin/AdminQuestionBank";
 import AdminExamManager from "./admin/AdminExamManager";
 import AdminExamEnrollments from "./admin/AdminExamEnrollments";
 import AdminExamAnalytics from "./admin/AdminExamAnalytics";
@@ -163,7 +162,6 @@ const router = createBrowserRouter([
       { path: "cbt/results/:examId", element: <AdminCBTResults /> },
       { path: "media", element: <AdminMediaUpload /> },
       // Exam Management Module
-      { path: "em/question-bank", element: <AdminQuestionBank /> },
       { path: "em/exams", element: <AdminExamManager platform="cbt" /> },
       { path: "em/xrevise-exams", element: <AdminExamManager platform="xrevise" /> },
       { path: "em/enrollments", element: <AdminExamEnrollments /> },

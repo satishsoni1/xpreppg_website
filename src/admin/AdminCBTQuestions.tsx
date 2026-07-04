@@ -30,7 +30,8 @@ const EMPTY_Q = {
   question_order: "",
 };
 
-const SECTION_SIZE = 20;
+const TOTAL_SECTIONS = 5;
+const sectionSizeFor = (total: number) => Math.max(1, Math.ceil(total / TOTAL_SECTIONS));
 
 function optionVal(opts: any, key: string): string {
   if (!opts) return "";
@@ -122,11 +123,12 @@ export default function AdminCBTQuestions() {
     if (r.status) load();
   };
 
-  const sectionOf = (idx: number) => Math.floor(idx / SECTION_SIZE) + 1;
+  const sectionSize = sectionSizeFor(questions.length);
+  const sectionOf = (idx: number) => Math.floor(idx / sectionSize) + 1;
 
   const grouped: Record<number, Question[]> = {};
   questions.forEach((q, i) => {
-    const sec = Math.floor(i / SECTION_SIZE) + 1;
+    const sec = Math.floor(i / sectionSize) + 1;
     if (!grouped[sec]) grouped[sec] = [];
     grouped[sec].push(q);
   });
@@ -139,7 +141,7 @@ export default function AdminCBTQuestions() {
         </button>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-gray-900">CBT Questions — Exam #{examId}</h1>
-          <p className="text-sm text-gray-500">{questions.length} questions · {Math.ceil(questions.length / SECTION_SIZE)} sections</p>
+          <p className="text-sm text-gray-500">{questions.length} questions · {Math.ceil(questions.length / sectionSize)} sections</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
           <Plus size={16} /> Add Question
@@ -159,11 +161,11 @@ export default function AdminCBTQuestions() {
             <div key={sec} className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="px-5 py-3 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
                 <h3 className="text-sm font-bold text-blue-700">Section {sec} ({qs.length} questions · 42 min)</h3>
-                <span className="text-xs text-blue-500">Q {(Number(sec)-1)*SECTION_SIZE+1} – {Math.min(Number(sec)*SECTION_SIZE, questions.length)}</span>
+                <span className="text-xs text-blue-500">Q {(Number(sec)-1)*sectionSize+1} – {Math.min(Number(sec)*sectionSize, questions.length)}</span>
               </div>
               <div className="divide-y divide-gray-100">
                 {qs.map((q, qi) => {
-                  const globalIdx = (Number(sec)-1)*SECTION_SIZE + qi;
+                  const globalIdx = (Number(sec)-1)*sectionSize + qi;
                   const opts = q.options;
                   return (
                     <div key={q.id} className="p-4">
