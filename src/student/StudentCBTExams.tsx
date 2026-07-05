@@ -56,7 +56,7 @@ function useCountdown(targetDate: string | null) {
   return remaining;
 }
 
-function ExamCard({ exam, onStart, onViewResult }: { exam: Exam; onStart: (e: Exam) => void; onViewResult: (e: Exam) => void }) {
+function ExamCard({ exam, onStart, onViewResult, onReexam }: { exam: Exam; onStart: (e: Exam) => void; onViewResult: (e: Exam) => void; onReexam: (e: Exam) => void }) {
   const isUpcoming = exam.status === "upcoming";
   const isLive = exam.status === "running";
   const isCompleted = exam.status === "completed";
@@ -154,6 +154,13 @@ function ExamCard({ exam, onStart, onViewResult }: { exam: Exam; onStart: (e: Ex
           </div>
         )}
 
+        {attempted && !exam.is_published && (
+          <button onClick={() => onReexam(exam)}
+            className="mt-2 w-full py-2 border border-orange-200 text-orange-600 hover:bg-orange-50 rounded-xl text-xs font-bold transition">
+            Reexam
+          </button>
+        )}
+
         <div className="mt-4 flex gap-2">
           {(isLive || inProgress) && !attempted && (
             <button onClick={() => onStart(exam)}
@@ -178,6 +185,10 @@ export default function StudentCBTExams() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState<number | null>(null);
+  const [reexamExam, setReexamExam] = useState<Exam | null>(null);
+  const [reexamPassword, setReexamPassword] = useState("");
+  const [reexamError, setReexamError] = useState("");
+  const [reexamSubmitting, setReexamSubmitting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -200,6 +211,24 @@ export default function StudentCBTExams() {
     navigate(`/student/cbt-result/${exam.id}`);
   };
 
+  const openReexam = (exam: Exam) => {
+    setReexamExam(exam);
+    setReexamPassword("");
+    setReexamError("");
+  };
+
+  const submitReexam = async () => {
+    if (!reexamExam) return;
+    setReexamSubmitting(true);
+    setReexamError("");
+    const r = await StudentAPI.cbt.startExam(reexamExam.id, reexamPassword);
+    setReexamSubmitting(false);
+    if (!r.status) { setReexamError(r.message || "Could not start re-exam"); return; }
+    const examId = reexamExam.id;
+    setReexamExam(null);
+    navigate(`/student/cbt-exam/${examId}/${r.attempt.id}`);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -214,7 +243,7 @@ export default function StudentCBTExams() {
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Monitor size={24} className="text-blue-500" /> CBT Exams
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">Section-based computer-based tests · 20 questions per section · 42 min per section</p>
+        <p className="text-sm text-gray-500 mt-0.5">Section-based computer-based tests · 5 sections · 42 min per section</p>
       </div>
 
       {/* Rules banner */}
@@ -243,8 +272,40 @@ export default function StudentCBTExams() {
               exam={exam}
               onStart={starting === exam.id ? () => {} : handleStart}
               onViewResult={handleViewResult}
+              onReexam={openReexam}
             />
           ))}
+        </div>
+      )}
+
+      {reexamExam && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Reexam: {reexamExam.title}</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Your previous attempt and score will be cleared and you'll start fresh. Enter the reexam password to continue.
+            </p>
+            <input
+              type="password"
+              autoFocus
+              value={reexamPassword}
+              onChange={e => setReexamPassword(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && submitReexam()}
+              placeholder="Reexam password"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-300"
+            />
+            {reexamError && <p className="text-xs text-red-500 mt-2">{reexamError}</p>}
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setReexamExam(null)}
+                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
+                Cancel
+              </button>
+              <button onClick={submitReexam} disabled={reexamSubmitting || !reexamPassword}
+                className="flex-1 py-2.5 bg-orange-600 text-white rounded-xl text-sm font-bold hover:bg-orange-700 disabled:opacity-50 transition">
+                {reexamSubmitting ? "Starting..." : "Start Reexam"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

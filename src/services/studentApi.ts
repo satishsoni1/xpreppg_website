@@ -389,9 +389,10 @@ export const StudentAPI = {
       const res = await fetch(`${API_BASE_URL}/cbt-module/student/exams`, { headers: getAuthHeaders() });
       return res.json();
     },
-    startExam: async (examId: number) => {
+    startExam: async (examId: number, reexamPassword?: string) => {
       const res = await fetch(`${API_BASE_URL}/cbt-module/student/exams/${examId}/start`, {
         method: "POST", headers: getAuthHeaders(),
+        body: JSON.stringify({ reexam_password: reexamPassword }),
       });
       return res.json();
     },
