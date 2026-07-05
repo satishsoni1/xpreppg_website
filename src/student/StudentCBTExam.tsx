@@ -141,7 +141,20 @@ export default function StudentCBTExam() {
     setLoading(false);
   }, [attemptIdNum]);
 
-  useEffect(() => { loadSection(0); }, [loadSection]);
+  // Resolve which section the student is actually on (may not be 0, e.g. on
+  // resume after a refresh) before loading questions, instead of assuming 0.
+  useEffect(() => {
+    (async () => {
+      const r = await StudentAPI.cbt.startExam(Number(examId));
+      if (!r.status || !r.attempt) {
+        setLoading(false);
+        alert(r.message || "Could not resume exam");
+        navigate("/student/cbt-exams");
+        return;
+      }
+      await loadSection(r.attempt.current_section || 0);
+    })();
+  }, [examId, loadSection, navigate]);
 
   // ── Section countdown timer ────────────────────────────────────────────────
 
