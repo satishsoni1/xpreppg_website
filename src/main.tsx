@@ -73,6 +73,7 @@ import AdminXreviseEnrollments from "./admin/AdminXreviseEnrollments";
 import AdminCBTExams from "./admin/AdminCBTExams";
 import AdminCBTQuestions from "./admin/AdminCBTQuestions";
 import AdminCBTResults from "./admin/AdminCBTResults";
+import AdminCBTResultAnalysis from "./admin/AdminCBTResultAnalysis";
 import StudentCBTExams from "./student/StudentCBTExams";
 import StudentCBTExam from "./student/StudentCBTExam";
 import StudentCBTResult from "./student/StudentCBTResult";
@@ -160,6 +161,7 @@ const router = createBrowserRouter([
       { path: "cbt/exams", element: <AdminCBTExams /> },
       { path: "cbt/questions/:examId", element: <AdminCBTQuestions /> },
       { path: "cbt/results/:examId", element: <AdminCBTResults /> },
+      { path: "cbt/results/:examId/student/:studentId", element: <AdminCBTResultAnalysis /> },
       { path: "media", element: <AdminMediaUpload /> },
       // Exam Management Module
       { path: "em/exams", element: <AdminExamManager platform="cbt" /> },

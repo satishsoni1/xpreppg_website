@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Trophy, CheckCircle, XCircle, MinusCircle, Clock, BookOpen } from "lucide-react";
+import { ArrowLeft, Trophy, CheckCircle, XCircle, MinusCircle, Clock, BookOpen, BarChart3 } from "lucide-react";
 import { StudentAPI } from "@/services/studentApi";
 
 function fmtTime(s: number) {
@@ -128,6 +128,35 @@ export default function StudentCBTResult() {
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Difficulty-wise analysis */}
+      {result.difficulty_analysis && Object.keys(result.difficulty_analysis).length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6 shadow-sm">
+          <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2"><BarChart3 size={16} /> Difficulty-wise Analysis</h3>
+          <div className="space-y-3">
+            {Object.entries(result.difficulty_analysis).map(([diff, data]: any) => {
+              const total = (data.correct || 0) + (data.wrong || 0) + (data.skipped || 0);
+              const pct = total > 0 ? Math.round((data.correct / total) * 100) : 0;
+              return (
+                <div key={diff}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-gray-700 capitalize">{diff}</span>
+                    <div className="flex gap-3 text-xs">
+                      <span className="text-green-600">✓{data.correct}</span>
+                      <span className="text-red-500">✗{data.wrong}</span>
+                      <span className="text-gray-400">—{data.skipped}</span>
+                      <span className="font-bold text-gray-700">{pct}%</span>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );

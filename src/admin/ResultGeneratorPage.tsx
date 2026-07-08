@@ -3,9 +3,11 @@ import {
   Database, Play, CheckSquare, Square, Loader2,
   CheckCircle, AlertCircle, Filter, Search, RefreshCw, User,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { AdminAPI } from "@/services/adminApi";
 
 export default function PendingAttemptsTable() {
+  const navigate = useNavigate();
   const [attempts, setAttempts] = useState<any[]>([]);
   const [exams, setExams] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -97,6 +99,17 @@ export default function PendingAttemptsTable() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+      {/* Legacy engine notice */}
+      <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium px-4 py-3 rounded-xl">
+        <span>This is the legacy result generator (old exams/attempts tables). For exams taken on the CBT engine, use <b>CBT Exams → Results</b> instead.</span>
+        <button
+          onClick={() => navigate("/admin/cbt/exams")}
+          className="shrink-0 text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-lg transition-colors"
+        >
+          Go to CBT Exams →
+        </button>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>

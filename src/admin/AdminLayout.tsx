@@ -93,7 +93,7 @@ export default function AdminLayout() {
     { name: "Media Upload", path: "/admin/media", icon: <ImageIcon size={18} /> },
     { name: "─── Platform ───", path: "", icon: null },
     { name: "Attempted Result", path: "/admin/attempt", icon: <Award size={18} /> },
-    { name: "Generate Result", path: "/admin/result-generate", icon: <Upload size={18} /> },
+    { name: "Generate Result (Legacy)", path: "/admin/result-generate", icon: <Upload size={18} /> },
     { name: "Plans", path: "/admin/plans", icon: <Package size={18} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Centers & Cities", path: "/admin/centers", icon: <MapPin size={18} /> },

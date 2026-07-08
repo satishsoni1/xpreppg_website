@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(node --check controllers/cbtExamController.js)",
+      "Bash(node --check server.js)",
+      "Bash(pm2 list *)",
+      "Bash(lsof -iTCP -sTCP:LISTEN -P -n)",
+      "Bash(kill 41538)",
+      "Bash(ps -p 41538)",
+      "Bash(nohup node server.js)",
+      "Bash(disown)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5001/api/admin/exams)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}\\\\n' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6ImFkbWluIiwiaWF0IjoxNzgzNTI0ODc5LCJleHAiOjE3ODM1NjgwNzl9.vfTOuwish__6lDfAsdyqSgOxWYZnYgO80Zz_aEu7CAk' http://localhost:5001/api/cbt-module/admin/exams/8/question-analytics)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}\\\\n' -H 'Authorization: __TRACKED_VAR__' http://localhost:5001/api/cbt-module/admin/exams/8/results)",
+      "Bash(ps -o lstart= -p 83881)",
+      "Bash(kill 83881)",
+      "Bash(node --check config/db.js)",
+      "Bash(kill 87477)",
+      "Bash(lsof -iTCP:5001 -sTCP:LISTEN -n -P)",
+      "Bash(pkill -9 -f \"node server.js\")",
+      "Bash(timeout 30 node server.js)",
+      "Bash(echo \"EXIT_CODE=$?\")"
+    ]
+  }
+}

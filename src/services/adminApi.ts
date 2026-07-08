@@ -1096,4 +1096,18 @@ export const CbtModuleAPI = {
     const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/results`, { headers: getAuthHeaders() });
     return res.json();
   },
+  generateRanks: async (examId: number, totalCohortSize: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/generate-ranks`, {
+      method: "POST", headers: getAuthHeaders(), body: JSON.stringify({ totalCohortSize }),
+    });
+    return res.json();
+  },
+  getQuestionAnalytics: async (examId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/question-analytics`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  getStudentResultDetail: async (examId: number, studentId: number) => {
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/results/${studentId}/detail`, { headers: getAuthHeaders() });
+    return res.json();
+  },
 };
