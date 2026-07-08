@@ -60,6 +60,7 @@ export default function StudentCBTExam() {
   const [examDone, setExamDone] = useState(false);
   const [warning, setWarning] = useState<{ count: number; max: number; autoSubmit: boolean } | null>(null);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const qTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -205,17 +206,28 @@ export default function StudentCBTExam() {
 
   // ── Save answer to backend (debounced fire-and-forget) ─────────────────────
 
-  const saveAnswerToBackend = useCallback((questionId: number, selectedAnswer: string | null, isMarked: boolean) => {
+  const saveAnswerToBackend = useCallback(async (questionId: number, selectedAnswer: string | null, isMarked: boolean, isRetry = false) => {
     const s = sectionStateRef.current;
     const timeSpent = (s?.timeSpent[questionId] || 0) + timeOnCurrentQ.current;
-    StudentAPI.cbt.saveAnswer(attemptIdNum, {
+    const payload = {
       question_id: questionId,
       section_index: currentSectionRef.current,
       selected_answer: selectedAnswer,
       is_marked_review: isMarked,
       is_visited: true,
       time_spent_seconds: timeSpent,
-    }).catch(() => {});
+    };
+    try {
+      const r = await StudentAPI.cbt.saveAnswer(attemptIdNum, payload);
+      if (!r.status) throw new Error(r.message || "save failed");
+      setSaveError(false);
+    } catch {
+      if (!isRetry) {
+        setTimeout(() => saveAnswerToBackend(questionId, selectedAnswer, isMarked, true), 1500);
+      } else {
+        setSaveError(true);
+      }
+    }
   }, [attemptIdNum]);
 
   // ── Answer selection ──────────────────────────────────────────────────────
@@ -327,6 +339,11 @@ export default function StudentCBTExam() {
 
   return (
     <div className="fixed inset-0 bg-gray-50 flex flex-col overflow-hidden select-none">
+      {saveError && (
+        <div className="bg-red-600 text-white text-xs font-semibold text-center py-1.5 shrink-0">
+          Connection issue — your last answer may not have saved. Please check your internet connection.
+        </div>
+      )}
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
       <header className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">

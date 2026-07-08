@@ -20,7 +20,8 @@
       "Bash(lsof -iTCP:5001 -sTCP:LISTEN -n -P)",
       "Bash(pkill -9 -f \"node server.js\")",
       "Bash(timeout 30 node server.js)",
-      "Bash(echo \"EXIT_CODE=$?\")"
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(grep -n \"CASE WHEN \\\\$\" controllers/cbtExamController.js)"
     ]
   }
 }

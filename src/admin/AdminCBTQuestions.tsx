@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Edit2, Trash2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, Trash2, X, ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { CbtModuleAPI } from "@/services/adminApi";
 
 interface Question {
@@ -53,6 +53,8 @@ export default function AdminCBTQuestions() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [uploadingExpl, setUploadingExpl] = useState(false);
+  const [explMsg, setExplMsg] = useState("");
 
   const load = async () => {
     if (!examId) return;
@@ -123,6 +125,18 @@ export default function AdminCBTQuestions() {
     if (r.status) load();
   };
 
+  const handleExplanationUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !examId) return;
+    setUploadingExpl(true);
+    setExplMsg("");
+    const r = await CbtModuleAPI.bulkUpdateExplanations(Number(examId), file);
+    setUploadingExpl(false);
+    setExplMsg(r.message || (r.status ? "Done" : "Upload failed"));
+    if (r.status) load();
+  };
+
   const sectionSize = sectionSizeFor(questions.length);
   const sectionOf = (idx: number) => Math.floor(idx / sectionSize) + 1;
 
@@ -143,10 +157,23 @@ export default function AdminCBTQuestions() {
           <h1 className="text-xl font-bold text-gray-900">CBT Questions — Exam #{examId}</h1>
           <p className="text-sm text-gray-500">{questions.length} questions · {Math.ceil(questions.length / sectionSize)} sections</p>
         </div>
+        <label
+          title="CSV columns: question_id (or question_text) + explanation"
+          className={`flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-semibold hover:bg-amber-100 transition cursor-pointer ${uploadingExpl ? "opacity-50 pointer-events-none" : ""}`}
+        >
+          <Upload size={16} /> {uploadingExpl ? "Uploading..." : "Bulk Upload Explanations"}
+          <input type="file" accept=".csv" className="hidden" onChange={handleExplanationUpload} disabled={uploadingExpl} />
+        </label>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
           <Plus size={16} /> Add Question
         </button>
       </div>
+
+      {explMsg && (
+        <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium ${explMsg.toLowerCase().includes("fail") ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
+          {explMsg}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-16 text-gray-400">Loading...</div>

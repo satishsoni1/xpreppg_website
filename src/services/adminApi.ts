@@ -1074,6 +1074,16 @@ export const CbtModuleAPI = {
     });
     return res.json();
   },
+  bulkUpdateExplanations: async (examId: number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_BASE_URL}/cbt-module/admin/exams/${examId}/questions/bulk-explanations`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` },
+      body: formData,
+    });
+    return res.json();
+  },
 
   // Results
   getAttempts: async (examId: number) => {
