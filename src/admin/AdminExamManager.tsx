@@ -352,6 +352,9 @@ export default function AdminExamManager({ platform }: Props) {
                   ) : examDetail.questions.map((q, i) => (
                     <div key={q.question_id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50">
                       <span className="text-xs font-bold text-slate-400 min-w-[24px] mt-0.5">Q{i+1}</span>
+                      {q.image_url && (
+                        <img src={q.image_url} alt="" className="shrink-0 w-10 h-10 rounded-lg object-cover border border-slate-200" />
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-slate-700 line-clamp-2">{q.question_text}</p>
                         <div className="flex flex-wrap gap-1.5 mt-1">

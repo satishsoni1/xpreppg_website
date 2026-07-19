@@ -213,26 +213,34 @@ export default function AdminMediaUpload() {
                     </button>
                   </div>
                   <div className="p-3 space-y-2">
-                    <p className="text-xs text-slate-500 truncate font-medium" title={img.original_name}>
-                      {img.original_name}
+                    <p className="text-xs text-slate-600 truncate font-mono" title={img.url}>
+                      {img.url}
                     </p>
-                    <p className="text-[11px] text-slate-400">{formatSize(img.size)}</p>
+                    <p className="text-[11px] text-slate-400 truncate" title={img.original_name}>
+                      {img.original_name} · {formatSize(img.size)}
+                    </p>
                     <div className="flex gap-2">
-                      <input
-                        readOnly
-                        value={img.url}
-                        className="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-600 truncate"
-                      />
+                      <button
+                        onClick={() => copyUrl(img.original_name)}
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center justify-center gap-1 transition-all ${
+                          copiedUrl === img.original_name
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                        }`}
+                      >
+                        {copiedUrl === img.original_name ? <CheckCircle size={13} /> : <Copy size={13} />}
+                        {copiedUrl === img.original_name ? "Copied!" : "Copy Name"}
+                      </button>
                       <button
                         onClick={() => copyUrl(img.url)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center gap-1 transition-all ${
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-bold text-xs flex items-center justify-center gap-1 transition-all ${
                           copiedUrl === img.url
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-purple-100 hover:bg-purple-200 text-purple-700"
                         }`}
                       >
                         {copiedUrl === img.url ? <CheckCircle size={13} /> : <Copy size={13} />}
-                        {copiedUrl === img.url ? "Copied!" : "Copy"}
+                        {copiedUrl === img.url ? "Copied!" : "Copy URL"}
                       </button>
                     </div>
                   </div>
@@ -281,10 +289,19 @@ export default function AdminMediaUpload() {
                     <img src={h.url} alt={h.filename} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700 truncate">{h.filename}</p>
-                    <p className="text-xs text-slate-400">{new Date(h.created_at).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-slate-700 truncate font-mono" title={h.url}>{h.url}</p>
+                    <p className="text-xs text-slate-400" title={h.filename}>{h.filename} · {new Date(h.created_at).toLocaleString()}</p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => copyUrl(h.filename)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${
+                        copiedUrl === h.filename ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {copiedUrl === h.filename ? <CheckCircle size={12} /> : <Copy size={12} />}
+                      {copiedUrl === h.filename ? "Copied!" : "Copy Name"}
+                    </button>
                     <button
                       onClick={() => copyUrl(h.url)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${

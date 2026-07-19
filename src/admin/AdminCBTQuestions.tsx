@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Edit2, Trash2, X, ChevronDown, ChevronUp, Upload } from "lucide-react";
-import { CbtModuleAPI } from "@/services/adminApi";
+import { ArrowLeft, Plus, Edit2, Trash2, X, ChevronDown, ChevronUp, Upload, Download, Image as ImageIcon, UploadCloud, Loader2 } from "lucide-react";
+import { CbtModuleAPI, AdminAPI } from "@/services/adminApi";
 
 interface Question {
   id: number;
@@ -15,6 +15,7 @@ interface Question {
   explanation: string;
   question_order: number;
   section_index?: number;
+  image_url?: string;
 }
 
 const OPTION_KEYS = ["A", "B", "C", "D"];
@@ -28,6 +29,7 @@ const EMPTY_Q = {
   difficulty: "medium",
   explanation: "",
   question_order: "",
+  image_url: "",
 };
 
 const TOTAL_SECTIONS = 5;
@@ -55,6 +57,8 @@ export default function AdminCBTQuestions() {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [uploadingExpl, setUploadingExpl] = useState(false);
   const [explMsg, setExplMsg] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     if (!examId) return;
@@ -90,9 +94,28 @@ export default function AdminCBTQuestions() {
       difficulty: q.difficulty || "medium",
       explanation: q.explanation || "",
       question_order: String(q.question_order || ""),
+      image_url: q.image_url || "",
     });
     setErr("");
     setShowModal(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadingImage(true);
+    const payload = new FormData();
+    payload.append("image", file);
+    try {
+      const data = await AdminAPI.uploadImage(payload);
+      if (data.status) setForm(f => ({ ...f, image_url: data.url }));
+      else alert("Upload failed: " + data.message);
+    } catch {
+      alert("Error uploading file to server.");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSave = async () => {
@@ -109,6 +132,7 @@ export default function AdminCBTQuestions() {
       difficulty: form.difficulty,
       explanation: form.explanation.trim() || null,
       question_order: form.question_order ? Number(form.question_order) : undefined,
+      image_url: form.image_url.trim() || null,
     };
     const r = editQ
       ? await CbtModuleAPI.updateQuestion(editQ.id, payload)
@@ -123,6 +147,24 @@ export default function AdminCBTQuestions() {
     if (!confirm("Delete this question?")) return;
     const r = await CbtModuleAPI.deleteQuestion(q.id);
     if (r.status) load();
+  };
+
+  const csvCell = (val: any) => {
+    const s = (val ?? "").toString();
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const downloadTemplate = () => {
+    if (!questions.length) { alert("No questions to export yet."); return; }
+    const header = ["question_id", "question_text", "image_url", "explanation"];
+    const rows = questions.map(q => [q.id, q.question_text, q.image_url || "", q.explanation || ""].map(csvCell).join(","));
+    const csvContent = [header.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `exam_${examId}_questions_template.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   };
 
   const handleExplanationUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,11 +199,18 @@ export default function AdminCBTQuestions() {
           <h1 className="text-xl font-bold text-gray-900">CBT Questions — Exam #{examId}</h1>
           <p className="text-sm text-gray-500">{questions.length} questions · {Math.ceil(questions.length / sectionSize)} sections</p>
         </div>
+        <button
+          onClick={downloadTemplate}
+          title="Download a CSV pre-filled with question_id, question_text, image_url, explanation for this exam"
+          className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-200 transition"
+        >
+          <Download size={16} /> Download Template
+        </button>
         <label
-          title="CSV columns: question_id (or question_text) + explanation"
+          title="CSV columns: question_id (or question_text) + explanation and/or image_url. Copy image URLs from Media Upload."
           className={`flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-semibold hover:bg-amber-100 transition cursor-pointer ${uploadingExpl ? "opacity-50 pointer-events-none" : ""}`}
         >
-          <Upload size={16} /> {uploadingExpl ? "Uploading..." : "Bulk Upload Explanations"}
+          <Upload size={16} /> {uploadingExpl ? "Uploading..." : "Bulk Upload Explanations / Images"}
           <input type="file" accept=".csv" className="hidden" onChange={handleExplanationUpload} disabled={uploadingExpl} />
         </label>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
@@ -200,6 +249,9 @@ export default function AdminCBTQuestions() {
                         <span className="shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-700 text-sm font-bold flex items-center justify-center">
                           {globalIdx + 1}
                         </span>
+                        {q.image_url && (
+                          <img src={q.image_url} alt="" className="shrink-0 w-10 h-10 rounded-lg object-cover border border-gray-200" />
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-900 font-medium leading-snug line-clamp-2">{q.question_text}</p>
                           <div className="flex gap-3 mt-1.5 text-xs text-gray-400 flex-wrap">
@@ -258,6 +310,25 @@ export default function AdminCBTQuestions() {
                 <textarea value={form.question_text} onChange={e => setForm(f => ({...f, question_text: e.target.value}))}
                   rows={3} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   placeholder="Enter question text..." />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                  <ImageIcon size={15} /> Question Image (optional)
+                </label>
+                <div className="flex gap-2 items-center">
+                  <input value={form.image_url} onChange={e => setForm(f => ({...f, image_url: e.target.value}))}
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Paste image URL or upload a file" />
+                  <input type="file" accept="image/*" className="hidden" ref={imageFileInputRef} onChange={handleImageUpload} />
+                  <button type="button" onClick={() => imageFileInputRef.current?.click()} disabled={uploadingImage}
+                    className="px-3 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold rounded-xl text-sm flex items-center gap-1.5 shrink-0 disabled:opacity-50">
+                    {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />} Upload
+                  </button>
+                </div>
+                {form.image_url && (
+                  <img src={form.image_url} alt="Preview" className="mt-2 h-20 rounded-lg border border-gray-200 object-contain bg-gray-50 p-1" />
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
