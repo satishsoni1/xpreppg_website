@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   UploadCloud, Image as ImageIcon, Copy, CheckCircle,
-  Trash2, Loader2, Link2, Download, X, FolderOpen,
+  Trash2, Loader2, Link2, Download, X, FolderOpen, FileSpreadsheet,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { AdminAPI } from "@/services/adminApi";
 
 interface UploadedImage {
@@ -101,6 +102,19 @@ export default function AdminMediaUpload() {
     URL.revokeObjectURL(a.href);
   };
 
+  const exportUrlsAsExcel = () => {
+    const rows = images.map(i => ({
+      "Image Name": i.original_name,
+      "Image URL": i.url,
+      "Size": formatSize(i.size),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    ws["!cols"] = [{ wch: 35 }, { wch: 60 }, { wch: 12 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Images");
+    XLSX.writeFile(wb, "uploaded_images.xlsx");
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* Header */}
@@ -177,6 +191,12 @@ export default function AdminMediaUpload() {
                   className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm"
                 >
                   <Copy size={15} /> Copy All URLs
+                </button>
+                <button
+                  onClick={exportUrlsAsExcel}
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-bold rounded-xl text-sm"
+                >
+                  <FileSpreadsheet size={15} /> Export .xlsx
                 </button>
                 <button
                   onClick={exportUrlsAsText}
