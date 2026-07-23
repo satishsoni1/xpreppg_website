@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Play, ChevronLeft, ChevronRight, Clock, Flag, X, Send, Eye,
   CheckCircle, Loader2, RotateCcw, AlertTriangle, Settings2,
-  BookOpen, BarChart3, Trophy,
+  BookOpen, BarChart3, Trophy, Lock, SkipForward,
 } from "lucide-react";
 import { SimulatorAPI } from "@/services/examApi";
 
@@ -131,8 +131,14 @@ export default function AdminExamSimulator() {
     setAnswers(a => ({ ...a, [q.question_id]: { ...a[q.question_id], is_marked: !a[q.question_id]?.is_marked, visited: true } }));
   };
 
+  // Mirrors the student exam's lock: freely revisit any already-visited question,
+  // but can't jump ahead past the one right after the furthest one reached.
+  const lastVisitedIdx = questions.reduce((max, q, i) => answers[q.question_id]?.visited ? i : max, -1);
+  const furthestAllowed = Math.max(currentIdx, Math.min(questions.length - 1, lastVisitedIdx + 1));
+
   const navigateQ = (idx: number) => {
     if (idx < 0 || idx >= questions.length) return;
+    if (idx > furthestAllowed) return;
     commitCurrent(idx);
   };
 
@@ -416,7 +422,7 @@ export default function AdminExamSimulator() {
             </button>
             <button onClick={() => navigateQ(currentIdx + 1)} disabled={currentIdx === questions.length - 1}
               className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm disabled:opacity-40">
-              Save & Next <ChevronRight size={16}/>
+              {currentAns?.selected ? <>Save & Next <ChevronRight size={16}/></> : <>Skip <SkipForward size={16}/></>}
             </button>
           </div>
         </div>
@@ -442,12 +448,16 @@ export default function AdminExamSimulator() {
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             <div className="grid grid-cols-4 gap-1.5">
-              {questions.map((q,idx) => (
-                <button key={q.question_id} onClick={() => navigateQ(idx)}
-                  className={`w-10 h-10 rounded-lg text-xs font-bold transition-all ${STATUS_STYLE[getQStatus(idx)]} ${currentIdx===idx?"ring-2 ring-offset-1 ring-slate-500":""}`}>
-                  {idx+1}
-                </button>
-              ))}
+              {questions.map((q,idx) => {
+                const locked = idx > furthestAllowed;
+                return (
+                  <button key={q.question_id} onClick={() => navigateQ(idx)} disabled={locked}
+                    title={locked ? "View the questions before this one first" : undefined}
+                    className={`w-10 h-10 rounded-lg text-xs font-bold transition-all ${locked ? "bg-slate-100 text-slate-300 cursor-not-allowed" : STATUS_STYLE[getQStatus(idx)]} ${currentIdx===idx?"ring-2 ring-offset-1 ring-slate-500":""}`}>
+                    {locked ? <Lock size={12} className="mx-auto"/> : idx+1}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div className="p-3 border-t">

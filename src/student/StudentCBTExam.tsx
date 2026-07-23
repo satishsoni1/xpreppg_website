@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AlertTriangle, Clock, ChevronLeft, ChevronRight, BookmarkPlus, BookmarkCheck, Send } from "lucide-react";
+import { AlertTriangle, Clock, ChevronLeft, ChevronRight, BookmarkPlus, BookmarkCheck, Send, Lock, SkipForward } from "lucide-react";
 import { StudentAPI } from "@/services/studentApi";
 
 const SECTION_DURATION = 42 * 60; // 2520 seconds
@@ -28,6 +28,7 @@ interface SectionState {
   reviewed: Record<number, boolean>;          // questionId → marked for review
   visited: Record<number, boolean>;           // questionId → visited
   timeSpent: Record<number, number>;          // questionId → seconds
+  savedToServer: Record<number, boolean>;     // questionId → has a persisted cbt_section_answers row
 }
 
 function getOption(opts: Record<string, string> | string[], key: string): string {
@@ -68,7 +69,10 @@ export default function StudentCBTExam() {
   const lastQId = useRef<number | null>(null);
   const sectionStateRef = useRef<SectionState | null>(null);
   const currentSectionRef = useRef(0);
+  const currentQIdxRef = useRef(0);
   const attemptIdNum = Number(attemptId);
+
+  useEffect(() => { currentQIdxRef.current = currentQIdx; }, [currentQIdx]);
 
   // ── Anti-cheat ────────────────────────────────────────────────────────────
 
@@ -122,15 +126,17 @@ export default function StudentCBTExam() {
     const reviewed: Record<number, boolean> = {};
     const visited: Record<number, boolean> = {};
     const timeSpent: Record<number, number> = {};
+    const savedToServer: Record<number, boolean> = {};
 
     r.questions.forEach((q: Question) => {
       answers[q.id] = q.saved?.selected_answer || null;
       reviewed[q.id] = q.saved?.is_marked_review || false;
       visited[q.id] = q.saved?.is_visited || false;
       timeSpent[q.id] = q.saved?.time_spent_seconds || 0;
+      savedToServer[q.id] = q.saved !== null;
     });
 
-    const state: SectionState = { questions: r.questions, answers, reviewed, visited, timeSpent };
+    const state: SectionState = { questions: r.questions, answers, reviewed, visited, timeSpent, savedToServer };
     setSection(state);
     sectionStateRef.current = state;
     setCurrentSection(secIdx);
@@ -138,7 +144,11 @@ export default function StudentCBTExam() {
     setSectionsSubmitted(r.sections_submitted || []);
     setTotalSections(r.total_sections || 1);
     setSectionTimer(r.time_remaining);
-    setCurrentQIdx(0);
+    // Resume at the furthest question already reached, not always Q1 — the
+    // student can still freely go back from there, but shouldn't be forced
+    // to re-click through everything they already passed.
+    const lastSavedIdx = r.questions.reduce((max: number, qq: Question, i: number) => savedToServer[qq.id] ? i : max, -1);
+    setCurrentQIdx(Math.max(0, Math.min(r.questions.length - 1, lastSavedIdx + 1)));
     setLoading(false);
   }, [attemptIdNum]);
 
@@ -236,7 +246,7 @@ export default function StudentCBTExam() {
     const s = sectionStateRef.current;
     if (!s) return;
     const newAnswers = { ...s.answers, [questionId]: answer };
-    const updated = { ...s, answers: newAnswers, visited: { ...s.visited, [questionId]: true } };
+    const updated = { ...s, answers: newAnswers, visited: { ...s.visited, [questionId]: true }, savedToServer: { ...s.savedToServer, [questionId]: true } };
     sectionStateRef.current = updated;
     setSection(updated);
     saveAnswerToBackend(questionId, answer, s.reviewed[questionId] || false);
@@ -246,7 +256,7 @@ export default function StudentCBTExam() {
     const s = sectionStateRef.current;
     if (!s) return;
     const newAnswers = { ...s.answers, [questionId]: null };
-    const updated = { ...s, answers: newAnswers };
+    const updated = { ...s, answers: newAnswers, visited: { ...s.visited, [questionId]: true }, savedToServer: { ...s.savedToServer, [questionId]: true } };
     sectionStateRef.current = updated;
     setSection(updated);
     saveAnswerToBackend(questionId, null, s.reviewed[questionId] || false);
@@ -256,10 +266,24 @@ export default function StudentCBTExam() {
     const s = sectionStateRef.current;
     if (!s) return;
     const isMarked = !s.reviewed[questionId];
-    const updated = { ...s, reviewed: { ...s.reviewed, [questionId]: isMarked } };
+    const updated = { ...s, reviewed: { ...s.reviewed, [questionId]: isMarked }, visited: { ...s.visited, [questionId]: true }, savedToServer: { ...s.savedToServer, [questionId]: true } };
     sectionStateRef.current = updated;
     setSection(updated);
     saveAnswerToBackend(questionId, s.answers[questionId] || null, isMarked);
+  };
+
+  // Persist the currently-open question if it hasn't been saved yet (i.e. the
+  // student never selected/cleared/marked it) — guarantees every question the
+  // student passes through ends up with a cbt_section_answers row, whether
+  // answered or explicitly skipped, so the answer sheet always has all of them.
+  const persistCurrentIfUnsaved = (qid: number | undefined) => {
+    if (!qid) return;
+    const s = sectionStateRef.current;
+    if (!s || s.savedToServer[qid]) return;
+    const updated = { ...s, visited: { ...s.visited, [qid]: true }, savedToServer: { ...s.savedToServer, [qid]: true } };
+    sectionStateRef.current = updated;
+    setSection(updated);
+    saveAnswerToBackend(qid, s.answers[qid] ?? null, s.reviewed[qid] || false);
   };
 
   // ── Section submit ────────────────────────────────────────────────────────
@@ -267,6 +291,10 @@ export default function StudentCBTExam() {
   const handleSectionTimeout = useCallback(async () => {
     if (submitting || examDone) return;
     setSubmitting(true);
+    const curQ = sectionStateRef.current?.questions[currentQIdxRef.current];
+    if (curQ && !sectionStateRef.current!.savedToServer[curQ.id]) {
+      await saveAnswerToBackend(curQ.id, sectionStateRef.current!.answers[curQ.id] ?? null, sectionStateRef.current!.reviewed[curQ.id] || false);
+    }
     const r = await StudentAPI.cbt.submitSection(attemptIdNum, {
       section_index: currentSectionRef.current,
       reason: "timeout",
@@ -278,7 +306,7 @@ export default function StudentCBTExam() {
     } else {
       await loadSection(r.next_section);
     }
-  }, [attemptIdNum, loadSection, navigate, submitting, examDone]);
+  }, [attemptIdNum, loadSection, navigate, submitting, examDone, saveAnswerToBackend]);
 
   const handleSubmitSection = async (reason = "manual") => {
     if (submitting) return;
@@ -286,6 +314,10 @@ export default function StudentCBTExam() {
     setSubmitting(true);
     if (timerRef.current) clearInterval(timerRef.current);
     if (qTimerRef.current) clearInterval(qTimerRef.current);
+    const curQ = sectionStateRef.current?.questions[currentQIdxRef.current];
+    if (curQ && !sectionStateRef.current!.savedToServer[curQ.id]) {
+      await saveAnswerToBackend(curQ.id, sectionStateRef.current!.answers[curQ.id] ?? null, sectionStateRef.current!.reviewed[curQ.id] || false);
+    }
     const r = await StudentAPI.cbt.submitSection(attemptIdNum, {
       section_index: currentSection,
       reason,
@@ -336,6 +368,26 @@ export default function StudentCBTExam() {
   const answered = Object.values(section.answers).filter(a => a !== null).length;
   const markedForReview = Object.values(section.reviewed).filter(Boolean).length;
   const notVisited = section.questions.filter(q => !section.visited[q.id]).length;
+
+  // A student can freely revisit/edit any already-saved question, but can only
+  // move one step past the furthest one reached so far — no jumping ahead to
+  // questions never viewed.
+  const lastSavedIdx = section.questions.reduce((max, qq, i) => section.savedToServer[qq.id] ? i : max, -1);
+  const furthestAllowed = Math.min(section.questions.length - 1, lastSavedIdx + 1);
+
+  const goTo = (idx: number) => {
+    if (idx > furthestAllowed) return;
+    persistCurrentIfUnsaved(qId);
+    setCurrentQIdx(idx);
+  };
+  const goNext = () => {
+    persistCurrentIfUnsaved(qId);
+    setCurrentQIdx(i => Math.min(section.questions.length - 1, i + 1));
+  };
+  const goPrev = () => {
+    persistCurrentIfUnsaved(qId);
+    setCurrentQIdx(i => Math.max(0, i - 1));
+  };
 
   return (
     <div className="fixed inset-0 bg-gray-50 flex flex-col overflow-hidden select-none">
@@ -441,7 +493,7 @@ export default function StudentCBTExam() {
           {/* Navigation buttons */}
           <div className="flex items-center justify-between mt-8 max-w-3xl mx-auto">
             <button
-              onClick={() => setCurrentQIdx(i => Math.max(0, i-1))}
+              onClick={goPrev}
               disabled={currentQIdx === 0}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition"
             >
@@ -450,10 +502,10 @@ export default function StudentCBTExam() {
 
             {currentQIdx < section.questions.length - 1 ? (
               <button
-                onClick={() => setCurrentQIdx(i => i+1)}
+                onClick={goNext}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
               >
-                Next <ChevronRight size={16} />
+                {selectedAnswer ? <>Next <ChevronRight size={16} /></> : <>Skip <SkipForward size={16} /></>}
               </button>
             ) : (
               <button
@@ -479,6 +531,7 @@ export default function StudentCBTExam() {
               { cls: "bg-purple-500", label: "Marked for Review" },
               { cls: "bg-gray-300", label: "Not Visited" },
               { cls: "bg-white border border-gray-300", label: "Visited, Not Answered" },
+              { cls: "bg-gray-100 border border-gray-200", label: "Locked (view in order)" },
             ].map(({ cls, label }) => (
               <div key={label} className="flex items-center gap-2">
                 <div className={`w-4 h-4 rounded-full ${cls}`} />
@@ -488,22 +541,26 @@ export default function StudentCBTExam() {
           </div>
 
           <div className="grid grid-cols-4 gap-1.5">
-            {section.questions.map((q, idx) => {
-              const ans = section.answers[q.id];
-              const mrk = section.reviewed[q.id];
-              const vis = section.visited[q.id];
+            {section.questions.map((pq, idx) => {
+              const locked = idx > furthestAllowed;
+              const ans = section.answers[pq.id];
+              const mrk = section.reviewed[pq.id];
+              const vis = section.visited[pq.id];
               let cls = "bg-white border border-gray-300 text-gray-600";
-              if (ans && mrk) cls = "bg-purple-500 text-white";
+              if (locked) cls = "bg-gray-100 border border-gray-200 text-gray-300 cursor-not-allowed";
+              else if (ans && mrk) cls = "bg-purple-500 text-white";
               else if (ans) cls = "bg-green-500 text-white";
               else if (mrk) cls = "bg-purple-200 text-purple-800";
               else if (vis) cls = "bg-orange-100 text-orange-700 border border-orange-200";
               return (
                 <button
-                  key={q.id}
-                  onClick={() => setCurrentQIdx(idx)}
-                  className={`w-9 h-9 rounded-lg text-xs font-bold flex items-center justify-center transition hover:scale-110 ${cls} ${currentQIdx === idx ? "ring-2 ring-blue-500 ring-offset-1" : ""}`}
+                  key={pq.id}
+                  onClick={() => goTo(idx)}
+                  disabled={locked}
+                  title={locked ? "View the questions before this one first" : undefined}
+                  className={`w-9 h-9 rounded-lg text-xs font-bold flex items-center justify-center transition hover:scale-110 disabled:hover:scale-100 ${cls} ${currentQIdx === idx ? "ring-2 ring-blue-500 ring-offset-1" : ""}`}
                 >
-                  {idx + 1}
+                  {locked ? <Lock size={12} /> : idx + 1}
                 </button>
               );
             })}

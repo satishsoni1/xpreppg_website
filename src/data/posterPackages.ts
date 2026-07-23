@@ -9,6 +9,7 @@ export interface PosterPackage {
   image_url: string;
   image_url2?: string;
   poster_count: string;
+  poster_qty: number;
 }
 
 export const POSTER_PACKAGES: PosterPackage[] = [
@@ -21,6 +22,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 549,
     original_price: 850,
     poster_count: "7 Subjects",
+    poster_qty: 7,
     image_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600"
   },
   {
@@ -32,6 +34,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "/posters/pathology.png",
     image_url2: "/posters/microbiology.png"
   },
@@ -44,6 +47,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "/posters/biochem.png",
     image_url2: "/posters/pharmacology.png"
   },
@@ -56,6 +60,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=600"
   },
   {
@@ -67,6 +72,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "/posters/ent.png",
     image_url2: "/posters/ophthalmology.png"
   },
@@ -79,6 +85,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600"
   },
   {
@@ -90,6 +97,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?w=600"
   },
   {
@@ -101,6 +109,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=600"
   },
   {
@@ -112,6 +121,7 @@ export const POSTER_PACKAGES: PosterPackage[] = [
     price: 319,
     original_price: 499,
     poster_count: "4 Posters",
+    poster_qty: 4,
     image_url: "/posters/community-medicine.png"
   }
 ];

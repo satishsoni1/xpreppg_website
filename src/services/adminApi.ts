@@ -483,6 +483,38 @@ export const AdminAPI = {
     return res.json();
   },
 
+  // --- SHIPPING CHARGE TIERS ---
+  getShippingChargeTiers: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/shipping-charge-tiers`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+  createShippingChargeTier: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/shipping-charge-tiers`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateShippingChargeTier: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/shipping-charge-tiers/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deleteShippingChargeTier: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/shipping-charge-tiers/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    return res.json();
+  },
+
   // --- XREVISE SCHEDULE ---
   getXreviseSchedule: async () => {
     const res = await fetch(`${API_BASE_URL}/admin/xrevise-schedule`, {

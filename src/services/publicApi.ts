@@ -75,6 +75,22 @@ export const PublicAPI = {
     }
   },
 
+  getShippingChargeTiers: async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/shipping-charge-tiers`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.tiers) {
+        data.tiers = data.tiers.map((t: any) => ({ ...t, charge: Number(t.charge) }));
+      }
+      return data;
+    } catch (error) {
+      return { status: false, tiers: [] };
+    }
+  },
+
   getPosterSubjects: async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/poster-subjects`, {

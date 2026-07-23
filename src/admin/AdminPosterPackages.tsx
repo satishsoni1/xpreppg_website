@@ -17,6 +17,7 @@ const emptyForm = {
   price: "",
   original_price: "",
   poster_count: "",
+  poster_qty: "1",
   tags: "",
   sort_order: "0",
   image_url: "",
@@ -67,6 +68,7 @@ export default function AdminPosterPackages() {
       price: String(pkg.price ?? ""),
       original_price: pkg.original_price ? String(pkg.original_price) : "",
       poster_count: pkg.poster_count ?? "",
+      poster_qty: String(pkg.poster_qty ?? 1),
       tags: pkg.tags ?? "",
       sort_order: String(pkg.sort_order ?? 0),
       image_url: pkg.image_url ?? "",
@@ -123,6 +125,7 @@ export default function AdminPosterPackages() {
         image_url: imageUrl,
         image_url2: imageUrl2 || null,
         poster_count: form.poster_count || null,
+        poster_qty: Number(form.poster_qty) || 1,
         tags: form.tags || null,
         sort_order: Number(form.sort_order) || 0,
       };
@@ -281,12 +284,27 @@ export default function AdminPosterPackages() {
                 </select>
               </div>
 
-              <input
-                placeholder="Poster Count (e.g. 4 Posters, 7 Subjects)"
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
-                value={form.poster_count}
-                onChange={e => setForm(f => ({ ...f, poster_count: e.target.value }))}
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Poster Count Label</label>
+                  <input
+                    placeholder="e.g. 4 Posters, 7 Subjects"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
+                    value={form.poster_count}
+                    onChange={e => setForm(f => ({ ...f, poster_count: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Actual Poster Qty *</label>
+                  <input
+                    required type="number" min="1" placeholder="4"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
+                    value={form.poster_qty}
+                    onChange={e => setForm(f => ({ ...f, poster_qty: e.target.value }))}
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Used to calculate tiered shipping charge at checkout.</p>
+                </div>
+              </div>
 
               <div>
                 <input

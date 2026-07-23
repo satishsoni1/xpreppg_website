@@ -6,7 +6,7 @@ import {
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
   BookOpen, ChevronRight, Upload, GraduationCap,
-  ListChecks, Play, PieChart, Layers,
+  ListChecks, Play, PieChart, Layers, Truck,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
@@ -78,6 +78,7 @@ export default function AdminLayout() {
     { name: "Poster Packages", path: "/admin/poster-packages", icon: <Package size={18} /> },
     { name: "Poster Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
+    { name: "Shipping Charges", path: "/admin/shipping-charges", icon: <Truck size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={18} /> },
   ];

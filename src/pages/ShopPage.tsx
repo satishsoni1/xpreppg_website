@@ -10,7 +10,21 @@ import { API_BASE_URL } from "@/config";
 import { loadRazorpay } from "@/lib/razorpay";
 import { PublicAPI } from "@/services/publicApi";
 
-const SHIPPING = 150;
+const FALLBACK_SHIPPING = 150;
+
+interface ShippingTier { min_qty: number; max_qty: number | null; charge: number; }
+
+// Mirrors the server-side tier lookup in shippingChargeController.calculateShippingCharge —
+// used here only to show the customer an accurate estimate; the backend re-derives
+// the authoritative charge from the DB at order-creation time.
+function computeShipping(cart: PosterPackage[], tiers: ShippingTier[]): number {
+  const totalQty = cart.reduce((s, p) => s + (p.poster_qty || 1), 0);
+  if (totalQty === 0) return 0;
+  const match = tiers
+    .filter(t => t.min_qty <= totalQty && (t.max_qty == null || t.max_qty >= totalQty))
+    .sort((a, b) => b.min_qty - a.min_qty)[0];
+  return match ? match.charge : FALLBACK_SHIPPING;
+}
 
 // ── Image copy-protection ──────────────────────────────────────────────────────
 export function ProtectedImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
@@ -45,8 +59,9 @@ interface ShipForm {
   address: string; city: string; state: string; pincode: string;
 }
 
-function CheckoutModal({ cart, onClose }: { cart: PosterPackage[]; onClose: () => void }) {
+function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers: ShippingTier[]; onClose: () => void }) {
   const subtotal = cart.reduce((s, p) => s + p.price, 0);
+  const shipping = computeShipping(cart, tiers);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [promoMsg, setPromoMsg] = useState("");
@@ -57,7 +72,7 @@ function CheckoutModal({ cart, onClose }: { cart: PosterPackage[]; onClose: () =
     name: "", email: "", mobile: "", address: "", city: "", state: "", pincode: "",
   });
 
-  const grandTotal = Math.max(0, subtotal + SHIPPING - discount);
+  const grandTotal = Math.max(0, subtotal + shipping - discount);
 
   const handleShipChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setShip(p => ({ ...p, [e.target.name]: e.target.value }));
@@ -168,7 +183,7 @@ function CheckoutModal({ cart, onClose }: { cart: PosterPackage[]; onClose: () =
               ))}
               <div className="border-t pt-2 mt-2 space-y-1 text-sm">
                 <div className="flex justify-between text-gray-500"><span>Subtotal</span><span>₹{subtotal}</span></div>
-                <div className="flex justify-between text-gray-500"><span>Shipping</span><span>₹{SHIPPING}</span></div>
+                <div className="flex justify-between text-gray-500"><span>Shipping</span><span>₹{shipping}</span></div>
                 {discount > 0 && <div className="flex justify-between text-green-600 font-semibold"><span>Promo Discount</span><span>-₹{discount}</span></div>}
                 <div className="flex justify-between font-bold text-navy text-base pt-1"><span>Total</span><span>₹{grandTotal}</span></div>
               </div>
@@ -323,12 +338,13 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
 }
 
 // ── Cart sidebar ──────────────────────────────────────────────────────────────
-function CartSidebar({ cart, onRemove, onClose, onCheckout }: {
-  cart: PosterPackage[]; onRemove: (id: number) => void;
+function CartSidebar({ cart, tiers, onRemove, onClose, onCheckout }: {
+  cart: PosterPackage[]; tiers: ShippingTier[]; onRemove: (id: number) => void;
   onClose: () => void; onCheckout: () => void;
 }) {
   const subtotal = cart.reduce((s, p) => s + p.price, 0);
-  const grandTotal = subtotal + SHIPPING;
+  const shipping = computeShipping(cart, tiers);
+  const grandTotal = subtotal + shipping;
 
   const bySubject = cart.reduce<Record<string, PosterPackage[]>>((acc, p) => {
     const key = p.subject || "Other";
@@ -387,7 +403,7 @@ function CartSidebar({ cart, onRemove, onClose, onCheckout }: {
                 <span>Subtotal:</span><span className="font-bold">₹{subtotal}</span>
               </div>
               <div className="flex justify-between">
-                <span>Flat Delivery Charge:</span><span className="font-bold">₹{SHIPPING}</span>
+                <span>Delivery Charge:</span><span className="font-bold">₹{shipping}</span>
               </div>
             </div>
             <div className="flex justify-between items-center pt-1.5">
@@ -431,10 +447,14 @@ export default function ShopPage() {
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [packages, setPackages] = useState<PosterPackage[]>(POSTER_PACKAGES);
+  const [tiers, setTiers] = useState<ShippingTier[]>([]);
 
   useEffect(() => {
     PublicAPI.getPosterPackages().then(res => {
       if (res.status && res.packages?.length) setPackages(res.packages);
+    }).catch(() => {});
+    PublicAPI.getShippingChargeTiers().then(res => {
+      if (res.status) setTiers(res.tiers || []);
     }).catch(() => {});
   }, []);
 
@@ -455,14 +475,14 @@ export default function ShopPage() {
       )}
       {showCart && (
         <CartSidebar
-          cart={cart} onRemove={removeFromCart}
+          cart={cart} tiers={tiers} onRemove={removeFromCart}
           onClose={() => setShowCart(false)}
           onCheckout={() => setShowCheckout(true)}
         />
       )}
       {showCheckout && (
         <CheckoutModal
-          cart={cart}
+          cart={cart} tiers={tiers}
           onClose={() => { setShowCheckout(false); if (cart.length > 0) setShowCart(true); }}
         />
       )}
@@ -493,7 +513,7 @@ export default function ShopPage() {
       <div className="bg-yellow-50 border-b border-yellow-200 py-4 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           <p className="text-sm text-gray-700 font-medium">
-            <span className="text-yellow-600 font-bold">✨ Flat ₹150 delivery charge</span> — pay online and your posters will be shipped to your address!
+            <span className="text-yellow-600 font-bold">✨ Delivery charge based on quantity</span> — pay online and your posters will be shipped to your address!
           </p>
           <button
             onClick={() => setShowCart(true)}
@@ -519,7 +539,7 @@ export default function ShopPage() {
               <Package className="w-5 h-5 shrink-0" />
               <div>
                 <p className="font-bold text-sm">{cart.length} item{cart.length > 1 ? "s" : ""} in your bundle</p>
-                <p className="text-white/70 text-xs">Total ₹{cart.reduce((s, p) => s + p.price, 0)} + ₹150 delivery · Tap to review & checkout</p>
+                <p className="text-white/70 text-xs">Total ₹{cart.reduce((s, p) => s + p.price, 0)} + ₹{computeShipping(cart, tiers)} delivery · Tap to review & checkout</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 shrink-0" />

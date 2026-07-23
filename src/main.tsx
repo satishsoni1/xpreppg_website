@@ -40,6 +40,7 @@ import AdminCbtStudents from "./admin/AdminCbtStudents";
 import AdminXreviseSchedule from "./admin/AdminXreviseSchedule";
 import AdminPosterPromos from "./admin/AdminPosterPromos";
 import AdminPosterOrders from "./admin/AdminPosterOrders";
+import AdminShippingCharges from "./admin/AdminShippingCharges";
 import AdminWhatsAppScheduler from "./admin/AdminWhatsAppScheduler";
 import AdminXreviseQuestions from "./admin/AdminXreviseQuestions";
 import AdminMediaUpload from "./admin/AdminMediaUpload";
@@ -147,6 +148,7 @@ const router = createBrowserRouter([
       { path: "poster-packages", element: <AdminPosterPackages /> },
       { path: "poster-promos", element: <AdminPosterPromos /> },
       { path: "poster-orders", element: <AdminPosterOrders /> },
+      { path: "shipping-charges", element: <AdminShippingCharges /> },
       { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },
       { path: "xrevise/students", element: <AdminXreviseStudents /> },
       { path: "xrevise/enrollments", element: <AdminXreviseEnrollments /> },

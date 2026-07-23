@@ -208,7 +208,7 @@ export default function PosterShopSection() {
           >
             <ShoppingCart size={18} /> Order Now — ₹319 onwards
           </button>
-          <p className="text-gray-400 text-xs mt-3">+ Flat ₹150 delivery charge per order</p>
+          <p className="text-gray-400 text-xs mt-3">+ Delivery charge applies based on order quantity</p>
         </div>
 
       </div>
