@@ -384,6 +384,23 @@ export default function StudentCBTExam() {
     persistCurrentIfUnsaved(qId);
     setCurrentQIdx(i => Math.min(section.questions.length - 1, i + 1));
   };
+  // Explicit skip: clears any selected answer and advances, regardless of
+  // whether an option is currently selected — no need to deselect first.
+  const handleSkip = () => {
+    if (!qId) return;
+    const s = sectionStateRef.current;
+    if (!s) return;
+    const updated = {
+      ...s,
+      answers: { ...s.answers, [qId]: null },
+      visited: { ...s.visited, [qId]: true },
+      savedToServer: { ...s.savedToServer, [qId]: true },
+    };
+    sectionStateRef.current = updated;
+    setSection(updated);
+    saveAnswerToBackend(qId, null, s.reviewed[qId] || false);
+    setCurrentQIdx(i => Math.min(section.questions.length - 1, i + 1));
+  };
   const goPrev = () => {
     persistCurrentIfUnsaved(qId);
     setCurrentQIdx(i => Math.max(0, i - 1));
@@ -501,12 +518,20 @@ export default function StudentCBTExam() {
             </button>
 
             {currentQIdx < section.questions.length - 1 ? (
-              <button
-                onClick={goNext}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
-              >
-                {selectedAnswer ? <>Next <ChevronRight size={16} /></> : <>Skip <SkipForward size={16} /></>}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSkip}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition"
+                >
+                  Skip <SkipForward size={16} />
+                </button>
+                <button
+                  onClick={goNext}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
+                >
+                  Next <ChevronRight size={16} />
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => setShowSubmitConfirm(true)}
