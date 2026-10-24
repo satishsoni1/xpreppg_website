@@ -12,6 +12,56 @@ import { PublicAPI } from "@/services/publicApi";
 
 const FALLBACK_SHIPPING = 150;
 
+export type StoreCategory = "poster" | "flashcard";
+
+// Copy that differs between the NEET PG poster store and the NEET UG flash card store;
+// cart, shipping, promo codes and checkout are shared.
+interface StoreConfig {
+  badge: string;
+  title: string;
+  subtitle: string;
+  chips: string[];
+  itemNoun: string;
+  paymentName: string;
+  watermark: string;
+  deliveryNote: string;
+  emptyTitle: string;
+  emptyText: string;
+}
+
+const STORES: Record<StoreCategory, StoreConfig> = {
+  poster: {
+    badge: "NEET PG · INI-CET · FMGE",
+    title: "Medical Poster Store",
+    subtitle: "High-yield visual posters for NEET PG, INI-CET & FMGE. Choose your combo or pack, order in minutes.",
+    chips: ["Fast delivery", "Expert designed", "Copy protected"],
+    itemNoun: "poster pack",
+    paymentName: "XPrepPG Poster Store",
+    watermark: "© XREVISE — Preview Only",
+    deliveryNote: "We'll deliver your posters within 5–7 business days.",
+    emptyTitle: "Posters are restocking",
+    emptyText: "New poster packs will be listed here shortly.",
+  },
+  flashcard: {
+    badge: "NEET UG · Physics · Chemistry · Biology",
+    title: "NEET UG Flash Cards",
+    subtitle: "Printed, high-yield flash card sets for quick daily revision of NCERT concepts, formulas and facts — shipped to your door.",
+    chips: ["Printed & shipped", "NCERT-aligned", "Secure payment"],
+    itemNoun: "flash card set",
+    paymentName: "XPrepPG Flash Cards",
+    watermark: "© XPrepPG — Preview Only",
+    deliveryNote: "We'll deliver your flash cards within 5–7 business days.",
+    emptyTitle: "Flash card sets are launching soon",
+    emptyText: "Message us on WhatsApp to pre-order or get notified the day they go live.",
+  },
+};
+
+// Section headings for known group labels; anything else is shown as-is
+const GROUP_HEADINGS: Record<string, string> = {
+  "Medium Subject Combo": "Medium Subject Combos",
+  "Long Subject Pack": "Long Subject Packs",
+};
+
 interface ShippingTier { min_qty: number; max_qty: number | null; charge: number; }
 
 // Mirrors the server-side tier lookup in shippingChargeController.calculateShippingCharge —
@@ -27,7 +77,7 @@ function computeShipping(cart: PosterPackage[], tiers: ShippingTier[]): number {
 }
 
 // ── Image copy-protection ──────────────────────────────────────────────────────
-export function ProtectedImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+export function ProtectedImage({ src, alt, className, watermark = "© XREVISE — Preview Only" }: { src: string; alt: string; className?: string; watermark?: string }) {
   return (
     <div
       className={`relative select-none overflow-hidden ${className ?? ""}`}
@@ -42,7 +92,7 @@ export function ProtectedImage({ src, alt, className }: { src: string; alt: stri
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex flex-col items-center justify-around">
         {[...Array(5)].map((_, i) => (
           <span key={i} className="text-white/20 font-bold text-xs whitespace-nowrap tracking-widest select-none" style={{ transform: "rotate(-35deg)" }}>
-            © XREVISE — Preview Only
+            {watermark}
           </span>
         ))}
       </div>
@@ -59,7 +109,7 @@ interface ShipForm {
   address: string; city: string; state: string; pincode: string;
 }
 
-function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers: ShippingTier[]; onClose: () => void }) {
+function CheckoutModal({ cart, tiers, store, onClose }: { cart: PosterPackage[]; tiers: ShippingTier[]; store: StoreConfig; onClose: () => void }) {
   const subtotal = cart.reduce((s, p) => s + p.price, 0);
   const shipping = computeShipping(cart, tiers);
   const [promoCode, setPromoCode] = useState("");
@@ -110,9 +160,9 @@ function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...ship,
-          items: cart.map(p => ({ id: p.id, title: p.title, price: p.price })),
-          promo_code: promoCode || null,
-          discount,
+          // The server prices items and re-validates the promo from the DB
+          items: cart.map(p => ({ id: p.id })),
+          promo_code: discount > 0 ? promoCode : null,
         }),
       });
       const order = await createRes.json();
@@ -123,11 +173,11 @@ function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers:
         key: order.key_id,
         amount: order.amount,
         currency: order.currency,
-        name: "XPrepPG Poster Store",
-        description: `${cart.length} poster(s)`,
+        name: store.paymentName,
+        description: `${cart.length} ${store.itemNoun}${cart.length > 1 ? "s" : ""}`,
         order_id: order.order_id,
         prefill: { name: ship.name, email: ship.email, contact: ship.mobile },
-        theme: { color: "#22c55e" },
+        theme: { color: "#0E7C86" },
         handler: async (response: any) => {
           const verifyRes = await fetch(`${API_BASE_URL}/poster-orders/verify`, {
             method: "POST",
@@ -164,7 +214,7 @@ function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers:
           <div className="flex flex-col items-center py-16 text-center px-8">
             <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
             <h3 className="text-2xl font-bold text-navy mb-2">Order Confirmed!</h3>
-            <p className="text-gray-600 mb-2">Thank you for your purchase. We'll deliver your posters within 5–7 business days.</p>
+            <p className="text-gray-600 mb-2">Thank you for your purchase. {store.deliveryNote}</p>
             <p className="text-sm text-gray-400">You'll receive a confirmation on your WhatsApp/email.</p>
             <button onClick={onClose} className="mt-8 bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primaryDark transition">
               Continue Shopping
@@ -267,8 +317,8 @@ function CheckoutModal({ cart, tiers, onClose }: { cart: PosterPackage[]; tiers:
 }
 
 // ── Poster detail modal ───────────────────────────────────────────────────────
-function PosterModal({ poster, onClose, onAdd, inCart }: {
-  poster: PosterPackage; onClose: () => void;
+function PosterModal({ poster, store, onClose, onAdd, inCart }: {
+  poster: PosterPackage; store: StoreConfig; onClose: () => void;
   onAdd: (p: PosterPackage) => void; inCart: boolean;
 }) {
   const discount = poster.original_price
@@ -308,7 +358,7 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
 
           <div className="flex items-center gap-2 bg-secondary rounded-lg px-3 py-2 mb-5 text-xs text-primary font-medium">
             <ShieldCheck size={14} className="shrink-0" />
-            Preview is watermarked. Full quality poster delivered after purchase.
+            Preview is watermarked. The full-quality {store.itemNoun} is delivered after purchase.
           </div>
 
           <div className="flex items-end gap-3 mb-5">
@@ -330,7 +380,7 @@ function PosterModal({ poster, onClose, onAdd, inCart }: {
             <ShoppingCart size={18} />
             {inCart ? "Added to Cart" : "Add to Cart"}
           </button>
-          <p className="text-center text-xs text-gray-400 mt-3">Poster shipped to your address after payment</p>
+          <p className="text-center text-xs text-gray-400 mt-3">Shipped to your address after payment</p>
         </div>
       </div>
     </div>
@@ -441,35 +491,42 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 // ── Main ShopPage ─────────────────────────────────────────────────────────────
-export default function ShopPage() {
+export default function ShopPage({ category = "poster" }: { category?: StoreCategory }) {
+  const store = STORES[category];
   const [selected, setSelected] = useState<PosterPackage | null>(null);
   const [cart, setCart] = useState<PosterPackage[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [packages, setPackages] = useState<PosterPackage[]>(POSTER_PACKAGES);
+  // Built-in poster list keeps the poster store usable if the API is unreachable
+  const [packages, setPackages] = useState<PosterPackage[]>(category === "poster" ? POSTER_PACKAGES : []);
+  const [loaded, setLoaded] = useState(false);
   const [tiers, setTiers] = useState<ShippingTier[]>([]);
 
   useEffect(() => {
-    PublicAPI.getPosterPackages().then(res => {
+    PublicAPI.getPosterPackages(category).then(res => {
       if (res.status && res.packages?.length) setPackages(res.packages);
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => setLoaded(true));
     PublicAPI.getShippingChargeTiers().then(res => {
       if (res.status) setTiers(res.tiers || []);
     }).catch(() => {});
-  }, []);
+  }, [category]);
 
   const addToCart = (p: PosterPackage) => setCart(prev => prev.some(c => c.id === p.id) ? prev : [...prev, p]);
   const removeFromCart = (id: number) => setCart(prev => prev.filter(p => p.id !== id));
 
-  const shortCombo = packages.filter(p => p.subject === "Short Subject Combo");
-  const mediumCombos = packages.filter(p => p.subject === "Medium Subject Combo");
-  const longPacks = packages.filter(p => p.subject === "Long Subject Pack");
+  // Group by subject label, keeping the admin's sort order
+  const groups = packages.reduce<{ label: string; items: PosterPackage[] }[]>((acc, p) => {
+    const label = p.subject || "More";
+    const g = acc.find(x => x.label === label);
+    if (g) g.items.push(p); else acc.push({ label, items: [p] });
+    return acc;
+  }, []);
 
   return (
     <MainLayout>
       {selected && (
         <PosterModal
-          poster={selected} onClose={() => setSelected(null)}
+          poster={selected} store={store} onClose={() => setSelected(null)}
           onAdd={addToCart} inCart={cart.some(c => c.id === selected.id)}
         />
       )}
@@ -482,7 +539,7 @@ export default function ShopPage() {
       )}
       {showCheckout && (
         <CheckoutModal
-          cart={cart} tiers={tiers}
+          cart={cart} tiers={tiers} store={store}
           onClose={() => { setShowCheckout(false); if (cart.length > 0) setShowCart(true); }}
         />
       )}
@@ -493,15 +550,13 @@ export default function ShopPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <span className="bg-primary/20 text-accent text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mb-4 inline-block border border-primary/30">
-                Medical Study Materials
+                {store.badge}
               </span>
-              <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">Medical Poster Store</h1>
-              <p className="text-white/70 text-lg max-w-xl">
-                High-yield visual posters for NEET PG, INI-CET & FMGE. Choose your combo or pack, order in minutes.
-              </p>
+              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">{store.title}</h1>
+              <p className="text-white/70 text-lg max-w-xl">{store.subtitle}</p>
             </div>
             <div className="flex flex-wrap gap-3 shrink-0">
-              {["📦 Fast Delivery", "🎨 Expert Designed", "🔒 Copy Protected"].map(t => (
+              {store.chips.map(t => (
                 <span key={t} className="bg-white/10 border border-white/20 text-white/80 px-3 py-1.5 rounded-full text-sm font-medium">{t}</span>
               ))}
             </div>
@@ -513,7 +568,7 @@ export default function ShopPage() {
       <div className="bg-yellow-50 border-b border-yellow-200 py-4 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
           <p className="text-sm text-gray-700 font-medium">
-            <span className="text-yellow-600 font-bold">✨ Delivery charge based on quantity</span> — pay online and your posters will be shipped to your address!
+            <span className="text-yellow-600 font-bold">✨ Delivery charge based on quantity</span> — pay online and your order is shipped to your address.
           </p>
           <button
             onClick={() => setShowCart(true)}
@@ -550,30 +605,20 @@ export default function ShopPage() {
       {/* ── Products ──────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-10">
 
-        {shortCombo.length > 0 && (
-          <div>
-            <SectionLabel label="Short Subject Combo" />
+        {groups.map(g => (
+          <div key={g.label}>
+            <SectionLabel label={GROUP_HEADINGS[g.label] || g.label} />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shortCombo.map(pack => <PackCard key={pack.id} pack={pack} cart={cart} onSelect={setSelected} onAdd={addToCart} onShowCart={() => setShowCart(true)} />)}
+              {g.items.map(pack => <PackCard key={pack.id} pack={pack} cart={cart} onSelect={setSelected} onAdd={addToCart} onShowCart={() => setShowCart(true)} />)}
             </div>
           </div>
-        )}
+        ))}
 
-        {mediumCombos.length > 0 && (
-          <div>
-            <SectionLabel label="Medium Subject Combos" />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mediumCombos.map(pack => <PackCard key={pack.id} pack={pack} cart={cart} onSelect={setSelected} onAdd={addToCart} onShowCart={() => setShowCart(true)} />)}
-            </div>
-          </div>
-        )}
-
-        {longPacks.length > 0 && (
-          <div>
-            <SectionLabel label="Long Subject Packs" />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {longPacks.map(pack => <PackCard key={pack.id} pack={pack} cart={cart} onSelect={setSelected} onAdd={addToCart} onShowCart={() => setShowCart(true)} />)}
-            </div>
+        {loaded && groups.length === 0 && (
+          <div className="text-center py-16 px-6 bg-mist rounded-2xl border border-gray-100">
+            <Package className="w-12 h-12 mx-auto mb-4 text-primary/40" />
+            <h3 className="text-xl font-bold text-navy mb-2">{store.emptyTitle}</h3>
+            <p className="text-gray-500 max-w-md mx-auto">{store.emptyText}</p>
           </div>
         )}
 
@@ -642,7 +687,7 @@ function PackCard({ pack, cart, onSelect, onAdd, onShowCart }: {
               <span className="text-2xl font-extrabold text-navy">₹{pack.price}</span>
               {pack.original_price && <span className="text-xs text-gray-400 line-through mb-0.5">₹{pack.original_price}</span>}
             </div>
-            <p className="text-[10px] text-gray-400 mt-0.5">+ ₹150 Delivery · {pack.poster_count}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">+ delivery{pack.poster_count ? ` · ${pack.poster_count}` : ""}</p>
           </div>
           <button
             onClick={() => inCart ? onShowCart() : onAdd(pack)}

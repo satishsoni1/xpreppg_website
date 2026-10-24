@@ -10,6 +10,7 @@ export interface PosterPackage {
   image_url2?: string;
   poster_count: string;
   poster_qty: number;
+  category?: "poster" | "flashcard";
 }
 
 export const POSTER_PACKAGES: PosterPackage[] = [

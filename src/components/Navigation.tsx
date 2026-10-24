@@ -1,42 +1,45 @@
-import { Menu, X, LogIn, ShoppingBag, Monitor, BookOpen, ChevronDown } from 'lucide-react';
+import { Menu, X, LogIn, ChevronDown, Monitor, BookOpen, Layers, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import logo from '@/assets/logo.png';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface NavigationProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
 }
 
-const NAV_ITEMS: { label: string; to: string; badge?: string }[] = [
-  { label: 'About', to: '/about' },
-  { label: 'Features', to: '/features' },
-  { label: 'Pricing', to: '/pricing' },
-  { label: 'Schedule', to: '/schedule' },
-  { label: 'Post Exam', to: '/post-exam' },
-  { label: 'Poster Shop', to: '/shop', badge: 'New' },
+type NavLink = { label: string; to: string; hint?: string; badge?: string };
+
+const NAV_ITEMS: NavLink[] = [
+  { label: 'XRevise', to: '/xrevise-program', hint: 'NEET PG' },
+  { label: 'CBT Mock', to: '/cbt', hint: 'NEET PG' },
+  { label: 'Flash Cards', to: '/neet-ug-flashcards', hint: 'NEET UG', badge: 'New' },
+  { label: 'Poster Store', to: '/shop', hint: 'NEET PG' },
   { label: 'Contact', to: '/contact' },
+];
+
+const REGISTER_OPTIONS = [
+  { label: 'XRevise', desc: 'NEET PG revision program', to: '/xrevise-register', icon: BookOpen },
+  { label: 'CBT', desc: 'Computer-based mock tests', to: '/cbt-register', icon: Monitor },
 ];
 
 export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
-  const [cbtOpen, setCbtOpen] = useState(false);
   const registerRef = useRef<HTMLDivElement>(null);
-  const cbtRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdowns on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (registerRef.current && !registerRef.current.contains(e.target as Node)) setRegisterOpen(false);
-      if (cbtRef.current && !cbtRef.current.contains(e.target as Node)) setCbtOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -46,222 +49,136 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
     navigate(path);
     setMobileMenuOpen(false);
     setRegisterOpen(false);
-    setCbtOpen(false);
   };
 
+  const isActive = (to: string) => pathname === to || pathname.startsWith(to + '/');
+
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-sm'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur shadow-card' : 'bg-white'} border-b border-gray-100`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-28">
+        <div className="flex justify-between items-center h-20">
 
           {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => go('/')}>
-            <img src={logo} alt="Logo" className="w-24 object-contain" />
-          </div>
+          <button className="flex items-center shrink-0" onClick={() => go('/')} aria-label="XPrepPG home">
+            <img src={logo} alt="XPrepPG" className="h-14 w-auto object-contain" />
+          </button>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-5">
-            {NAV_ITEMS.map(item =>
-              item.badge ? (
-                <a
-                  key={item.label}
-                  onClick={() => go(item.to)}
-                  className="relative flex items-center gap-1.5 cursor-pointer group"
-                >
-                  <span className="flex items-center gap-1 bg-gradient-to-r from-primary to-primaryDark text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-md shadow-primary/30 group-hover:shadow-primary/50 group-hover:-translate-y-0.5 transition-all duration-200">
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    {item.label}
-                  </span>
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-bounce shadow-sm">
+          {/* Desktop links */}
+          <div className="hidden lg:flex items-center gap-1">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.to}
+                onClick={() => go(item.to)}
+                className={`relative px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  isActive(item.to) ? 'text-primary bg-secondary' : 'text-ink/80 hover:text-primary hover:bg-mist'
+                }`}
+              >
+                <span className="flex flex-col items-start leading-tight">
+                  {item.hint && <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">{item.hint}</span>}
+                  {item.label}
+                </span>
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 bg-accent text-navy text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                     {item.badge}
                   </span>
-                </a>
-              ) : (
-                <a
-                  key={item.label}
-                  onClick={() => go(item.to)}
-                  className="text-gray-700 hover:text-primary font-medium transition-colors duration-200 cursor-pointer text-sm"
-                >
-                  {item.label}
-                </a>
-              )
-            )}
-
-            {/* CBT Dropdown */}
-            <div className="relative" ref={cbtRef}>
-              <button
-                onClick={() => setCbtOpen(o => !o)}
-                className="relative flex items-center gap-1.5 cursor-pointer group"
-              >
-                <span className="flex items-center gap-1 bg-gradient-to-r from-navy to-navyLight text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-md group-hover:-translate-y-0.5 transition-all duration-200">
-                  <Monitor className="w-3.5 h-3.5" />
-                  CBT
-                  <ChevronDown className={`w-3 h-3 transition-transform ${cbtOpen ? 'rotate-180' : ''}`} />
-                </span>
-                <span className="absolute -top-2 -right-2 bg-green-400 text-green-900 text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide animate-bounce shadow-sm">
-                  New
-                </span>
+                )}
               </button>
+            ))}
+          </div>
 
-              {cbtOpen && (
-                <div className="absolute top-full right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
-                  <button
-                    onClick={() => go('/cbt')}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors text-left"
-                  >
-                    <div className="w-8 h-8 bg-navy/10 rounded-lg flex items-center justify-center shrink-0">
-                      <Monitor className="w-4 h-4 text-navy" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-navy">About CBT</p>
-                      <p className="text-[10px] text-gray-400">Features & Plans</p>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => go('/cbt-register')}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors text-left"
-                  >
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                      <Monitor className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-primary">Register for CBT</p>
-                      <p className="text-[10px] text-gray-400">Create your account</p>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Student Login */}
+          {/* Desktop actions */}
+          <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={() => go('/student/login')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:border-primary hover:text-primary transition-all duration-200 text-sm"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-navy hover:bg-mist transition"
             >
-              <LogIn className="w-4 h-4" />
-              Login
+              <LogIn className="w-4 h-4" /> Login
             </button>
 
-            {/* Register Dropdown */}
             <div className="relative" ref={registerRef}>
               <button
                 onClick={() => setRegisterOpen(o => !o)}
-                className="flex items-center gap-1.5 bg-gradient-to-r from-primary to-primaryDark text-white px-5 py-2.5 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm"
+                className="flex items-center gap-1.5 bg-navy hover:bg-navyLight text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition shadow-card"
               >
-                Register Now
+                Register
                 <ChevronDown className={`w-4 h-4 transition-transform ${registerOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {registerOpen && (
-                <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
-                  <div className="px-4 py-2 border-b border-gray-50">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Choose Program</p>
-                  </div>
-                  <button
-                    onClick={() => go('/cbt-register')}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors text-left"
-                  >
-                    <div className="w-9 h-9 bg-navy/10 rounded-xl flex items-center justify-center shrink-0">
-                      <Monitor className="w-4 h-4 text-navy" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-navy">CBT</p>
-                      <p className="text-[10px] text-gray-400">Computer Based Test</p>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => go('/xrevise-register')}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors text-left"
-                  >
-                    <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                      <BookOpen className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-primary">XREVISE</p>
-                      <p className="text-[10px] text-gray-400">Poster Program</p>
-                    </div>
-                  </button>
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-lift border border-gray-100 p-2 z-50">
+                  {REGISTER_OPTIONS.map(({ label, desc, to, icon: Icon }) => (
+                    <button
+                      key={to}
+                      onClick={() => go(to)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition text-left"
+                    >
+                      <span className="w-9 h-9 bg-secondary text-primary rounded-lg flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4" />
+                      </span>
+                      <span>
+                        <span className="block text-sm font-bold text-navy">{label}</span>
+                        <span className="block text-xs text-gray-500">{desc}</span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile menu button */}
           <button
-            className="md:hidden text-gray-700"
+            className="lg:hidden p-2 -mr-2 text-navy"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-secondaryMiddle shadow-lg">
-          <div className="px-4 py-6 space-y-1">
-            {NAV_ITEMS.map(item => (
-              <a
-                key={item.label}
-                onClick={() => go(item.to)}
-                className="flex items-center justify-between py-3 px-3 rounded-xl cursor-pointer hover:bg-secondary transition-colors"
-              >
-                <span className={`font-medium text-sm ${item.badge ? 'text-primary' : 'text-gray-700'}`}>
-                  {item.badge && <ShoppingBag className="w-4 h-4 inline mr-1.5" />}
-                  {item.label}
-                </span>
-                {item.badge && (
-                  <span className="bg-yellow-400 text-yellow-900 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
-                    {item.badge}
+        <div className="lg:hidden bg-white border-t border-gray-100 shadow-lift max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="px-4 py-4 space-y-1">
+            {NAV_ITEMS.map(item => {
+              const Icon = item.to === '/neet-ug-flashcards' ? Layers : item.to === '/shop' ? ShoppingBag : item.to === '/cbt' ? Monitor : BookOpen;
+              return (
+                <button
+                  key={item.to}
+                  onClick={() => go(item.to)}
+                  className={`w-full flex items-center gap-3 py-3 px-3 rounded-xl text-left transition ${isActive(item.to) ? 'bg-secondary' : 'hover:bg-mist'}`}
+                >
+                  <Icon className="w-4 h-4 text-primary shrink-0" />
+                  <span className="flex-1">
+                    <span className="block text-sm font-semibold text-navy">{item.label}</span>
+                    {item.hint && <span className="block text-[11px] text-gray-400">{item.hint}</span>}
                   </span>
-                )}
-              </a>
-            ))}
+                  {item.badge && (
+                    <span className="bg-accent text-navy text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase">{item.badge}</span>
+                  )}
+                </button>
+              );
+            })}
 
-            {/* CBT section in mobile */}
-            <div className="border-t border-gray-100 pt-3 mt-2">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">CBT — Computer Based Test</p>
-              <a
-                onClick={() => go('/cbt')}
-                className="flex items-center gap-3 py-3 px-3 rounded-xl cursor-pointer hover:bg-secondary transition-colors"
-              >
-                <Monitor className="w-4 h-4 text-navy" />
-                <span className="font-semibold text-sm text-navy">About CBT</span>
-                <span className="ml-auto bg-green-400 text-green-900 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">New</span>
-              </a>
-              <a
-                onClick={() => go('/cbt-register')}
-                className="flex items-center gap-3 py-3 px-3 rounded-xl cursor-pointer hover:bg-secondary transition-colors"
-              >
-                <Monitor className="w-4 h-4 text-primary" />
-                <span className="font-semibold text-sm text-primary">Register for CBT</span>
-              </a>
-            </div>
-
-            <hr className="border-secondaryMiddle my-2" />
-
-            <button
-              onClick={() => go('/student/login')}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-secondaryDark text-primary px-6 py-3 rounded-xl font-semibold hover:bg-secondary transition-all"
-            >
-              <LogIn className="w-5 h-5" />
-              Student Login
-            </button>
-
-            {/* Register options in mobile */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="pt-3 mt-2 border-t border-gray-100 space-y-2">
               <button
-                onClick={() => go('/cbt-register')}
-                className="flex items-center justify-center gap-1.5 bg-navy text-white px-4 py-3 rounded-xl font-semibold text-sm"
+                onClick={() => go('/student/login')}
+                className="w-full flex items-center justify-center gap-2 border border-gray-200 text-navy px-6 py-3 rounded-xl font-semibold hover:bg-mist transition"
               >
-                <Monitor className="w-4 h-4" /> CBT
+                <LogIn className="w-4 h-4" /> Student Login
               </button>
-              <button
-                onClick={() => go('/xrevise-register')}
-                className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-primary to-primaryDark text-white px-4 py-3 rounded-xl font-semibold text-sm"
-              >
-                <BookOpen className="w-4 h-4" /> XREVISE
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                {REGISTER_OPTIONS.map(({ label, to }) => (
+                  <button
+                    key={to}
+                    onClick={() => go(to)}
+                    className="flex items-center justify-center gap-1.5 bg-navy text-white px-4 py-3 rounded-xl font-semibold text-sm"
+                  >
+                    {label} <ArrowRight className="w-4 h-4" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

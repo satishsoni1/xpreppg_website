@@ -4,13 +4,19 @@ import {
   Layers, Save, Loader2, Eye, EyeOff, Trash2, X, Plus, Tag, Pencil, ImageIcon,
 } from "lucide-react";
 
-const SUBJECT_OPTIONS = [
-  "Short Subject Combo",
-  "Medium Subject Combo",
-  "Long Subject Pack",
+// Product line → group labels shown as sections on that store page
+const CATEGORY_OPTIONS = [
+  { value: "poster",    label: "NEET PG Poster" },
+  { value: "flashcard", label: "NEET UG Flash Cards" },
 ];
 
+const SUBJECT_OPTIONS: Record<string, string[]> = {
+  poster: ["Short Subject Combo", "Medium Subject Combo", "Long Subject Pack"],
+  flashcard: ["Physics", "Chemistry", "Biology", "Complete NEET UG Set"],
+};
+
 const emptyForm = {
+  category: "poster",
   title: "",
   subject: "",
   description: "",
@@ -26,6 +32,7 @@ const emptyForm = {
 
 export default function AdminPosterPackages() {
   const [packages, setPackages] = useState<any[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -62,6 +69,7 @@ export default function AdminPosterPackages() {
 
   const openEdit = (pkg: any) => {
     setForm({
+      category: pkg.category ?? "poster",
       title: pkg.title ?? "",
       subject: pkg.subject ?? "",
       description: pkg.description ?? "",
@@ -117,6 +125,7 @@ export default function AdminPosterPackages() {
         : null;
 
       const payload = {
+        category: form.category,
         title: form.title,
         subject: form.subject || null,
         description: form.description,
@@ -168,7 +177,7 @@ export default function AdminPosterPackages() {
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Layers className="text-primary" /> Poster Packages
+          <Layers className="text-primary" /> Shop Products
         </h1>
         <button
           onClick={openCreate}
@@ -176,6 +185,20 @@ export default function AdminPosterPackages() {
         >
           <Plus size={18} /> Add Package
         </button>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {[{ value: "all", label: "All" }, ...CATEGORY_OPTIONS].map(c => (
+          <button
+            key={c.value}
+            onClick={() => setCategoryFilter(c.value)}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition ${
+              categoryFilter === c.value ? "bg-primary text-white border-primary" : "border-gray-300 text-gray-600 hover:border-primary"
+            }`}
+          >
+            {c.label}
+          </button>
+        ))}
       </div>
 
       {/* ── Create / Edit Modal ───────────────────────────────────────────── */}
@@ -271,6 +294,24 @@ export default function AdminPosterPackages() {
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               />
 
+              {/* Product line */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Product Line *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {CATEGORY_OPTIONS.map(c => (
+                    <button
+                      key={c.value} type="button"
+                      onClick={() => setForm(f => ({ ...f, category: c.value, subject: "" }))}
+                      className={`p-3 rounded-lg border text-sm font-semibold transition ${
+                        form.category === c.value ? "border-primary bg-secondary text-primary" : "border-gray-300 text-gray-600 hover:border-primary"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Subject dropdown */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Subject / Group Label</label>
@@ -280,13 +321,13 @@ export default function AdminPosterPackages() {
                   onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
                 >
                   <option value="">— Select group —</option>
-                  {SUBJECT_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                  {(SUBJECT_OPTIONS[form.category] || []).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Poster Count Label</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{form.category === "flashcard" ? "Card Count Label" : "Poster Count Label"}</label>
                   <input
                     placeholder="e.g. 4 Posters, 7 Subjects"
                     className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
@@ -295,7 +336,7 @@ export default function AdminPosterPackages() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Actual Poster Qty *</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{form.category === "flashcard" ? "Shipping Qty (sets) *" : "Actual Poster Qty *"}</label>
                   <input
                     required type="number" min="1" placeholder="4"
                     className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
@@ -402,7 +443,7 @@ export default function AdminPosterPackages() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.map((pkg) => (
+          {packages.filter(p => categoryFilter === "all" || (p.category ?? "poster") === categoryFilter).map((pkg) => (
             <div
               key={pkg.id}
               className={`rounded-xl border overflow-hidden shadow-sm transition ${
@@ -411,6 +452,9 @@ export default function AdminPosterPackages() {
             >
               {/* Image */}
               <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+                <span className="absolute top-2 left-2 z-10 bg-white/90 text-navy text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                  {pkg.category === "flashcard" ? "NEET UG Flash Cards" : "NEET PG Poster"}
+                </span>
                 {pkg.image_url ? (
                   <div className="relative w-full h-full">
                     <img src={pkg.image_url} alt={pkg.title} className="w-full h-full object-cover" />

@@ -56,3 +56,8 @@ html {
 .input {
   @apply border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-emerald-500 outline-none;
 }
+
+/* Keep anchored sections clear of the fixed nav (5rem) + XRevise section bar */
+html {
+  scroll-padding-top: 9rem;
+}

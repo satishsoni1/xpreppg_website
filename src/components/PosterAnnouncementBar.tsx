@@ -9,7 +9,7 @@ export default function PosterAnnouncementBar() {
   if (!visible) return null;
 
   return (
-    <div className="sticky top-28 z-40 w-full bg-gradient-to-r from-primary to-primaryDark shadow-md shadow-primary/20">
+    <div className="sticky top-20 z-40 w-full bg-gradient-to-r from-primary to-primaryDark shadow-md shadow-primary/20">
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
 
         {/* Left: icon + message */}

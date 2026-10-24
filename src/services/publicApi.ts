@@ -55,9 +55,11 @@ export const PublicAPI = {
     }
   },
 
-  getPosterPackages: async () => {
+  // category: "poster" (NEET PG posters) | "flashcard" (NEET UG flash cards)
+  getPosterPackages: async (category?: "poster" | "flashcard") => {
     try {
-      const res = await fetch(`${API_BASE_URL}/poster-packages`, {
+      const qs = category ? `?category=${category}` : "";
+      const res = await fetch(`${API_BASE_URL}/poster-packages${qs}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });

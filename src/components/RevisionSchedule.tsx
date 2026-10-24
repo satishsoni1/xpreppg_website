@@ -165,7 +165,7 @@ export default function RevisionSchedule({ standalone = true }: { standalone?: b
 
       {/* ── CTA ─────────────────────────────────────────────────────────── */}
       <div className="text-center">
-        <div className="inline-flex flex-col sm:flex-row items-center gap-6 bg-white/5 border border-white/10 rounded-2xl px-10 py-8">
+        <div className="inline-flex flex-col sm:flex-row items-center gap-6 bg-white/5 border border-white/10 rounded-2xl px-6 sm:px-10 py-8 max-w-full">
           <div className="text-left">
             <p className="text-white font-bold text-xl mb-1">50 MCQs per daily test</p>
             <p className="text-white/50 text-sm">Based on previous year patterns — subject-wise, date-locked</p>

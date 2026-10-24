@@ -95,7 +95,7 @@ export default function PosterShopSection() {
   const [allPackages, setAllPackages] = useState<PosterPackage[]>(POSTER_PACKAGES);
 
   useEffect(() => {
-    PublicAPI.getPosterPackages().then(res => {
+    PublicAPI.getPosterPackages("poster").then(res => {
       if (res.status && res.packages?.length) {
         setAllPackages(res.packages);
       }

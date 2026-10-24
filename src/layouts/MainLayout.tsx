@@ -128,7 +128,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-white relative">
       <ScrollToTop />
       <Navigation mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
-      <div className="pt-28">{children}</div>
+      <div className="pt-20">{children}</div>
       <Contact />
 
       {/* Registration Modal */}

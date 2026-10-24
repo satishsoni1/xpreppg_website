@@ -3,11 +3,6 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import PricingPage from "./pages/PricingPage";
-import AboutPage from "./pages/AboutPage";
-import FeaturesPage from "./pages/FeaturesPage";
-import SchedulePage from "./pages/SchedulePage";
-import PostExamPage from "./pages/PostExamPage";
 import ContactPage from "./pages/ContactPage";
 import StudentLogin from "./student/StudentLogin";
 import StudentDashboard from "./student/StudentDashboard";
@@ -40,11 +35,13 @@ import AdminCbtStudents from "./admin/AdminCbtStudents";
 import AdminXreviseSchedule from "./admin/AdminXreviseSchedule";
 import AdminPosterPromos from "./admin/AdminPosterPromos";
 import AdminPosterOrders from "./admin/AdminPosterOrders";
+import AdminFinance from "./admin/AdminFinance";
 import AdminShippingCharges from "./admin/AdminShippingCharges";
 import AdminWhatsAppScheduler from "./admin/AdminWhatsAppScheduler";
 import AdminXreviseQuestions from "./admin/AdminXreviseQuestions";
 import AdminMediaUpload from "./admin/AdminMediaUpload";
 import ShopPage from "./pages/ShopPage";
+import XRevisePage from "./pages/XRevisePage";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
 import StudentAttemptsList from "./admin/StudentAttemptsList";
@@ -82,12 +79,15 @@ import StudentCBTResult from "./student/StudentCBTResult";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
-  { path: "/shop", element: <ShopPage /> },
-  { path: "/about", element: <AboutPage /> },
-  { path: "/features", element: <FeaturesPage /> },
-  { path: "/pricing", element: <PricingPage /> },
-  { path: "/schedule", element: <SchedulePage /> },
-  { path: "/post-exam", element: <PostExamPage /> },
+  { path: "/shop", element: <ShopPage category="poster" /> },
+  { path: "/neet-ug-flashcards", element: <ShopPage category="flashcard" /> },
+  { path: "/xrevise-program", element: <XRevisePage /> },
+  // Former XRevise sub-pages now open the matching section of /xrevise-program
+  { path: "/about", element: <XRevisePage section="about" /> },
+  { path: "/features", element: <XRevisePage section="features" /> },
+  { path: "/pricing", element: <XRevisePage section="pricing" /> },
+  { path: "/schedule", element: <XRevisePage section="schedule" /> },
+  { path: "/post-exam", element: <XRevisePage section="post-exam" /> },
   { path: "/contact", element: <ContactPage /> },
   // 🔐 ADMIN LOGIN (NOT PROTECTED)
   // { path: "/admin/login", element: <AdminLogin /> },
@@ -148,6 +148,7 @@ const router = createBrowserRouter([
       { path: "poster-packages", element: <AdminPosterPackages /> },
       { path: "poster-promos", element: <AdminPosterPromos /> },
       { path: "poster-orders", element: <AdminPosterOrders /> },
+      { path: "finance", element: <AdminFinance /> },
       { path: "shipping-charges", element: <AdminShippingCharges /> },
       { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },
       { path: "xrevise/students", element: <AdminXreviseStudents /> },

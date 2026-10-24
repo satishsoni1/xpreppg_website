@@ -1,4 +1,4 @@
-import { ArrowRight, Brain, BookOpen, Calendar, BarChart2, ChevronDown } from "lucide-react";
+import { ArrowRight, Brain, BookOpen, Calendar, BarChart2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import logo from "@/assets/logo.png";
 
@@ -11,16 +11,16 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="relative flex flex-col justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-navy" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(37,99,235,0.18)_0%,_transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(14,124,134,0.35)_0%,_transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(147,197,253,0.08)_0%,_transparent_60%)]" />
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.04]"
         style={{ backgroundImage: "linear-gradient(rgba(147,197,253,1) 1px, transparent 1px), linear-gradient(90deg, rgba(147,197,253,1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-      <div className={`relative max-w-7xl mx-auto w-full pt-24 pb-16 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+      <div className={`relative max-w-7xl mx-auto w-full pt-16 pb-20 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
         <div className="flex flex-col lg:flex-row items-center gap-16">
 
           {/* Left — Text */}
@@ -104,11 +104,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-30">
-        <span className="text-white text-xs uppercase tracking-widest">Scroll</span>
-        <ChevronDown className="w-4 h-4 text-white animate-bounce" />
-      </div>
     </section>
   );
 }

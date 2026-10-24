@@ -44,6 +44,29 @@ export const AdminAPI = {
     return res.json();
   },
 
+  // --- INCOME & EXPENSE LEDGER ---
+  getLedger: async (filters: Record<string, string> = {}) => {
+    const qs = new URLSearchParams(Object.entries(filters).filter(([, v]) => v)).toString();
+    const res = await fetch(`${API_BASE_URL}/admin/ledger${qs ? `?${qs}` : ""}`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  createLedgerEntry: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/ledger`, {
+      method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateLedgerEntry: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/ledger/${id}`, {
+      method: "PUT", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  deleteLedgerEntry: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/ledger/${id}`, { method: "DELETE", headers: getAuthHeaders() });
+    return res.json();
+  },
+
   // --- STUDENTS ---
   getAllStudents: async () => {
     console.log("api getAllStudents");

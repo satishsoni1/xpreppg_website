@@ -6,7 +6,7 @@ import {
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
   BookOpen, ChevronRight, Upload, GraduationCap,
-  ListChecks, Play, PieChart, Layers, Truck,
+  ListChecks, Play, PieChart, Layers, Truck, Wallet,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
@@ -75,11 +75,12 @@ export default function AdminLayout() {
     { name: "Plans", path: "/admin/plans", icon: <Package size={18} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Posters", path: "/admin/posters", icon: <ImageIcon size={18} /> },
-    { name: "Poster Packages", path: "/admin/poster-packages", icon: <Package size={18} /> },
+    { name: "Shop Products", path: "/admin/poster-packages", icon: <Package size={18} /> },
     { name: "Poster Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
     { name: "Shipping Charges", path: "/admin/shipping-charges", icon: <Truck size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
+    { name: "Income & Expenses", path: "/admin/finance", icon: <Wallet size={18} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={18} /> },
   ];
 
@@ -99,6 +100,7 @@ export default function AdminLayout() {
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Centers & Cities", path: "/admin/centers", icon: <MapPin size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
+    { name: "Income & Expenses", path: "/admin/finance", icon: <Wallet size={18} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={18} /> },
   ];
 

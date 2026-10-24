@@ -1,18 +1,13 @@
-
-import Hero from "./components/Hero";
-import WhyXRevise from "./components/WhyXRevise";
-import HowItWorks from "./components/HowItWorks";
-import Features from "./components/Features"; 
-import RevisionSchedule from "./components/RevisionSchedule";
-import PerformanceSection from "./components/PerformanceSection";
-import Pricing from "./components/Pricing";
+import HomeHero from "./components/home/HomeHero";
+import ProgramGrid from "./components/home/ProgramGrid";
+import FlashcardSpotlight from "./components/home/FlashcardSpotlight";
+import WhyUs from "./components/home/WhyUs";
+import HomeCTA from "./components/home/HomeCTA";
 import PosterShopSection from "./components/PosterShopSection";
-import PosterAnnouncementBar from "./components/PosterAnnouncementBar";
-import DemoVideo from "./components/DemoVideo";
-import MissionCTA from "./components/MissionCTA";
 import MainLayout from "./layouts/MainLayout";
 import { useEffect } from "react";
 
+// Home page: overview of every product. The full XRevise program lives on /xrevise-program.
 export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,19 +19,12 @@ export default function App() {
 
   return (
     <MainLayout>
-      <PosterAnnouncementBar />
-      <Hero />
+      <HomeHero />
+      <ProgramGrid />
+      <FlashcardSpotlight />
+      <WhyUs />
       <PosterShopSection />
-      <WhyXRevise />
-      
-      <HowItWorks />
-      <Features />
-      <RevisionSchedule />
-      <PerformanceSection />
-      <Pricing />
-      
-      <DemoVideo />
-      <MissionCTA />
+      <HomeCTA />
     </MainLayout>
   );
 }

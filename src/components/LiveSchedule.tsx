@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import MainLayout from "@/layouts/MainLayout";
 import { PublicAPI } from "@/services/publicApi";
 import { Calendar, AlertTriangle, Loader2, BookOpen } from "lucide-react";
 import RevisionSchedule from "@/components/RevisionSchedule";
@@ -11,7 +10,8 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-red-100 text-red-700",
 };
 
-export default function SchedulePage() {
+// Admin-managed XRevise schedule; falls back to the standard 15-day schedule when none is set
+export default function LiveSchedule() {
   const [apiSchedule, setApiSchedule] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterSubject, setFilterSubject] = useState("");
@@ -31,28 +31,22 @@ export default function SchedulePage() {
     return acc;
   }, {});
 
-  return (
-    <MainLayout>
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-navy to-navyLight pt-36 pb-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <span className="text-accent font-bold tracking-wider uppercase text-xs sm:text-sm mb-3 block">
-            4 Phases · 60 Days · Structured Revision
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-3">XRevise Schedule</h1>
-          <p className="text-white/60 text-lg">
-            Day-wise, subject-wise revision schedule. Updated live from admin panel.
-          </p>
-        </div>
-      </div>
+  if (!loading && apiSchedule.length === 0) return <RevisionSchedule />;
 
-      <div className="max-w-6xl mx-auto px-4 py-12">
+  return (
+    <section id="schedule" className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-sm font-bold uppercase tracking-widest text-primary mb-3">4 Phases · Structured Revision</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-navy">XRevise Schedule</h2>
+          <p className="text-gray-500 mt-3">Day-wise, subject-wise revision plan — updated live.</p>
+        </div>
         {loading ? (
           <div className="text-center py-20 text-gray-400">
             <Loader2 className="animate-spin mx-auto mb-3" size={32} />
             <p>Loading schedule…</p>
           </div>
-        ) : apiSchedule.length > 0 ? (
+        ) : (
           <>
             {/* Filter */}
             <div className="flex items-center gap-3 mb-8 flex-wrap">
@@ -114,17 +108,8 @@ export default function SchedulePage() {
               ))}
             </div>
           </>
-        ) : (
-          /* Fallback to static schedule */
-          <div>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 text-sm text-blue-700 flex items-center gap-2">
-              <Calendar size={16} />
-              Showing standard revision schedule. Admin-updated schedule will appear here when set.
-            </div>
-            <RevisionSchedule standalone={false} />
-          </div>
         )}
       </div>
-    </MainLayout>
+    </section>
   );
 }
