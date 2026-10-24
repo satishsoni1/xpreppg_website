@@ -42,6 +42,7 @@ import AdminXreviseQuestions from "./admin/AdminXreviseQuestions";
 import AdminMediaUpload from "./admin/AdminMediaUpload";
 import ShopPage from "./pages/ShopPage";
 import XRevisePage from "./pages/XRevisePage";
+import SchedulePage from "./pages/SchedulePage";
 import ReportCardDetail from "./student/ReportCardDetail";
 import PendingAttemptsTable from "./admin/ResultGeneratorPage";
 import StudentAttemptsList from "./admin/StudentAttemptsList";
@@ -86,7 +87,7 @@ const router = createBrowserRouter([
   { path: "/about", element: <XRevisePage section="about" /> },
   { path: "/features", element: <XRevisePage section="features" /> },
   { path: "/pricing", element: <XRevisePage section="pricing" /> },
-  { path: "/schedule", element: <XRevisePage section="schedule" /> },
+  { path: "/schedule", element: <SchedulePage /> },
   { path: "/post-exam", element: <XRevisePage section="post-exam" /> },
   { path: "/contact", element: <ContactPage /> },
   // 🔐 ADMIN LOGIN (NOT PROTECTED)

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Calendar, ChevronRight } from "lucide-react";
 
 // ── Static subject pattern (same across all 4 phases) ────────────────────────
-const DAY_PATTERN = [
+export const DAY_PATTERN = [
   { day: 1,  subjects: ["Anatomy", "Ortho"],                              isRevision: false },
   { day: 2,  subjects: ["Biochemistry", "FMT"],                           isRevision: false },
   { day: 3,  subjects: ["Physiology", "Pharmacology"],                    isRevision: false },
@@ -21,14 +21,14 @@ const DAY_PATTERN = [
 ];
 
 // ── Phase config (start dates are 0-indexed month) ───────────────────────────
-const PHASES = [
+export const PHASES = [
   { label: "Phase 1", range: "15 Jun – 29 Jun", start: new Date(2026, 5, 15) },
   { label: "Phase 2", range: "30 Jun – 14 Jul", start: new Date(2026, 5, 30) },
   { label: "Phase 3", range: "15 Jul – 29 Jul", start: new Date(2026, 6, 15) },
   { label: "Phase 4", range: "30 Jul – 13 Aug", start: new Date(2026, 6, 30) },
 ];
 
-function addDays(base: Date, n: number) {
+export function addDays(base: Date, n: number) {
   const d = new Date(base);
   d.setDate(base.getDate() + n);
   return d;
