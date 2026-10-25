@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Monitor, Clock, CheckCircle, AlertCircle, Trophy, BookOpen, Calendar } from "lucide-react";
 import { StudentAPI } from "@/services/studentApi";
+import { CBT_STREAMS, cbtStream } from "@/data/cbtStreams";
 
 interface Exam {
   id: number;
@@ -18,6 +19,8 @@ interface Exam {
   auto_submit_on_warnings: boolean;
   question_count: number;
   section_count: number;
+  section_minutes: number;
+  stream: string;
   attempt_id: number | null;
   attempt_status: string | null;
   current_section: number | null;
@@ -97,6 +100,7 @@ function ExamCard({ exam, onStart, onViewResult, onReexam }: { exam: Exam; onSta
               )}
             </div>
             <h3 className="text-base font-bold text-gray-900 leading-tight">{exam.title}</h3>
+            <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${cbtStream(exam.stream).badgeClass}`}>{cbtStream(exam.stream).label}</span>
           </div>
           <Monitor size={22} className={`shrink-0 mt-1 ${isLive && !attempted ? "text-blue-500" : "text-gray-300"}`} />
         </div>
@@ -116,7 +120,7 @@ function ExamCard({ exam, onStart, onViewResult, onReexam }: { exam: Exam; onSta
           </div>
           <div className="bg-gray-50 rounded-xl p-3 text-center">
             <p className="text-xs text-gray-400 mb-0.5">Duration</p>
-            <p className="text-base font-bold text-gray-900">{exam.section_count * 42}m</p>
+            <p className="text-base font-bold text-gray-900">{exam.section_count * (exam.section_minutes || 42)}m</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-3 text-center">
             <p className="text-xs text-gray-400 mb-0.5">Marks</p>
@@ -229,6 +233,10 @@ export default function StudentCBTExams() {
     navigate(`/student/cbt-exam/${examId}/${r.attempt.id}`);
   };
 
+  // Streams the student actually has exams in, in a fixed order; NEET PG when empty
+  const present = CBT_STREAMS.filter(st => exams.some(e => cbtStream(e.stream).value === st.value));
+  const streams = present.length ? present : [CBT_STREAMS[0]];
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -243,7 +251,7 @@ export default function StudentCBTExams() {
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Monitor size={24} className="text-blue-500" /> CBT Exams
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">Section-based computer-based tests · 5 sections · 42 min per section</p>
+        <p className="text-sm text-gray-500 mt-0.5">Computer-based mock tests in the real exam pattern</p>
       </div>
 
       {/* Rules banner */}
@@ -252,7 +260,9 @@ export default function StudentCBTExams() {
         <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
           <li>Do NOT switch tabs, windows, or applications during the exam</li>
           <li>Right-click and copy/paste are disabled</li>
-          <li>Each section has a 42-minute timer — auto-submits when time is up</li>
+          {streams.map(st => (
+            <li key={st.value}>{st.label}: {st.sectionRule} — auto-submits when time is up</li>
+          ))}
           <li>You cannot go back to a previous section once submitted</li>
           <li>Results will be published by the admin after the exam</li>
         </ul>
@@ -265,15 +275,24 @@ export default function StudentCBTExams() {
           <p className="text-sm mt-1">Exams will appear here when activated by admin</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {exams.map(exam => (
-            <ExamCard
-              key={exam.id}
-              exam={exam}
-              onStart={starting === exam.id ? () => {} : handleStart}
-              onViewResult={handleViewResult}
-              onReexam={openReexam}
-            />
+        <div className="space-y-8">
+          {streams.map(st => (
+            <section key={st.value}>
+              {streams.length > 1 && (
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">{st.label} CBT</h2>
+              )}
+              <div className="grid grid-cols-1 gap-4">
+                {exams.filter(e => cbtStream(e.stream).value === st.value).map(exam => (
+                  <ExamCard
+                    key={exam.id}
+                    exam={exam}
+                    onStart={starting === exam.id ? () => {} : handleStart}
+                    onViewResult={handleViewResult}
+                    onReexam={openReexam}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       )}

@@ -14,7 +14,7 @@ const FALLBACK_SHIPPING = 150;
 
 export type StoreCategory = "poster" | "flashcard";
 
-// Copy that differs between the NEET PG poster store and the NEET UG flash card store;
+// Copy that differs between the poster store and the flash card store (both NEET PG / INI-CET / FMGE);
 // cart, shipping, promo codes and checkout are shared.
 interface StoreConfig {
   badge: string;
@@ -43,10 +43,10 @@ const STORES: Record<StoreCategory, StoreConfig> = {
     emptyText: "New poster packs will be listed here shortly.",
   },
   flashcard: {
-    badge: "NEET UG · Physics · Chemistry · Biology",
-    title: "NEET UG Flash Cards",
-    subtitle: "Printed, high-yield flash card sets for quick daily revision of NCERT concepts, formulas and facts — shipped to your door.",
-    chips: ["Printed & shipped", "NCERT-aligned", "Secure payment"],
+    badge: "NEET PG · INI-CET · FMGE",
+    title: "Medical Flash Cards",
+    subtitle: "Printed, high-yield flash card sets for NEET PG, INI-CET & FMGE — quick daily recall of facts, one-liners and clinical pearls, shipped to your door.",
+    chips: ["Printed & shipped", "All 19 subjects", "Secure payment"],
     itemNoun: "flash card set",
     paymentName: "XPrepPG Flash Cards",
     watermark: "© XPrepPG — Preview Only",

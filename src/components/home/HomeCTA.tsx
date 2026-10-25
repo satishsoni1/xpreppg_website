@@ -13,7 +13,7 @@ export default function HomeCTA() {
             Start your preparation today
           </h2>
           <p className="text-white/80 text-lg max-w-xl mx-auto mb-9">
-            Join XRevise for NEET PG revision, take a CBT mock, or pick up NEET UG flash cards.
+            Join XRevise for NEET PG revision, take a NEET PG, NEET UG or JEE CBT mock, or pick up NEET PG, FMGE &amp; INI-CET flash cards.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button

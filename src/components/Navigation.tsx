@@ -12,8 +12,8 @@ type NavLink = { label: string; to: string; hint?: string; badge?: string };
 
 const NAV_ITEMS: NavLink[] = [
   { label: 'XRevise', to: '/xrevise-program', hint: 'NEET PG' },
-  { label: 'CBT Mock', to: '/cbt', hint: 'NEET PG' },
-  { label: 'Flash Cards', to: '/neet-ug-flashcards', hint: 'NEET UG', badge: 'New' },
+  { label: 'CBT Mock', to: '/cbt', hint: 'NEET PG · UG · JEE' },
+  { label: 'Flash Cards', to: '/flashcards', hint: 'NEET PG · FMGE · INI-CET', badge: 'New' },
   { label: 'Poster Store', to: '/shop', hint: 'NEET PG' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -142,7 +142,7 @@ export default function Navigation({ mobileMenuOpen, setMobileMenuOpen }: Naviga
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-lift max-h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="px-4 py-4 space-y-1">
             {NAV_ITEMS.map(item => {
-              const Icon = item.to === '/neet-ug-flashcards' ? Layers : item.to === '/shop' ? ShoppingBag : item.to === '/cbt' ? Monitor : BookOpen;
+              const Icon = item.to === '/flashcards' ? Layers : item.to === '/shop' ? ShoppingBag : item.to === '/cbt' ? Monitor : BookOpen;
               return (
                 <button
                   key={item.to}

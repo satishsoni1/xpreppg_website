@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Edit2, Trash2, ToggleLeft, ToggleRight, FileQuestion, BarChart3, ChevronDown, ChevronUp, X } from "lucide-react";
 import { CbtModuleAPI } from "@/services/adminApi";
+import { CBT_STREAMS, CbtStream, cbtStream, isCbtStream } from "@/data/cbtStreams";
 
 interface Exam {
   id: number;
@@ -18,10 +19,13 @@ interface Exam {
   status: string;
   question_count: number;
   section_count: number;
+  section_minutes: number;
+  stream: CbtStream;
   created_at: string;
 }
 
 const EMPTY_FORM = {
+  stream: "neet_pg" as CbtStream,
   title: "",
   description: "",
   start_time: "",
@@ -58,6 +62,11 @@ export default function AdminCBTExams() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  // ?stream= comes from the sidebar's NEET PG / NEET UG / JEE CBT links
+  const [params, setParams] = useSearchParams();
+  const streamFilter = isCbtStream(params.get("stream")) ? params.get("stream") as CbtStream : "all";
+  const visibleExams = streamFilter === "all" ? exams : exams.filter(e => (e.stream || "neet_pg") === streamFilter);
+  const setStreamFilter = (v: CbtStream | "all") => setParams(v === "all" ? {} : { stream: v });
 
   const load = async () => {
     setLoading(true);
@@ -70,7 +79,7 @@ export default function AdminCBTExams() {
 
   const openCreate = () => {
     setEditExam(null);
-    setForm({ ...EMPTY_FORM });
+    setForm({ ...EMPTY_FORM, stream: streamFilter === "all" ? "neet_pg" : streamFilter });
     setErr("");
     setShowModal(true);
   };
@@ -78,6 +87,7 @@ export default function AdminCBTExams() {
   const openEdit = (exam: Exam) => {
     setEditExam(exam);
     setForm({
+      stream: exam.stream || "neet_pg",
       title: exam.title,
       description: exam.description || "",
       start_time: toLocalInput(exam.start_time),
@@ -96,6 +106,7 @@ export default function AdminCBTExams() {
     if (!form.title.trim()) { setErr("Title is required"); return; }
     setSaving(true); setErr("");
     const payload = {
+      stream: form.stream,
       title: form.title.trim(),
       description: form.description.trim() || null,
       start_time: form.start_time || null,
@@ -137,35 +148,53 @@ export default function AdminCBTExams() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">CBT Exams</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Section-based computer-based tests (20 questions × 42 min per section)</p>
+          <h1 className="text-2xl font-bold text-gray-900">{streamFilter === "all" ? "CBT Exams" : `${cbtStream(streamFilter).label} CBT`}</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {streamFilter === "all" ? "Computer-based mock tests for NEET PG, NEET UG and JEE" : cbtStream(streamFilter).sectionRule}
+          </p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
           <Plus size={16} /> New Exam
         </button>
       </div>
 
+      <div className="flex flex-wrap gap-2 mb-5">
+        {[{ value: "all" as const, label: "All" }, ...CBT_STREAMS].map(s => (
+          <button
+            key={s.value}
+            onClick={() => setStreamFilter(s.value)}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition ${
+              streamFilter === s.value ? "bg-blue-600 text-white border-blue-600" : "border-gray-300 text-gray-600 hover:border-blue-600"
+            }`}
+          >
+            {s.label}
+            <span className="ml-1.5 opacity-70">{s.value === "all" ? exams.length : exams.filter(e => (e.stream || "neet_pg") === s.value).length}</span>
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-16 text-gray-400">Loading...</div>
-      ) : exams.length === 0 ? (
+      ) : visibleExams.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <FileQuestion size={40} className="mx-auto mb-3 opacity-40" />
-          <p>No CBT exams created yet.</p>
+          <p>No {streamFilter === "all" ? "" : `${cbtStream(streamFilter).label} `}CBT exams created yet.</p>
           <button onClick={openCreate} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold">Create First Exam</button>
         </div>
       ) : (
         <div className="space-y-3">
-          {exams.map(exam => (
+          {visibleExams.map(exam => (
             <div key={exam.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-5 flex items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-base font-bold text-gray-900 truncate">{exam.title}</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${cbtStream(exam.stream).badgeClass}`}>{cbtStream(exam.stream).label}</span>
                     {statusBadge(exam.status, exam.is_active)}
                   </div>
                   <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-500">
                     <span>Questions: <strong className="text-gray-700">{exam.question_count}</strong></span>
-                    <span>Sections: <strong className="text-gray-700">{exam.section_count}</strong></span>
+                    <span>Sections: <strong className="text-gray-700">{exam.section_count}</strong> × {exam.section_minutes} min</span>
                     <span>Marks: <strong className="text-gray-700">{exam.total_marks}</strong></span>
                     {exam.negative_marking && <span className="text-red-500">-{exam.global_negative_value} negative</span>}
                     <span>Start: <strong className="text-gray-700">{fmt(exam.start_time)}</strong></span>
@@ -242,10 +271,28 @@ export default function AdminCBTExams() {
               {err && <p className="text-red-500 text-sm bg-red-50 rounded-lg p-3">{err}</p>}
 
               <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1">Exam Stream *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {CBT_STREAMS.map(s => (
+                    <button
+                      key={s.value} type="button"
+                      onClick={() => setForm(f => ({ ...f, stream: s.value }))}
+                      className={`py-2.5 rounded-xl border text-sm font-semibold transition ${
+                        form.stream === s.value ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:border-blue-400"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-400 mt-1">{cbtStream(form.stream).sectionRule}</p>
+              </div>
+
+              <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1">Exam Title *</label>
                 <input value={form.title} onChange={e => setForm(f => ({...f, title: e.target.value}))}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g. NEET PG Mock Test 1" />
+                  placeholder={`e.g. ${cbtStream(form.stream).label} Mock Test 1`} />
               </div>
 
               <div>

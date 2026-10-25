@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Monitor, ChevronLeft, CheckCircle2, MessageCircle } from "lucide-react";
 import { PublicAPI } from "@/services/publicApi";
 import { StudentAPI } from "@/services/studentApi";
 import CityBottomSheet from "@/components/CitySelect";
 import logo from "@/assets/logo.png";
+import { CBT_STREAMS, CbtStream, cbtStream, isCbtStream } from "@/data/cbtStreams";
 
 interface City {
   id: number;
@@ -12,10 +13,18 @@ interface City {
   is_active: boolean;
 }
 
-const CATEGORIES = ["Pre-Intern", "Intern", "Post-Intern"];
+// Highlights shown beside the form for each exam
+const STREAM_POINTS: Record<CbtStream, string[]> = {
+  neet_pg: ["200 Questions · 3.5 Hours", "NEET PG Pattern (+4 / -1 marking)"],
+  neet_ug: ["180 Questions · 3 Hours", "Physics, Chemistry & Biology (+4 / -1)"],
+  jee: ["75 Questions · 3 Hours", "Physics, Chemistry & Maths (+4 / -1)"],
+};
 
 export default function CbtRegisterPage() {
   const navigate = useNavigate();
+  // /cbt-register?exam=neet_ug|jee preselects the exam from the CBT page
+  const [params] = useSearchParams();
+  const initialStream = isCbtStream(params.get("exam")) ? params.get("exam") as CbtStream : "neet_pg";
   const [cities, setCities] = useState<City[]>([]);
   const [openCityPicker, setOpenCityPicker] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,6 +34,7 @@ export default function CbtRegisterPage() {
     name: "",
     mobile: "",
     email: "",
+    exam_stream: initialStream,
     category: "",
     city: "",
     exam_mode: "" as "Online" | "On Centre" | "",
@@ -52,6 +62,7 @@ export default function CbtRegisterPage() {
       body.append("name", formData.name);
       body.append("mobile", formData.mobile);
       body.append("email", formData.email);
+      body.append("exam_stream", formData.exam_stream);
       body.append("category", formData.category);
       body.append("city", formData.city);
       body.append("registration_type", "CBT");
@@ -129,12 +140,11 @@ export default function CbtRegisterPage() {
               Register for <br /><span className="text-accent">Computer Based Test</span>
             </h1>
             <p className="text-white/70 mb-8 leading-relaxed">
-              Full-length NEET PG mock tests with instant results, all-India rank, and detailed subject-wise analysis.
+              Full-length {cbtStream(formData.exam_stream).label} mock tests with instant results, all-India rank, and detailed subject-wise analysis.
             </p>
             <ul className="space-y-3">
               {[
-                "200 Questions · 3.5 Hours",
-                "NEET PG Pattern (+4 / -1 marking)",
+                ...STREAM_POINTS[formData.exam_stream],
                 "Instant Result & All-India Rank",
                 "Solved Paper with Explanations",
                 "Subject-wise Performance Report",
@@ -154,13 +164,32 @@ export default function CbtRegisterPage() {
               <p className="text-gray-400 text-sm mb-6">Fill in your details to get started with CBT</p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Exam *</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {CBT_STREAMS.map(st => (
+                      <button
+                        key={st.value} type="button"
+                        onClick={() => setFormData(p => ({ ...p, exam_stream: st.value, category: "" }))}
+                        className={`py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                          formData.exam_stream === st.value
+                            ? "bg-primary text-white border-primary shadow-sm"
+                            : "border-gray-200 text-gray-600 hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {st.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Full Name *</label>
                     <input
                       type="text" name="name" value={formData.name}
                       onChange={handleChange} required
-                      placeholder="Dr. Ravi Sharma"
+                      placeholder={formData.exam_stream === "neet_pg" ? "Dr. Ravi Sharma" : "Ravi Sharma"}
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition"
                     />
                   </div>
@@ -188,7 +217,7 @@ export default function CbtRegisterPage() {
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Category *</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {CATEGORIES.map(cat => (
+                    {cbtStream(formData.exam_stream).categories.map(cat => (
                       <button
                         key={cat} type="button"
                         onClick={() => setFormData(p => ({ ...p, category: cat }))}

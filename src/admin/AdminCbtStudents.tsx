@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Search, Download, Loader2, Monitor, Key, X, CheckCircle } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 import * as XLSX from "xlsx";
+import { CBT_STREAMS, cbtStream } from "@/data/cbtStreams";
 
 export default function AdminCbtStudents() {
   const [students, setStudents] = useState<any[]>([]);
   const [term, setTerm] = useState("");
+  const [streamFilter, setStreamFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [resetModal, setResetModal] = useState<{ open: boolean; student: any | null }>({ open: false, student: null });
@@ -23,14 +25,17 @@ export default function AdminCbtStudents() {
   };
 
   const filtered = students.filter(s =>
-    s.name?.toLowerCase().includes(term.toLowerCase()) ||
-    s.email?.toLowerCase().includes(term.toLowerCase()) ||
-    s.mobile?.includes(term)
+    (streamFilter === "all" || (s.exam_stream || "neet_pg") === streamFilter) && (
+      s.name?.toLowerCase().includes(term.toLowerCase()) ||
+      s.email?.toLowerCase().includes(term.toLowerCase()) ||
+      s.mobile?.includes(term)
+    )
   );
 
   const handleExport = () => {
     const rows = filtered.map(s => ({
       "ID": s.id, "Name": s.name, "Email": s.email, "Mobile": s.mobile,
+      "Exam": cbtStream(s.exam_stream).label,
       "City": s.city || "", "Category": s.category || "",
       "Exam Mode": s.exam_mode || "Not specified",
       "Joined": new Date(s.created_at).toLocaleDateString("en-IN"),
@@ -76,8 +81,15 @@ export default function AdminCbtStudents() {
       )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100">
-          <div className="relative max-w-sm">
+        <div className="p-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+          <select
+            value={streamFilter} onChange={e => setStreamFilter(e.target.value)}
+            className="py-2 px-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+          >
+            <option value="all">All exams</option>
+            {CBT_STREAMS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          <div className="relative flex-1 max-w-sm">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={term} onChange={e => setTerm(e.target.value)}
@@ -94,7 +106,7 @@ export default function AdminCbtStudents() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                 <tr>
-                  {["#", "Name", "Mobile", "Email", "City", "Category", "Exam Mode", "Joined", "Actions"].map(h => (
+                  {["#", "Name", "Mobile", "Email", "Exam", "City", "Category", "Exam Mode", "Joined", "Actions"].map(h => (
                     <th key={h} className="px-4 py-3 text-left font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -106,6 +118,7 @@ export default function AdminCbtStudents() {
                     <td className="px-4 py-3 font-semibold text-gray-900">{s.name}</td>
                     <td className="px-4 py-3 text-gray-600">{s.mobile}</td>
                     <td className="px-4 py-3 text-gray-500 text-xs">{s.email || "—"}</td>
+                    <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${cbtStream(s.exam_stream).badgeClass}`}>{cbtStream(s.exam_stream).label}</span></td>
                     <td className="px-4 py-3 text-gray-600">{s.city || "—"}</td>
                     <td className="px-4 py-3"><span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">{s.category || "—"}</span></td>
                     <td className="px-4 py-3">
@@ -125,7 +138,7 @@ export default function AdminCbtStudents() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={9} className="text-center py-12 text-gray-400">No CBT students found</td></tr>
+                  <tr><td colSpan={10} className="text-center py-12 text-gray-400">No CBT students found</td></tr>
                 )}
               </tbody>
             </table>

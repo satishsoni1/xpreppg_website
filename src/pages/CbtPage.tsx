@@ -3,8 +3,34 @@ import MainLayout from "@/layouts/MainLayout";
 import {
   Monitor, Clock, BarChart2, ShieldCheck, CheckCircle2,
   BookOpen, Calendar, Users, Award, ChevronRight,
-  Zap, Target, FileText, MessageCircle,
+  Zap, Target, FileText, MessageCircle, Stethoscope, Atom, Calculator,
 } from "lucide-react";
+import { CbtStream } from "@/data/cbtStreams";
+
+// One card per CBT stream — links to registration with that exam preselected
+const EXAM_TRACKS: {
+  stream: CbtStream; id: string; icon: typeof Monitor; title: string; tag: string;
+  desc: string; points: string[]; tone: string; badge?: string;
+}[] = [
+  {
+    stream: "neet_pg", id: "neet-pg", icon: Stethoscope, title: "NEET PG CBT", tag: "Post-graduate medical",
+    desc: "Full-length NEET PG mocks in the real 5-section, timed format.",
+    points: ["200 questions · 3 hrs 30 min", "5 sections × 42 min", "All 19 subjects", "+4 / −1 marking"],
+    tone: "from-primary to-primaryDark",
+  },
+  {
+    stream: "neet_ug", id: "neet-ug", icon: Atom, title: "NEET UG CBT", tag: "Undergraduate medical", badge: "New",
+    desc: "NTA-pattern NEET UG mocks for Class 11, Class 12 and droppers.",
+    points: ["180 questions · 3 hrs", "Physics, Chemistry, Biology", "NCERT-aligned questions", "+4 / −1 marking"],
+    tone: "from-emerald-600 to-emerald-700",
+  },
+  {
+    stream: "jee", id: "jee", icon: Calculator, title: "JEE CBT", tag: "Engineering entrance", badge: "New",
+    desc: "JEE Main-pattern mocks with a real exam timer and instant analysis.",
+    points: ["75 questions · 3 hrs", "Physics, Chemistry, Maths", "MCQ + numerical questions", "+4 / −1 marking"],
+    tone: "from-orange-500 to-orange-600",
+  },
+];
 
 const FEATURES = [
   {
@@ -97,7 +123,7 @@ export default function CbtPage() {
                 X PREP PG <span className="text-accent">CBT</span>
               </h1>
               <p className="text-white/80 text-xl mb-8 max-w-xl leading-relaxed">
-                Full-length online mock tests for NEET PG — real exam interface, instant results, and detailed performance analysis to help you rank higher.
+                Full-length online mock tests for NEET PG, NEET UG &amp; JEE — real exam interface, instant results, and detailed performance analysis to help you rank higher.
               </p>
               <div className="flex flex-wrap gap-3">
                 <button
@@ -135,6 +161,45 @@ export default function CbtPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-16 space-y-20">
+
+        {/* ── Exam tracks: NEET PG / NEET UG / JEE ─────────────────── */}
+        <div>
+          <div className="text-center mb-10">
+            <span className="text-primary text-xs font-bold uppercase tracking-widest mb-2 block">Choose Your Exam</span>
+            <h2 className="text-3xl font-bold text-navy">CBT Mock Tests for Every Exam</h2>
+            <p className="text-gray-500 mt-2">Same trusted CBT platform — now for NEET UG and JEE aspirants too.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {EXAM_TRACKS.map(({ stream, id, icon: Icon, title, tag, desc, points, tone, badge }) => (
+              <div key={stream} id={id} className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
+                <div className={`bg-gradient-to-br ${tone} p-6 text-white relative`}>
+                  {badge && (
+                    <span className="absolute top-4 right-4 bg-accent text-navy text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full">{badge}</span>
+                  )}
+                  <Icon className="w-9 h-9 mb-4 text-white/90" />
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-white/70">{tag}</p>
+                  <h3 className="text-2xl font-extrabold mt-1">{title}</h3>
+                </div>
+                <div className="p-6 flex flex-col flex-1">
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">{desc}</p>
+                  <ul className="space-y-2 mb-6 flex-1">
+                    {points.map(pt => (
+                      <li key={pt} className="flex items-center gap-2 text-sm text-gray-700">
+                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> {pt}
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => navigate(`/cbt-register?exam=${stream}`)}
+                    className="w-full py-3 rounded-xl font-bold text-sm bg-navy text-white hover:bg-navyLight transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    Register for {title} <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* ── What is CBT ──────────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row gap-12 items-center">

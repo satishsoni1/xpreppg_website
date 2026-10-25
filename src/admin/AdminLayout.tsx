@@ -6,7 +6,7 @@ import {
   Package, Ticket, BarChart3, Award, ImageIcon,
   CalendarDays, MessageSquare, Monitor, Tag, ShoppingBag, Bell,
   BookOpen, ChevronRight, Upload, GraduationCap,
-  ListChecks, Play, PieChart, Layers, Truck, Wallet,
+  ListChecks, Play, PieChart, Layers, Truck, Wallet, UserCheck, Atom, Calculator,
 } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
@@ -76,9 +76,11 @@ export default function AdminLayout() {
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Posters", path: "/admin/posters", icon: <ImageIcon size={18} /> },
     { name: "Shop Products", path: "/admin/poster-packages", icon: <Package size={18} /> },
+    { name: "Flash Cards", path: "/admin/flashcards", icon: <Layers size={18} /> },
     { name: "Poster Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
     { name: "Shipping Charges", path: "/admin/shipping-charges", icon: <Truck size={18} /> },
+    { name: "Influencers", path: "/admin/influencers", icon: <UserCheck size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
     { name: "Income & Expenses", path: "/admin/finance", icon: <Wallet size={18} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={18} /> },
@@ -88,6 +90,8 @@ export default function AdminLayout() {
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "CBT Students", path: "/admin/cbt/students", icon: <Users size={18} />, badge: badges.cbt_new },
     { name: "CBT Exams", path: "/admin/cbt/exams", icon: <Monitor size={18} /> },
+    { name: "NEET UG CBT", path: "/admin/cbt/exams?stream=neet_ug", icon: <Atom size={18} /> },
+    { name: "JEE CBT", path: "/admin/cbt/exams?stream=jee", icon: <Calculator size={18} /> },
     { name: "Exam Manager", path: "/admin/em/exams", icon: <FileQuestion size={18} /> },
     { name: "CBT Enrollments", path: "/admin/em/enrollments", icon: <ListChecks size={18} /> },
     { name: "Analytics", path: "/admin/em/analytics", icon: <PieChart size={18} /> },
@@ -99,6 +103,7 @@ export default function AdminLayout() {
     { name: "Plans", path: "/admin/plans", icon: <Package size={18} /> },
     { name: "Coupons", path: "/admin/coupons", icon: <Ticket size={18} /> },
     { name: "Centers & Cities", path: "/admin/centers", icon: <MapPin size={18} /> },
+    { name: "Influencers", path: "/admin/influencers", icon: <UserCheck size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
     { name: "Income & Expenses", path: "/admin/finance", icon: <Wallet size={18} /> },
     { name: "Reports", path: "/admin/report", icon: <BarChart3 size={18} /> },
@@ -128,7 +133,12 @@ export default function AdminLayout() {
         </div>
       );
     }
-    const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+    // Paths like /admin/cbt/exams?stream=jee are active only when the query matches too
+    const [itemPath, itemQuery = ""] = item.path.split("?");
+    const pathMatch = location.pathname === itemPath || location.pathname.startsWith(itemPath + "/");
+    const isActive = itemQuery
+      ? pathMatch && location.search === `?${itemQuery}`
+      : pathMatch && !(location.pathname === "/admin/cbt/exams" && location.search.includes("stream="));
     return (
       <Link
         to={item.path}

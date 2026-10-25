@@ -44,6 +44,42 @@ export const AdminAPI = {
     return res.json();
   },
 
+  // --- INFLUENCERS ---
+  getInfluencerMeta: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers/meta`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  getInfluencers: async () => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+  createInfluencer: async (data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers`, {
+      method: "POST", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  updateInfluencer: async (id: number, data: any) => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers/${id}`, {
+      method: "PUT", headers: getAuthHeaders(), body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+  toggleInfluencer: async (id: number, is_active: boolean) => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers/${id}/status`, {
+      method: "PATCH", headers: getAuthHeaders(), body: JSON.stringify({ is_active }),
+    });
+    return res.json();
+  },
+  deleteInfluencer: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers/${id}`, { method: "DELETE", headers: getAuthHeaders() });
+    return res.json();
+  },
+  previewInfluencer: async (id: number) => {
+    const res = await fetch(`${API_BASE_URL}/admin/influencers/${id}/preview`, { headers: getAuthHeaders() });
+    return res.json();
+  },
+
   // --- INCOME & EXPENSE LEDGER ---
   getLedger: async (filters: Record<string, string> = {}) => {
     const qs = new URLSearchParams(Object.entries(filters).filter(([, v]) => v)).toString();

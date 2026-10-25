@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Atom, FlaskConical, Leaf, MessageCircle, Truck, ShieldCheck, Repeat } from "lucide-react";
+import { ArrowRight, Stethoscope, GraduationCap, Award, MessageCircle, Truck, ShieldCheck, Repeat } from "lucide-react";
 import { PublicAPI } from "@/services/publicApi";
 import { PosterPackage } from "@/data/posterPackages";
 
 const SUBJECTS = [
-  { name: "Physics", icon: Atom, note: "Formulas, units & key concepts" },
-  { name: "Chemistry", icon: FlaskConical, note: "Reactions, trends & exceptions" },
-  { name: "Biology", icon: Leaf, note: "NCERT facts, diagrams & terms" },
+  { name: "NEET PG", icon: Stethoscope, note: "High-yield facts across all 19 subjects" },
+  { name: "INI-CET", icon: Award, note: "Concept-based recall for AIIMS-level questions" },
+  { name: "FMGE", icon: GraduationCap, note: "Clinical one-liners & must-know topics" },
 ];
 
 const PERKS = [
@@ -34,13 +34,13 @@ export default function FlashcardSpotlight() {
       <div className="relative max-w-7xl mx-auto grid lg:grid-cols-5 gap-12 items-center">
         <div className="lg:col-span-2">
           <span className="inline-block bg-accent text-navy text-[11px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full mb-5">
-            New · NEET UG
+            New · NEET PG · INI-CET · FMGE
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
-            Flash cards that make NEET UG revision stick
+            Flash cards that make NEET PG, INI-CET & FMGE revision stick
           </h2>
           <p className="text-white/70 text-lg leading-relaxed mb-8">
-            Short, focused cards for Physics, Chemistry and Biology. Flip, recall, repeat — a few minutes a day adds up.
+            Short, focused cards covering all 19 subjects. Flip, recall, repeat — a few minutes a day adds up.
           </p>
           <ul className="space-y-3 mb-9">
             {PERKS.map(({ icon: Icon, text }) => (
@@ -54,14 +54,14 @@ export default function FlashcardSpotlight() {
           </ul>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => navigate("/neet-ug-flashcards")}
+              onClick={() => navigate("/flashcards")}
               className="group inline-flex items-center justify-center gap-2 bg-accent hover:brightness-95 text-navy px-7 py-4 rounded-xl font-bold transition"
             >
               Shop flash cards
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <a
-              href="https://wa.me/919370100887?text=Hi%2C%20I%27m%20interested%20in%20NEET%20UG%20flash%20cards"
+              href="https://wa.me/919370100887?text=Hi%2C%20I%27m%20interested%20in%20NEET%20PG%20%2F%20FMGE%20%2F%20INI-CET%20flash%20cards"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 border border-white/20 hover:bg-white/10 text-white px-7 py-4 rounded-xl font-semibold transition"
             >
@@ -75,7 +75,7 @@ export default function FlashcardSpotlight() {
             ? sets.map(set => (
                 <button
                   key={set.id}
-                  onClick={() => navigate("/neet-ug-flashcards")}
+                  onClick={() => navigate("/flashcards")}
                   className="group text-left bg-white rounded-3xl overflow-hidden shadow-lift hover:-translate-y-1 transition-transform"
                 >
                   <div className="aspect-[4/3] bg-secondary overflow-hidden">

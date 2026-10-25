@@ -55,7 +55,7 @@ export const PublicAPI = {
     }
   },
 
-  // category: "poster" (NEET PG posters) | "flashcard" (NEET UG flash cards)
+  // category: "poster" (NEET PG posters) | "flashcard" (NEET PG / INI-CET / FMGE flash cards)
   getPosterPackages: async (category?: "poster" | "flashcard") => {
     try {
       const qs = category ? `?category=${category}` : "";

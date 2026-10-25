@@ -7,12 +7,12 @@ import {
 // Product line → group labels shown as sections on that store page
 const CATEGORY_OPTIONS = [
   { value: "poster",    label: "NEET PG Poster" },
-  { value: "flashcard", label: "NEET UG Flash Cards" },
+  { value: "flashcard", label: "Flash Cards (NEET PG · FMGE · INI-CET)" },
 ];
 
 const SUBJECT_OPTIONS: Record<string, string[]> = {
   poster: ["Short Subject Combo", "Medium Subject Combo", "Long Subject Pack"],
-  flashcard: ["Physics", "Chemistry", "Biology", "Complete NEET UG Set"],
+  flashcard: ["NEET PG", "INI-CET", "FMGE", "Combo Pack (NEET PG + INI-CET + FMGE)"],
 };
 
 const emptyForm = {
@@ -30,9 +30,12 @@ const emptyForm = {
   image_url2: "",
 };
 
-export default function AdminPosterPackages() {
+// `category` locks the page to one product line — the sidebar's "Flash Cards"
+// section uses it; without it this is the combined Shop Products page.
+export default function AdminPosterPackages({ category }: { category?: "poster" | "flashcard" }) {
+  const isFlashcards = category === "flashcard";
   const [packages, setPackages] = useState<any[]>([]);
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>(category ?? "all");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -60,7 +63,7 @@ export default function AdminPosterPackages() {
   };
 
   const openCreate = () => {
-    setForm(emptyForm);
+    setForm({ ...emptyForm, category: category ?? (categoryFilter === "all" ? "poster" : categoryFilter) });
     setImageFile(null); setImagePreview(null);
     setImageFile2(null); setImagePreview2(null);
     setEditingId(null);
@@ -170,24 +173,31 @@ export default function AdminPosterPackages() {
     else alert(res.message);
   };
 
+  const visiblePackages = packages.filter(p => categoryFilter === "all" || (p.category ?? "poster") === categoryFilter);
+
   const discountPct = (price: string, orig: string) =>
     orig && Number(orig) > 0 ? Math.round((1 - Number(price) / Number(orig)) * 100) : 0;
 
   return (
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Layers className="text-primary" /> Shop Products
-        </h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <Layers className="text-primary" /> {isFlashcards ? "Flash Cards" : "Shop Products"}
+          </h1>
+          {isFlashcards && (
+            <p className="text-sm text-gray-500 mt-0.5">NEET PG · INI-CET · FMGE flash card sets sold on the website at /flashcards</p>
+          )}
+        </div>
         <button
           onClick={openCreate}
           className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-primaryDark transition shadow-sm"
         >
-          <Plus size={18} /> Add Package
+          <Plus size={18} /> {isFlashcards ? "Upload Flash Card Set" : "Add Package"}
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className={`flex flex-wrap gap-2 mb-6 ${category ? "hidden" : ""}`}>
         {[{ value: "all", label: "All" }, ...CATEGORY_OPTIONS].map(c => (
           <button
             key={c.value}
@@ -207,7 +217,9 @@ export default function AdminPosterPackages() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-gray-800">
-                {editingId ? "Edit Package" : "Add New Package"}
+                {isFlashcards
+                  ? (editingId ? "Edit Flash Card Set" : "Upload Flash Card Set")
+                  : (editingId ? "Edit Package" : "Add New Package")}
               </h2>
               <button onClick={closeForm} className="text-gray-400 hover:text-gray-700 transition">
                 <X size={24} />
@@ -288,14 +300,14 @@ export default function AdminPosterPackages() {
 
               <input
                 required
-                placeholder="Package Title *"
+                placeholder={form.category === "flashcard" ? "Flash Card Set Title * (e.g. NEET PG Pharmacology Cards)" : "Package Title *"}
                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               />
 
-              {/* Product line */}
-              <div>
+              {/* Product line — fixed when the page is locked to one category */}
+              <div className={category ? "hidden" : ""}>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Product Line *</label>
                 <div className="grid grid-cols-2 gap-2">
                   {CATEGORY_OPTIONS.map(c => (
@@ -314,7 +326,7 @@ export default function AdminPosterPackages() {
 
               {/* Subject dropdown */}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Subject / Group Label</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">{form.category === "flashcard" ? "Exam / Group Label" : "Subject / Group Label"}</label>
                 <select
                   className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none bg-white"
                   value={form.subject}
@@ -368,7 +380,7 @@ export default function AdminPosterPackages() {
               <textarea
                 required
                 rows={3}
-                placeholder="Description — what subjects / posters are in this package?"
+                placeholder={form.category === "flashcard" ? "Description — which exam, subjects and how many cards are in this set?" : "Description — what subjects / posters are in this package?"}
                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none resize-none"
                 value={form.description}
                 onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -429,21 +441,21 @@ export default function AdminPosterPackages() {
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
           <p>Loading packages…</p>
         </div>
-      ) : packages.length === 0 ? (
+      ) : visiblePackages.length === 0 ? (
         <div className="text-center py-24 border-2 border-dashed border-gray-200 rounded-2xl">
           <Layers className="w-14 h-14 text-gray-200 mx-auto mb-4" />
-          <p className="text-gray-500 font-semibold text-lg">No packages yet</p>
+          <p className="text-gray-500 font-semibold text-lg">{isFlashcards ? "No flash card sets yet" : "No packages yet"}</p>
           <p className="text-gray-400 text-sm mt-1 mb-6">Run the DB migration then add or edit packages</p>
           <button
             onClick={openCreate}
             className="inline-flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primaryDark transition"
           >
-            <Plus size={16} /> Add First Package
+            <Plus size={16} /> {isFlashcards ? "Upload First Flash Card Set" : "Add First Package"}
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.filter(p => categoryFilter === "all" || (p.category ?? "poster") === categoryFilter).map((pkg) => (
+          {visiblePackages.map((pkg) => (
             <div
               key={pkg.id}
               className={`rounded-xl border overflow-hidden shadow-sm transition ${
@@ -453,7 +465,7 @@ export default function AdminPosterPackages() {
               {/* Image */}
               <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
                 <span className="absolute top-2 left-2 z-10 bg-white/90 text-navy text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                  {pkg.category === "flashcard" ? "NEET UG Flash Cards" : "NEET PG Poster"}
+                  {pkg.category === "flashcard" ? "Flash Cards" : "NEET PG Poster"}
                 </span>
                 {pkg.image_url ? (
                   <div className="relative w-full h-full">

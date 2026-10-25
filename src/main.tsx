@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 import ContactPage from "./pages/ContactPage";
@@ -76,12 +76,17 @@ import AdminCBTResultAnalysis from "./admin/AdminCBTResultAnalysis";
 import StudentCBTExams from "./student/StudentCBTExams";
 import StudentCBTExam from "./student/StudentCBTExam";
 import StudentCBTResult from "./student/StudentCBTResult";
+import AdminInfluencers from "./admin/AdminInfluencers";
+import InfluencerLogin from "./pages/InfluencerLogin";
+import InfluencerPortal from "./pages/InfluencerPortal";
 
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/shop", element: <ShopPage category="poster" /> },
-  { path: "/neet-ug-flashcards", element: <ShopPage category="flashcard" /> },
+  { path: "/flashcards", element: <ShopPage category="flashcard" /> },
+  // Old link from when flash cards were for NEET UG
+  { path: "/neet-ug-flashcards", element: <Navigate to="/flashcards" replace /> },
   { path: "/xrevise-program", element: <XRevisePage /> },
   // Former XRevise sub-pages now open the matching section of /xrevise-program
   { path: "/about", element: <XRevisePage section="about" /> },
@@ -95,6 +100,8 @@ const router = createBrowserRouter([
   { path: "/student/login", element: <StudentLogin /> },
   { path: "/exam-portal/:examId", element: <StudentExamPortal /> },
   { path: "/admin/login", element: <AdminLogin /> },
+  { path: "/influencer/login", element: <InfluencerLogin /> },
+  { path: "/influencer", element: <InfluencerPortal /> },
   { path: "/privacy", element: <PrivacyPolicy /> },
   { path: "/cbt", element: <CbtPage /> },
   { path: "/cbt-register", element: <CbtRegisterPage /> },
@@ -146,10 +153,12 @@ const router = createBrowserRouter([
       { path: "report", element: <AdminReports /> },
       { path: "upload-json", element: <AdminJsonUpload /> },
       { path: "posters", element: <AdminPosters /> },
-      { path: "poster-packages", element: <AdminPosterPackages /> },
+      { path: "poster-packages", element: <AdminPosterPackages key="all" /> },
+      { path: "flashcards", element: <AdminPosterPackages key="flashcard" category="flashcard" /> },
       { path: "poster-promos", element: <AdminPosterPromos /> },
       { path: "poster-orders", element: <AdminPosterOrders /> },
       { path: "finance", element: <AdminFinance /> },
+      { path: "influencers", element: <AdminInfluencers /> },
       { path: "shipping-charges", element: <AdminShippingCharges /> },
       { path: "whatsapp-scheduler", element: <AdminWhatsAppScheduler /> },
       { path: "xrevise/students", element: <AdminXreviseStudents /> },
