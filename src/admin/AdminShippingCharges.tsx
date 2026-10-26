@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
 import { Truck, Plus, Trash2, X, Save, Loader2, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { AdminAPI } from "@/services/adminApi";
+
+type Category = "poster" | "flashcard";
+const CATEGORY_LABEL: Record<Category, string> = { poster: "Posters", flashcard: "Flash Cards" };
 
 const emptyForm = { min_qty: "", max_qty: "", charge: "", sort_order: "0", is_active: true };
 
 export default function AdminShippingCharges() {
-  const [tiers, setTiers] = useState<any[]>([]);
+  // ?category=flashcard comes from the sidebar's "Flash Card Delivery" link
+  const [params, setParams] = useSearchParams();
+  const category: Category = params.get("category") === "flashcard" ? "flashcard" : "poster";
+  const [allTiers, setTiers] = useState<any[]>([]);
+  const tiers = allTiers.filter(t => (t.category || "poster") === category);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editTier, setEditTier] = useState<any | null>(null);
@@ -45,6 +53,7 @@ export default function AdminShippingCharges() {
         charge: Number(form.charge),
         sort_order: Number(form.sort_order) || 0,
         is_active: form.is_active,
+        category,
       };
       let res;
       if (editTier) res = await AdminAPI.updateShippingChargeTier(editTier.id, payload);
@@ -64,15 +73,27 @@ export default function AdminShippingCharges() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Truck className="text-primary" size={22} /> Shipping Charges
+          <Truck className="text-primary" size={22} /> {category === "flashcard" ? "Flash Card Delivery Charges" : "Poster Delivery Charges"}
         </h1>
         <button onClick={openAdd} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primaryDark transition">
           <Plus size={16} /> Add Tier
         </button>
       </div>
+      <div className="flex gap-2 mb-4">
+        {(Object.keys(CATEGORY_LABEL) as Category[]).map(c => (
+          <button key={c} onClick={() => setParams(c === "poster" ? {} : { category: c })}
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition ${
+              category === c ? "bg-primary text-white border-primary" : "border-gray-300 text-gray-600 hover:border-primary"
+            }`}>
+            {CATEGORY_LABEL[c]}
+          </button>
+        ))}
+      </div>
       <p className="text-sm text-gray-500 mb-4">
-        Delivery charge for a poster order is picked by matching the total number of posters in the cart
-        (summed across all packages) against these tiers. Leave "Max Qty" blank for "and above".
+        {category === "flashcard"
+          ? "Delivery charge for a flash card order is picked by matching the number of flash card sets in the cart (each product's \"Shipping Qty\") against these tiers."
+          : "Delivery charge for a poster order is picked by matching the total number of posters in the cart (summed across all packages) against these tiers."}
+        {" "}Leave "Max Qty" blank for "and above".
       </p>
 
       {loading ? (
@@ -120,7 +141,7 @@ export default function AdminShippingCharges() {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-gray-800">{editTier ? "Edit Tier" : "Add Shipping Tier"}</h2>
+              <h2 className="text-xl font-bold text-gray-800">{editTier ? "Edit Tier" : `Add ${CATEGORY_LABEL[category]} Delivery Tier`}</h2>
               <button onClick={() => setShowForm(false)}><X size={22} className="text-gray-400" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">

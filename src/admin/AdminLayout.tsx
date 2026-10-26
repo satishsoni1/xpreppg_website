@@ -80,6 +80,7 @@ export default function AdminLayout() {
     { name: "Flash Card Promos", path: "/admin/flashcard-promos", icon: <Ticket size={18} /> },
     { name: "Shop Promos", path: "/admin/poster-promos", icon: <Tag size={18} /> },
     { name: "Poster Orders", path: "/admin/poster-orders", icon: <ShoppingBag size={18} /> },
+    { name: "Flash Card Delivery", path: "/admin/shipping-charges?category=flashcard", icon: <Truck size={18} /> },
     { name: "Shipping Charges", path: "/admin/shipping-charges", icon: <Truck size={18} /> },
     { name: "Influencers", path: "/admin/influencers", icon: <UserCheck size={18} /> },
     { name: "WhatsApp Scheduler", path: "/admin/whatsapp-scheduler", icon: <MessageSquare size={18} /> },
@@ -134,12 +135,13 @@ export default function AdminLayout() {
         </div>
       );
     }
-    // Paths like /admin/cbt/exams?stream=jee are active only when the query matches too
+    // Paths with a query (/admin/cbt/exams?stream=jee) are active only when it matches;
+    // the plain path loses its highlight while a query-specific sibling is active
     const [itemPath, itemQuery = ""] = item.path.split("?");
     const pathMatch = location.pathname === itemPath || location.pathname.startsWith(itemPath + "/");
     const isActive = itemQuery
       ? pathMatch && location.search === `?${itemQuery}`
-      : pathMatch && !(location.pathname === "/admin/cbt/exams" && location.search.includes("stream="));
+      : pathMatch && !menuItems.some(m => m.path === location.pathname + location.search && m.path.includes("?"));
     return (
       <Link
         to={item.path}

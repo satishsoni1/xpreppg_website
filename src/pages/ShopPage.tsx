@@ -62,18 +62,24 @@ const GROUP_HEADINGS: Record<string, string> = {
   "Long Subject Pack": "Long Subject Packs",
 };
 
-interface ShippingTier { min_qty: number; max_qty: number | null; charge: number; }
+interface ShippingTier { min_qty: number; max_qty: number | null; charge: number; category?: StoreCategory; }
 
-// Mirrors the server-side tier lookup in shippingChargeController.calculateShippingCharge —
-// used here only to show the customer an accurate estimate; the backend re-derives
-// the authoritative charge from the DB at order-creation time.
+// Mirrors the server-side lookup in shippingChargeController.calculateCartShipping —
+// each product line (posters / flash cards) has its own tiers. Used here only to show
+// the customer an accurate estimate; the backend re-derives the authoritative charge
+// from the DB at order-creation time.
 function computeShipping(cart: PosterPackage[], tiers: ShippingTier[]): number {
-  const totalQty = cart.reduce((s, p) => s + (p.poster_qty || 1), 0);
-  if (totalQty === 0) return 0;
-  const match = tiers
-    .filter(t => t.min_qty <= totalQty && (t.max_qty == null || t.max_qty >= totalQty))
-    .sort((a, b) => b.min_qty - a.min_qty)[0];
-  return match ? match.charge : FALLBACK_SHIPPING;
+  const qtyByCategory: Partial<Record<StoreCategory, number>> = {};
+  for (const p of cart) {
+    const c: StoreCategory = p.category === "flashcard" ? "flashcard" : "poster";
+    qtyByCategory[c] = (qtyByCategory[c] || 0) + (p.poster_qty || 1);
+  }
+  return (Object.entries(qtyByCategory) as [StoreCategory, number][]).reduce((total, [category, qty]) => {
+    const match = tiers
+      .filter(t => (t.category || "poster") === category && t.min_qty <= qty && (t.max_qty == null || t.max_qty >= qty))
+      .sort((a, b) => b.min_qty - a.min_qty)[0];
+    return total + (match ? Number(match.charge) : FALLBACK_SHIPPING);
+  }, 0);
 }
 
 // ── Image copy-protection ──────────────────────────────────────────────────────
