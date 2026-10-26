@@ -25,8 +25,8 @@ const PROGRAMS = [
   {
     exam: "NEET PG · INI-CET · FMGE",
     title: "Flash Cards",
-    desc: "Printed, high-yield flash card sets for NEET PG, INI-CET and FMGE — revise anywhere, in minutes a day.",
-    points: ["All 19 subjects", "Printed & shipped", "Exam-wise sets"],
+    desc: "Medicine, Surgery, OBGY and Community Medicine flash cards with clinical images, tables and flowcharts — for NEET PG, INI-CET and FMGE.",
+    points: ["High-yield points", "Clinical images & flowcharts", "Printed & shipped"],
     to: "/flashcards",
     cta: "Shop flash cards",
     icon: Layers,

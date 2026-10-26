@@ -2,13 +2,26 @@ import { useState, useEffect } from "react";
 import { Tag, Plus, Trash2, X, Save, Loader2, Edit2, ToggleLeft, ToggleRight } from "lucide-react";
 import { AdminAPI } from "@/services/adminApi";
 
+type AppliesTo = "all" | "poster" | "flashcard";
+
+const APPLIES_TO_LABEL: Record<AppliesTo, string> = {
+  all: "All shop products",
+  poster: "Posters only",
+  flashcard: "Flash cards only",
+};
+
 const emptyForm = {
+  applies_to: "all" as AppliesTo,
   code: "", discount_type: "percentage", discount_value: "",
   min_order_amount: "", usage_limit: "", valid_until: "", is_active: true,
 };
 
-export default function AdminPosterPromos() {
-  const [promos, setPromos] = useState<any[]>([]);
+// `appliesTo` locks the page to one product line — the sidebar's "Flash Card
+// Promos" section uses it; without it every shop promo code is listed.
+export default function AdminPosterPromos({ appliesTo }: { appliesTo?: "flashcard" }) {
+  const isFlashcards = appliesTo === "flashcard";
+  const [allPromos, setPromos] = useState<any[]>([]);
+  const promos = appliesTo ? allPromos.filter(p => p.applies_to === appliesTo) : allPromos;
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editPromo, setEditPromo] = useState<any | null>(null);
@@ -25,10 +38,11 @@ export default function AdminPosterPromos() {
     } finally { setLoading(false); }
   };
 
-  const openAdd = () => { setEditPromo(null); setForm({ ...emptyForm }); setShowForm(true); };
+  const openAdd = () => { setEditPromo(null); setForm({ ...emptyForm, applies_to: appliesTo ?? "all" }); setShowForm(true); };
   const openEdit = (p: any) => {
     setEditPromo(p);
     setForm({
+      applies_to: p.applies_to || "all",
       code: p.code, discount_type: p.discount_type, discount_value: p.discount_value?.toString() || "",
       min_order_amount: p.min_order_amount?.toString() || "", usage_limit: p.usage_limit?.toString() || "",
       valid_until: p.valid_until ? p.valid_until.substring(0, 10) : "", is_active: p.is_active,
@@ -64,7 +78,7 @@ export default function AdminPosterPromos() {
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Tag className="text-primary" size={22} /> Poster Promo Codes
+          <Tag className="text-primary" size={22} /> {isFlashcards ? "Flash Card Promo Codes" : "Shop Promo Codes"}
         </h1>
         <button onClick={openAdd} className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primaryDark transition">
           <Plus size={16} /> Add Promo
@@ -79,7 +93,7 @@ export default function AdminPosterPromos() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                 <tr>
-                  {["Code", "Type", "Value", "Min Order", "Limit", "Used", "Expires", "Status", "Actions"].map(h => (
+                  {["Code", "Applies To", "Type", "Value", "Min Order", "Limit", "Used", "Expires", "Status", "Actions"].map(h => (
                     <th key={h} className="px-4 py-3 text-left font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -88,6 +102,13 @@ export default function AdminPosterPromos() {
                 {promos.map(p => (
                   <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-bold text-primary">{p.code}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
+                        p.applies_to === "flashcard" ? "bg-pink-100 text-pink-700" : p.applies_to === "poster" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
+                      }`}>
+                        {APPLIES_TO_LABEL[(p.applies_to || "all") as AppliesTo]}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-gray-600 capitalize">{p.discount_type}</td>
                     <td className="px-4 py-3 font-semibold">{p.discount_type === "percentage" ? `${p.discount_value}%` : `₹${p.discount_value}`}</td>
                     <td className="px-4 py-3 text-gray-600">₹{p.min_order_amount || 0}</td>
@@ -108,7 +129,7 @@ export default function AdminPosterPromos() {
                   </tr>
                 ))}
                 {promos.length === 0 && (
-                  <tr><td colSpan={9} className="text-center py-12 text-gray-400">No promo codes yet</td></tr>
+                  <tr><td colSpan={10} className="text-center py-12 text-gray-400">{isFlashcards ? "No flash card promo codes yet" : "No promo codes yet"}</td></tr>
                 )}
               </tbody>
             </table>
@@ -120,7 +141,7 @@ export default function AdminPosterPromos() {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-gray-800">{editPromo ? "Edit Promo Code" : "Add Promo Code"}</h2>
+              <h2 className="text-xl font-bold text-gray-800">{editPromo ? "Edit Promo Code" : isFlashcards ? "Add Flash Card Promo Code" : "Add Promo Code"}</h2>
               <button onClick={() => setShowForm(false)}><X size={22} className="text-gray-400" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,8 +149,27 @@ export default function AdminPosterPromos() {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Promo Code *</label>
                 <input required value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm font-mono font-bold tracking-widest focus:ring-2 focus:ring-primary outline-none"
-                  placeholder="SAVE20" disabled={!!editPromo} />
+                  placeholder={isFlashcards ? "CARDS20" : "SAVE20"} disabled={!!editPromo} />
               </div>
+              {/* Product line — fixed on the Flash Card Promos page */}
+              <div className={appliesTo ? "hidden" : ""}>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Applies To *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(Object.keys(APPLIES_TO_LABEL) as AppliesTo[]).map(a => (
+                    <button key={a} type="button" onClick={() => setForm(f => ({ ...f, applies_to: a }))}
+                      className={`py-2 rounded-lg border text-xs font-semibold transition ${
+                        form.applies_to === a ? "border-primary bg-secondary text-primary" : "border-gray-200 text-gray-600 hover:border-primary"
+                      }`}>
+                      {APPLIES_TO_LABEL[a]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {form.applies_to !== "all" && (
+                <p className="text-xs text-gray-500 -mt-2">
+                  Discount and minimum order apply only to the {form.applies_to === "flashcard" ? "flash card" : "poster"} items in the cart.
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Discount Type *</label>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { AdminAPI } from "@/services/adminApi";
+import { FLASHCARD_SUBJECTS } from "@/data/flashcardSubjects";
 import {
   Layers, Save, Loader2, Eye, EyeOff, Trash2, X, Plus, Tag, Pencil, ImageIcon,
 } from "lucide-react";
@@ -12,7 +13,7 @@ const CATEGORY_OPTIONS = [
 
 const SUBJECT_OPTIONS: Record<string, string[]> = {
   poster: ["Short Subject Combo", "Medium Subject Combo", "Long Subject Pack"],
-  flashcard: ["NEET PG", "INI-CET", "FMGE", "Combo Pack (NEET PG + INI-CET + FMGE)"],
+  flashcard: [...FLASHCARD_SUBJECTS.map(s => s.name), "Combo Pack"],
 };
 
 const emptyForm = {
@@ -330,7 +331,12 @@ export default function AdminPosterPackages({ category }: { category?: "poster" 
                 <select
                   className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none bg-white"
                   value={form.subject}
-                  onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
+                  onChange={e => {
+                    const subject = e.target.value;
+                    // Picking a flash card subject fills its standard description if none is typed yet
+                    const preset = form.category === "flashcard" ? FLASHCARD_SUBJECTS.find(s => s.name === subject) : undefined;
+                    setForm(f => ({ ...f, subject, description: f.description.trim() || !preset ? f.description : preset.description }));
+                  }}
                 >
                   <option value="">— Select group —</option>
                   {(SUBJECT_OPTIONS[form.category] || []).map(s => <option key={s} value={s}>{s}</option>)}

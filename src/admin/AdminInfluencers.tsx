@@ -282,7 +282,7 @@ export default function AdminInfluencers() {
               {/* Promo codes */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Linked promo codes</label>
-                <p className="text-xs text-gray-400 mb-2">Poster &amp; flash card orders paid with these codes are counted for this influencer. Create codes under Poster Promos.</p>
+                <p className="text-xs text-gray-400 mb-2">Poster &amp; flash card orders paid with these codes are counted for this influencer. Create codes under Flash Card Promos or Shop Promos.</p>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {allCodes.length === 0 && <span className="text-xs text-gray-400">No promo codes exist yet.</span>}
                   {allCodes.map(code => {

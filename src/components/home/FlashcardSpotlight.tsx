@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Stethoscope, GraduationCap, Award, MessageCircle, Truck, ShieldCheck, Repeat } from "lucide-react";
+import { ArrowRight, MessageCircle, Truck, ShieldCheck, Repeat } from "lucide-react";
+import { FLASHCARD_SUBJECTS } from "@/data/flashcardSubjects";
 import { PublicAPI } from "@/services/publicApi";
 import { PosterPackage } from "@/data/posterPackages";
 
-const SUBJECTS = [
-  { name: "NEET PG", icon: Stethoscope, note: "High-yield facts across all 19 subjects" },
-  { name: "INI-CET", icon: Award, note: "Concept-based recall for AIIMS-level questions" },
-  { name: "FMGE", icon: GraduationCap, note: "Clinical one-liners & must-know topics" },
-];
 
 const PERKS = [
   { icon: Repeat, text: "Built for quick, repeated daily revision" },
@@ -40,7 +36,7 @@ export default function FlashcardSpotlight() {
             Flash cards that make NEET PG, INI-CET & FMGE revision stick
           </h2>
           <p className="text-white/70 text-lg leading-relaxed mb-8">
-            Short, focused cards covering all 19 subjects. Flip, recall, repeat — a few minutes a day adds up.
+            General Medicine, Surgery, OBGY and Community Medicine — high-yield points, clinical images, tables and flowcharts. Flip, recall, repeat.
           </p>
           <ul className="space-y-3 mb-9">
             {PERKS.map(({ icon: Icon, text }) => (
@@ -70,7 +66,7 @@ export default function FlashcardSpotlight() {
           </div>
         </div>
 
-        <div className="lg:col-span-3 grid sm:grid-cols-3 gap-4">
+        <div className={`lg:col-span-3 grid gap-4 ${sets.length > 0 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
           {sets.length > 0
             ? sets.map(set => (
                 <button
@@ -91,20 +87,21 @@ export default function FlashcardSpotlight() {
                   </div>
                 </button>
               ))
-            : SUBJECTS.map(({ name, icon: Icon, note }, i) => (
-                <div
+            : FLASHCARD_SUBJECTS.map(({ name, note, box, boxText }) => (
+                // Styled after the printed X PREP boxes: subject colour, white/black "X" stripes
+                <button
                   key={name}
-                  className={`rounded-3xl p-6 min-h-[13rem] flex flex-col shadow-lift ${
-                    i === 1 ? "bg-primary text-white sm:-translate-y-4" : "bg-white text-navy"
-                  }`}
+                  onClick={() => navigate("/flashcards")}
+                  className={`group relative text-left rounded-3xl p-6 min-h-[12rem] flex flex-col overflow-hidden shadow-lift hover:-translate-y-1 transition-transform ${box} ${boxText}`}
                 >
-                  <Icon className={`w-8 h-8 mb-6 ${i === 1 ? "text-accent" : "text-primary"}`} />
-                  <h3 className="text-2xl font-extrabold mb-2">{name}</h3>
-                  <p className={`text-sm leading-relaxed ${i === 1 ? "text-white/75" : "text-gray-500"}`}>{note}</p>
-                  <span className={`mt-auto pt-6 text-xs font-bold uppercase tracking-widest ${i === 1 ? "text-accent" : "text-primary"}`}>
-                    Launching soon
-                  </span>
-                </div>
+                  <span className="absolute -top-6 right-6 w-6 h-40 bg-white rotate-[35deg]" aria-hidden="true" />
+                  <span className="absolute -top-6 right-14 w-10 h-40 bg-black/85 rotate-[35deg]" aria-hidden="true" />
+                  <span className="absolute -top-6 right-[5.5rem] w-2 h-40 bg-white rotate-[35deg]" aria-hidden="true" />
+                  <p className="relative text-lg font-black leading-none">X PREP</p>
+                  <h3 className="relative text-2xl font-black uppercase leading-tight mt-1 max-w-[70%]">{name}</h3>
+                  <p className="relative text-[11px] font-semibold uppercase tracking-[0.3em] text-white mt-1">Flash Cards</p>
+                  <p className="relative text-sm font-medium mt-auto pt-5 leading-snug opacity-90">{note}</p>
+                </button>
               ))}
         </div>
       </div>

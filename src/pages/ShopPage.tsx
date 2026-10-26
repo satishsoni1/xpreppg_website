@@ -45,8 +45,8 @@ const STORES: Record<StoreCategory, StoreConfig> = {
   flashcard: {
     badge: "NEET PG · INI-CET · FMGE",
     title: "Medical Flash Cards",
-    subtitle: "Printed, high-yield flash card sets for NEET PG, INI-CET & FMGE — quick daily recall of facts, one-liners and clinical pearls, shipped to your door.",
-    chips: ["Printed & shipped", "All 19 subjects", "Secure payment"],
+    subtitle: "General Medicine, Surgery, OBGY and Community Medicine flash cards with high-yield points, clinical images, tables and flowcharts — for rapid NEET PG, INI-CET & FMGE revision, shipped to your door.",
+    chips: ["Clinical images", "Tables & flowcharts", "Printed & shipped"],
     itemNoun: "flash card set",
     paymentName: "XPrepPG Flash Cards",
     watermark: "© XPrepPG — Preview Only",
@@ -134,7 +134,8 @@ function CheckoutModal({ cart, tiers, store, onClose }: { cart: PosterPackage[];
       const res = await fetch(`${API_BASE_URL}/poster-orders/validate-promo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode, subtotal }),
+        // The server prices the items and applies the code only to the product lines it covers
+        body: JSON.stringify({ code: promoCode, subtotal, items: cart.map(p => p.id) }),
       });
       const data = await res.json();
       if (data.valid) {
