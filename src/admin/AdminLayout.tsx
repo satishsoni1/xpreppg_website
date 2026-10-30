@@ -35,6 +35,30 @@ export default function AdminLayout() {
     if (window.innerWidth < 768) setIsOpen(false);
   }, []);
 
+  // Admin tokens expire after 12h; send the admin back to login instead of
+  // letting API calls fail with "Token is not valid".
+  useEffect(() => {
+    const expireSession = () => {
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_user");
+      navigate("/admin/login", { replace: true });
+    };
+    const token = localStorage.getItem("admin_token");
+    if (!token) { expireSession(); return; }
+    let expMs = 0;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      expMs = (payload.exp || 0) * 1000;
+    } catch { expireSession(); return; }
+    const remaining = expMs - Date.now();
+    if (remaining <= 0) { expireSession(); return; }
+    const timer = setTimeout(() => {
+      alert("Your admin session has expired. Please log in again.");
+      expireSession();
+    }, remaining);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   useEffect(() => {
     AdminAPI.getStats().then(res => {
       if (res.status && res.stats) {
